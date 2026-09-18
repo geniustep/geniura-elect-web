@@ -831,3 +831,135 @@ a {
     flex-direction: column;
   }
 }
+
+
+.protocol-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 18px;
+  align-items: start;
+}
+
+.workflow-panel {
+  position: sticky;
+  top: 92px;
+  padding: 22px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--surface);
+}
+
+.workflow-panel h2 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.workflow-panel > p:not(.eyebrow) {
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.workflow-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.workflow-stats {
+  display: grid;
+  gap: 8px;
+  margin: 18px 0;
+}
+
+.workflow-stats > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.workflow-stats dt {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.workflow-stats dd {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.document-list {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.document-list > div {
+  display: grid;
+  gap: 3px;
+  padding: 10px 11px;
+  border-radius: 10px;
+  background: var(--surface-soft);
+}
+
+.document-list strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+}
+
+.document-list small {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.workflow-actions {
+  display: grid;
+  gap: 9px;
+}
+
+.secondary-button,
+.danger-button {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 13px;
+  border-radius: 10px;
+  font-weight: 800;
+}
+
+.secondary-button {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+}
+
+.danger-button {
+  border: 1px solid #f3b8b3;
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+.file-button {
+  cursor: pointer;
+}
+
+.file-button input {
+  display: none;
+}
+
+@media (max-width: 980px) {
+  .protocol-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .workflow-panel {
+    position: static;
+  }
+}
