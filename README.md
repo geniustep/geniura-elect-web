@@ -46,3 +46,27 @@ Polling-office pages now support election-day incident reporting. Assigned users
 record operational incidents with category and urgency, while coordinator/manager
 roles can acknowledge, resolve and close them through the BFF. Command Center shows
 open incident counts alongside coverage and protocol completion.
+
+
+## Phase 1 scope
+
+The first operational rollout is scoped to:
+
+- Organization: حزب العدالة والتنمية
+- Region: جهة طنجة–تطوان–الحسيمة
+- Product surface: regional election operations only for this first rollout
+
+The underlying architecture remains organization-aware and region-aware so future
+rollouts can add other regional scopes without redesigning the application.
+
+## Branding asset
+
+Primary logo path:
+
+`public/logo.png`
+
+The application should reference it as:
+
+`/logo.png`
+
+Do not commit secrets or private credentials under `public/`.
