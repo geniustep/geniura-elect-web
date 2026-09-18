@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 concurrency:
-  group: web-quality-${{ github.ref }}
+  group: web-quality-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
 
 jobs:
@@ -33,3 +33,4 @@ jobs:
         run: npm run build
         env:
           ELECT_BACKEND_URL: https://backend.invalid
+          ELECT_BFF_SECRET: ci-bff-secret
