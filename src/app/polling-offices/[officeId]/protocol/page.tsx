@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 
 import { AppHeader } from "@/components/navigation/app-header";
 import { ProtocolEntryForm } from "@/components/protocol/protocol-entry-form";
+import { ProtocolWorkflow } from "@/components/protocol/protocol-workflow";
 import type {
   ProtocolRecord,
   ProtocolTemplate,
@@ -67,11 +68,17 @@ export default async function ProtocolPage({
           </span>
         </div>
 
-        <ProtocolEntryForm
-          officeId={Number(officeId)}
-          protocol={data.protocol}
-          template={data.template}
-        />
+        <div className="protocol-layout">
+          <ProtocolEntryForm
+            officeId={Number(officeId)}
+            protocol={data.protocol}
+            template={data.template}
+          />
+          <ProtocolWorkflow
+            protocol={data.protocol}
+            role={user.role}
+          />
+        </div>
       </section>
     </main>
   );
