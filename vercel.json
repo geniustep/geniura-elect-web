@@ -2,8 +2,8 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "git": {
     "deploymentEnabled": {
-      "dev": true,
-      "main": true
+      "main": true,
+      "dev": true
     }
   }
 }
