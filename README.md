@@ -38,3 +38,11 @@ DNS is managed through Cloudflare and the application is deployed through Vercel
 
 The results UI always preserves the backend distinction between internal
 calculation/projection and official results.
+
+
+## Election-day operations
+
+Polling-office pages now support election-day incident reporting. Assigned users can
+record operational incidents with category and urgency, while coordinator/manager
+roles can acknowledge, resolve and close them through the BFF. Command Center shows
+open incident counts alongside coverage and protocol completion.
