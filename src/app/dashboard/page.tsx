@@ -1,6 +1,8 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 
-import { LogoutButton } from "@/components/auth/logout-button";
+import { AppHeader } from "@/components/navigation/app-header";
+import type { ElectionSummary } from "@/lib/elect/types";
 import { backendRequest } from "@/lib/server/backend";
 import {
   getCurrentUser,
@@ -8,19 +10,6 @@ import {
 } from "@/lib/server/session";
 
 export const dynamic = "force-dynamic";
-
-type ElectionSummary = {
-  id: number;
-  name: string;
-  code: string;
-  election_date: string;
-  state: string;
-  coverage: {
-    polling_office_count: number;
-    covered_office_count: number;
-    percent: number;
-  };
-};
 
 type ElectionsPayload = {
   items: ElectionSummary[];
@@ -55,27 +44,15 @@ export default async function DashboardPage() {
 
   return (
     <main className="dashboard-shell">
-      <header className="topbar">
-        <div>
-          <p className="eyebrow">GENIURA ELECT</p>
-          <strong>مركز العمليات</strong>
-        </div>
-        <div className="topbar-actions">
-          <div className="user-chip">
-            <span>{user.name}</span>
-            <small>{roleNames[user.role]}</small>
-          </div>
-          <LogoutButton />
-        </div>
-      </header>
+      <AppHeader user={user} />
 
       <section className="dashboard-content">
         <div className="welcome">
           <div>
             <p className="eyebrow">{user.organization.name}</p>
-            <h1>صباح الخير، {user.name}</h1>
+            <h1>مركز العمليات</h1>
             <p>
-              من هنا ستتابع التغطية الميدانية والمحاضر والنتائج ضمن نطاق
+              تابع التغطية الميدانية والحضور والمحاضر والنتائج ضمن نطاق
               صلاحياتك.
             </p>
           </div>
@@ -84,8 +61,7 @@ export default async function DashboardPage() {
 
         {!backendAvailable ? (
           <div className="notice warning">
-            تعذر تحميل بيانات الاستحقاقات حاليًا. الجلسة فعالة، ويمكن إعادة
-            المحاولة بعد جاهزية خدمة البيانات.
+            تعذر تحميل بيانات الاستحقاقات حاليًا.
           </div>
         ) : elections.length === 0 ? (
           <div className="empty-state">
@@ -94,7 +70,11 @@ export default async function DashboardPage() {
         ) : (
           <div className="election-grid">
             {elections.map((election) => (
-              <article className="election-card" key={election.id}>
+              <Link
+                className="election-card election-card-link"
+                href={`/elections/${election.id}`}
+                key={election.id}
+              >
                 <div className="card-heading">
                   <div>
                     <small>{election.code}</small>
@@ -117,7 +97,7 @@ export default async function DashboardPage() {
                     <dd>{election.coverage.percent.toFixed(1)}%</dd>
                   </div>
                 </dl>
-              </article>
+              </Link>
             ))}
           </div>
         )}
