@@ -13,7 +13,7 @@ Next.js frontend for Geniura Elect.
 ## Branches
 
 - `main`: stable / production baseline.
-- `dev`: active development and preview deployments.
+- `dev`: active development. Automatic Vercel deployments are disabled for this branch.
 
 ## Public domain
 
@@ -22,3 +22,19 @@ Production frontend target:
 `https://elect.geniura.com`
 
 DNS is managed through Cloudflare and the application is deployed through Vercel.
+
+
+## Implemented application flows
+
+- secure BFF session bridge to the Odoo backend;
+- login / logout / current-user session;
+- election dashboard;
+- polling-office list and office detail;
+- representative check-in;
+- protocol/PV entry with local arithmetic checks;
+- protocol document upload and review actions;
+- command-center operational view;
+- verified-result aggregation and internal seat-calculation views.
+
+The results UI always preserves the backend distinction between internal
+calculation/projection and official results.
