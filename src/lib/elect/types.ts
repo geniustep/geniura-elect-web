@@ -165,3 +165,62 @@ export type ElectionDashboard = {
     inconsistent: number;
   };
 };
+
+
+export type ConstituencySummary = {
+  id: number;
+  name: string;
+  code: string;
+  kind: "local" | "regional";
+  seat_count: number;
+  registered_voters: number;
+  region: {
+    id: number;
+    name: string;
+    code: string;
+  };
+  coverage: {
+    polling_office_count: number;
+    covered_office_count: number;
+    percent: number;
+  };
+  candidate_lists: CandidateListRef[];
+};
+
+export type ConstituencyResult = {
+  constituency_id: number;
+  constituency_kind: "local" | "regional";
+  trust_level: "received" | "validated" | "verified";
+  nature: "projection" | "internal_calculation";
+  official_result: false;
+  office_count: number;
+  trusted_office_count: number;
+  missing_office_count: number;
+  completeness_percent: number;
+  configured_registered_voters: number;
+  totals: {
+    reported_registered_voters: number;
+    voters: number;
+    ballots_cast: number;
+    valid_votes: number;
+    invalid_votes: number;
+    blank_votes: number;
+    other_nonvalid_votes: number;
+  };
+  votes_by_list: Record<string, number>;
+  allocation: {
+    method: string;
+    basis?: string;
+    basis_total?: number;
+    quotient?: {
+      numerator: number;
+      denominator: number;
+      decimal: number;
+    };
+    seats_total: number;
+    seats_by_list: Record<string, number>;
+    allocation_complete: boolean;
+    unresolved: Array<Record<string, unknown>>;
+  } | null;
+  allocation_error?: string | null;
+};

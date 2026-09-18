@@ -73,6 +73,23 @@ export default async function ElectionPage({
           <span className="state-pill">{election.state}</span>
         </div>
 
+        {user.role !== "observer" ? (
+          <div className="page-actions">
+            <Link
+              className="secondary-button"
+              href={`/elections/${election.id}/command-center`}
+            >
+              غرفة القيادة
+            </Link>
+            <Link
+              className="secondary-button"
+              href={`/elections/${election.id}/results`}
+            >
+              النتائج والتجميع
+            </Link>
+          </div>
+        ) : null}
+
         <dl className="summary-grid">
           <div>
             <dt>مكاتب التصويت</dt>

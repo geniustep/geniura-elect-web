@@ -963,3 +963,247 @@ a {
     position: static;
   }
 }
+
+
+.page-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: -8px 0 24px;
+}
+
+.command-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.command-card {
+  display: grid;
+  gap: 7px;
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface);
+}
+
+.command-card > span,
+.command-card small {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.command-card strong {
+  font-size: 29px;
+}
+
+.progress-panel {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 9px;
+  margin-top: 18px;
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface);
+}
+
+.progress-panel > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 12px;
+}
+
+.progress-panel progress {
+  width: 100%;
+  height: 10px;
+  accent-color: var(--accent);
+}
+
+.attention-list {
+  display: grid;
+  gap: 9px;
+}
+
+.attention-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  background: var(--surface);
+  text-decoration: none;
+}
+
+.attention-row > div {
+  display: grid;
+  gap: 4px;
+}
+
+.attention-row span,
+.attention-row small {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.constituency-results {
+  display: grid;
+  gap: 18px;
+  margin-top: 20px;
+}
+
+.result-card {
+  padding: 22px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--surface);
+}
+
+.result-card-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.result-card-heading h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.result-card-heading > div:first-child > span {
+  display: inline-block;
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.result-completeness {
+  display: grid;
+  justify-items: end;
+  gap: 3px;
+}
+
+.result-completeness strong {
+  font-size: 24px;
+}
+
+.result-completeness small {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.result-totals {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin: 18px 0;
+}
+
+.result-totals > div {
+  padding: 12px;
+  border-radius: 11px;
+  background: var(--surface-soft);
+}
+
+.result-totals dt {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.result-totals dd {
+  margin: 7px 0 0;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.result-list-table {
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  overflow: hidden;
+}
+
+.result-list-head,
+.result-list-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 120px 130px;
+  align-items: center;
+  gap: 16px;
+  padding: 11px 14px;
+}
+
+.result-list-head {
+  background: var(--surface-soft);
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.result-list-row {
+  border-top: 1px solid var(--border);
+}
+
+.result-list-row > span {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.result-list-row > span > b {
+  min-width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  background: var(--accent-soft);
+  font-size: 10px;
+}
+
+.result-list-row > strong {
+  font-size: 13px;
+}
+
+.result-foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+@media (max-width: 900px) {
+  .command-grid,
+  .result-totals {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 620px) {
+  .command-grid,
+  .result-totals {
+    grid-template-columns: 1fr;
+  }
+
+  .result-card-heading,
+  .attention-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .result-completeness {
+    justify-items: start;
+  }
+
+  .result-list-head,
+  .result-list-row {
+    grid-template-columns: minmax(0, 1fr) 70px 80px;
+    gap: 8px;
+    padding-inline: 10px;
+  }
+}
