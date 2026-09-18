@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 
 import { LoginForm } from "@/components/auth/login-form";
+import { BrandLogo } from "@/components/branding/brand-logo";
 import { getCurrentUser } from "@/lib/server/session";
 
 export const dynamic = "force-dynamic";
@@ -15,9 +16,7 @@ export default async function LoginPage() {
   return (
     <main className="auth-shell">
       <section className="auth-panel">
-        <div className="brand-mark" aria-hidden="true">
-          G
-        </div>
+        <BrandLogo priority />
         <p className="eyebrow">GENIURA ELECT</p>
         <h1 className="auth-title">الدخول إلى مركز العمليات</h1>
         <p className="auth-copy">

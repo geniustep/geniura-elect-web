@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { LogoutButton } from "@/components/auth/logout-button";
+import { BrandLogo } from "@/components/branding/brand-logo";
 import type { ElectUser } from "@/lib/server/session";
 
 const roleNames = {
@@ -13,9 +14,7 @@ export function AppHeader({ user }: { user: ElectUser }) {
   return (
     <header className="topbar">
       <Link className="brand-link" href="/dashboard">
-        <span className="mini-brand" aria-hidden="true">
-          G
-        </span>
+        <BrandLogo compact />
         <span>
           <small>GENIURA ELECT</small>
           <strong>مركز العمليات</strong>
