@@ -164,6 +164,12 @@ export type ElectionDashboard = {
     states: Record<string, number>;
     inconsistent: number;
   };
+  incidents?: {
+    total: number;
+    open: number;
+    high_open: number;
+    states: Record<string, number>;
+  };
 };
 
 
@@ -223,4 +229,34 @@ export type ConstituencyResult = {
     unresolved: Array<Record<string, unknown>>;
   } | null;
   allocation_error?: string | null;
+};
+
+
+export type ElectionIncident = {
+  id: number;
+  polling_office: {
+    id: number;
+    number: number;
+    code: string;
+    center_name: string;
+  };
+  category:
+    | "access"
+    | "operations"
+    | "voting"
+    | "counting"
+    | "documentation"
+    | "other";
+  severity: "low" | "medium" | "high";
+  state: "reported" | "acknowledged" | "resolved" | "closed";
+  description: string;
+  resolution_note?: string | null;
+  reported_by?: { id: number; name: string } | null;
+  reported_at: string;
+  acknowledged_by?: { id: number; name: string } | null;
+  acknowledged_at?: string | null;
+  resolved_by?: { id: number; name: string } | null;
+  resolved_at?: string | null;
+  closed_by?: { id: number; name: string } | null;
+  closed_at?: string | null;
 };

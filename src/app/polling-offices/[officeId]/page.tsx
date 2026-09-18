@@ -3,7 +3,8 @@ import { notFound, redirect } from "next/navigation";
 
 import { AppHeader } from "@/components/navigation/app-header";
 import { CheckInButton } from "@/components/polling/check-in-button";
-import type { PollingOffice } from "@/lib/elect/types";
+import { IncidentPanel } from "@/components/polling/incident-panel";
+import type { ElectionIncident, PollingOffice } from "@/lib/elect/types";
 import { backendRequest } from "@/lib/server/backend";
 import {
   getCurrentUser,
@@ -13,6 +14,7 @@ import {
 export const dynamic = "force-dynamic";
 
 type OfficePayload = { polling_office: PollingOffice };
+type IncidentsPayload = { items: ElectionIncident[] };
 
 export default async function PollingOfficePage({
   params,
@@ -26,12 +28,20 @@ export default async function PollingOfficePage({
   const sessionId = await readElectSessionId();
 
   let office: PollingOffice;
+  let incidents: ElectionIncident[];
   try {
-    const data = await backendRequest<OfficePayload>(
-      `/api/v1/polling-offices/${officeId}`,
-      { method: "GET", sessionId },
-    );
-    office = data.polling_office;
+    const [officeData, incidentData] = await Promise.all([
+      backendRequest<OfficePayload>(
+        `/api/v1/polling-offices/${officeId}`,
+        { method: "GET", sessionId },
+      ),
+      backendRequest<IncidentsPayload>(
+        `/api/v1/polling-offices/${officeId}/incidents`,
+        { method: "GET", sessionId },
+      ),
+    ]);
+    office = officeData.polling_office;
+    incidents = incidentData.items;
   } catch {
     notFound();
   }
@@ -114,6 +124,12 @@ export default async function PollingOfficePage({
             {office.protocol ? "فتح المحضر" : "بدء إدخال المحضر"}
           </Link>
         </section>
+
+        <IncidentPanel
+          officeId={office.id}
+          role={user.role}
+          incidents={incidents}
+        />
       </section>
     </main>
   );

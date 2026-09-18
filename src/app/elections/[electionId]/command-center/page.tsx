@@ -135,6 +135,13 @@ export default async function CommandCenterPage({
             <strong>{dashboard.protocols.inconsistent}</strong>
             <small>محاضر تحتاج مراجعة الأرقام</small>
           </article>
+          <article className="command-card">
+            <span>بلاغات مفتوحة</span>
+            <strong>{dashboard.incidents?.open ?? 0}</strong>
+            <small>
+              {dashboard.incidents?.high_open ?? 0} منها عاجلة
+            </small>
+          </article>
         </div>
 
         <section className="progress-panel">

@@ -1207,3 +1207,139 @@ a {
     padding-inline: 10px;
   }
 }
+
+
+.incident-panel {
+  margin-top: 18px;
+  padding: 22px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--surface);
+}
+
+.incident-form {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 14px;
+  background: var(--surface-soft);
+}
+
+.incident-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.incident-form label {
+  display: grid;
+  gap: 7px;
+}
+
+.incident-form label > span {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.incident-form select,
+.incident-form textarea {
+  width: 100%;
+  padding: 10px 11px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--text);
+  resize: vertical;
+}
+
+.incident-form-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.incident-form-footer small {
+  color: var(--muted);
+}
+
+.incident-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.incident-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 15px;
+  border: 1px solid var(--border);
+  border-radius: 13px;
+}
+
+.incident-row-main {
+  min-width: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.incident-row-main p {
+  margin: 0;
+  color: var(--text);
+  line-height: 1.6;
+}
+
+.incident-row-main > small {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.incident-tags,
+.incident-actions {
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+
+.incident-severity {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 8px;
+  border-radius: 999px;
+  background: var(--surface-soft);
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.incident-severity.high {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+.incident-severity.medium {
+  background: var(--warning-bg);
+  color: #805b10;
+}
+
+.resolution-note {
+  margin-top: 3px;
+  padding: 8px 10px;
+  border-radius: 9px;
+  background: #ecfdf3;
+  color: var(--success);
+  font-size: 11px;
+}
+
+@media (max-width: 700px) {
+  .incident-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .incident-row {
+    flex-direction: column;
+  }
+}
