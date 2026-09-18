@@ -22,12 +22,27 @@ export function LogoutButton() {
 
   return (
     <button
-      className="ghost-button"
+      className="ghost-button logout-button"
       type="button"
       onClick={logout}
       disabled={pending}
     >
-      {pending ? "..." : "تسجيل الخروج"}
+      <span>{pending ? "..." : "خروج"}</span>
+      {!pending ? (
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M10 17l5-5-5-5" />
+          <path d="M15 12H3" />
+          <path d="M14 3h5a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-5" />
+        </svg>
+      ) : null}
     </button>
   );
 }

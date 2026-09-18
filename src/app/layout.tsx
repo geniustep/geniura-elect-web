@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "./redesign.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "Geniura Elect",
-    template: "%s | Geniura Elect",
+    default: "مركز العمليات",
+    template: "%s | مركز العمليات",
   },
-  description: "Election operations and polling-office control platform.",
+  description: "مركز إدارة العمليات الانتخابية.",
   robots: {
     index: false,
     follow: false,

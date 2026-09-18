@@ -43,27 +43,55 @@ export function LoginForm() {
 
   return (
     <form className="login-form" onSubmit={onSubmit}>
-      <label>
+      <label className="form-field">
         <span>اسم الدخول</span>
-        <input
-          name="login"
-          autoComplete="username"
-          required
-          dir="ltr"
-          disabled={pending}
-        />
+        <div className="field-control">
+          <svg
+            className="field-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            aria-hidden="true"
+          >
+            <path d="M20 21a8 8 0 0 0-16 0" />
+            <circle cx="12" cy="7" r="4" />
+          </svg>
+          <input
+            name="login"
+            autoComplete="username"
+            placeholder="اسم المستخدم"
+            required
+            dir="ltr"
+            disabled={pending}
+          />
+        </div>
       </label>
 
-      <label>
+      <label className="form-field">
         <span>كلمة المرور</span>
-        <input
-          name="password"
-          type="password"
-          autoComplete="current-password"
-          required
-          dir="ltr"
-          disabled={pending}
-        />
+        <div className="field-control">
+          <svg
+            className="field-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            aria-hidden="true"
+          >
+            <rect x="4" y="10" width="16" height="11" rx="3" />
+            <path d="M8 10V7a4 4 0 0 1 8 0v3" />
+          </svg>
+          <input
+            name="password"
+            type="password"
+            autoComplete="current-password"
+            placeholder="••••••••"
+            required
+            dir="ltr"
+            disabled={pending}
+          />
+        </div>
       </label>
 
       {error ? (
@@ -72,8 +100,24 @@ export function LoginForm() {
         </p>
       ) : null}
 
-      <button type="submit" disabled={pending}>
-        {pending ? "جارٍ الدخول..." : "دخول"}
+      <button className="login-submit" type="submit" disabled={pending}>
+        <span>{pending ? "جارٍ الدخول..." : "دخول"}</span>
+        {pending ? (
+          <span className="button-loader" aria-hidden="true" />
+        ) : (
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M19 12H5" />
+            <path d="m12 19-7-7 7-7" />
+          </svg>
+        )}
       </button>
     </form>
   );

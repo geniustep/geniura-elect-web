@@ -15,13 +15,20 @@ export default async function LoginPage() {
 
   return (
     <main className="auth-shell">
+      <div className="auth-scene" aria-hidden="true">
+        <span className="auth-scene-core" />
+      </div>
+
       <section className="auth-panel">
-        <BrandLogo priority />
-        <p className="eyebrow">GENIURA ELECT</p>
-        <h1 className="auth-title">الدخول إلى مركز العمليات</h1>
-        <p className="auth-copy">
-          استخدم حسابك المخصص للوصول إلى نطاق العمل الانتخابي المخول لك.
-        </p>
+        <div className="auth-panel-top">
+          <BrandLogo priority />
+          <span className="auth-brand-name">مركز العمليات</span>
+        </div>
+
+        <div className="auth-heading">
+          <h1 className="auth-title">تسجيل الدخول</h1>
+        </div>
+
         <LoginForm />
       </section>
     </main>
