@@ -49,6 +49,8 @@ export function ProtocolWorkflow({
     );
   }
 
+  const activeProtocol = protocol;
+
   async function upload(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     event.target.value = "";
@@ -69,7 +71,7 @@ export function ProtocolWorkflow({
     try {
       const content = await fileToBase64(file);
       const response = await fetch(
-        `/api/operations/protocols/${protocol.id}/documents`,
+        `/api/operations/protocols/${activeProtocol.id}/documents`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -112,7 +114,7 @@ export function ProtocolWorkflow({
     setMessage(null);
     try {
       const response = await fetch(
-        `/api/operations/protocols/${protocol.id}/${action}`,
+        `/api/operations/protocols/${activeProtocol.id}/${action}`,
         {
           method: "POST",
           headers: body ? { "Content-Type": "application/json" } : undefined,
@@ -134,17 +136,17 @@ export function ProtocolWorkflow({
   }
 
   const canUpload =
-    protocol.state !== "validated" && protocol.state !== "verified";
+    activeProtocol.state !== "validated" && activeProtocol.state !== "verified";
   const canValidate =
     role !== "observer" &&
-    protocol.workflow.can_validate &&
-    protocol.state !== "verified";
+    activeProtocol.workflow.can_validate &&
+    activeProtocol.state !== "verified";
   const canVerify =
-    role === "manager" && protocol.workflow.can_verify;
+    role === "manager" && activeProtocol.workflow.can_verify;
   const canReject =
-    role !== "observer" && protocol.state !== "verified";
+    role !== "observer" && activeProtocol.state !== "verified";
   const canReopen =
-    role === "manager" && protocol.state === "validated";
+    role === "manager" && activeProtocol.state === "validated";
 
   return (
     <aside className="workflow-panel">
@@ -153,27 +155,27 @@ export function ProtocolWorkflow({
           <p className="eyebrow">DOCUMENT & REVIEW</p>
           <h2>وثيقة ومسار المحضر</h2>
         </div>
-        <span className="state-pill">{protocol.state}</span>
+        <span className="state-pill">{activeProtocol.state}</span>
       </div>
 
       <dl className="workflow-stats">
         <div>
           <dt>الوثائق</dt>
-          <dd>{protocol.document.count}</dd>
+          <dd>{activeProtocol.document.count}</dd>
         </div>
         <div>
           <dt>سلامة الوثيقة</dt>
-          <dd>{protocol.document.integrity_state}</dd>
+          <dd>{activeProtocol.document.integrity_state}</dd>
         </div>
         <div>
           <dt>توازن الأرقام</dt>
-          <dd>{protocol.consistency.state}</dd>
+          <dd>{activeProtocol.consistency.state}</dd>
         </div>
       </dl>
 
-      {protocol.document.items.length ? (
+      {activeProtocol.document.items.length ? (
         <div className="document-list">
-          {protocol.document.items.map((item) => (
+          {activeProtocol.document.items.map((item) => (
             <div key={item.id}>
               <strong>{item.name}</strong>
               <small>
