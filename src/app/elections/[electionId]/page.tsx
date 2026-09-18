@@ -133,8 +133,17 @@ export default async function ElectionPage({
 
         {user.role !== "observer" ? (
           <div className="presentation-action-row">
+            {user.role === "manager" ? (
+              <Link
+                className="presentation-primary-action"
+                href={`/elections/${election.id}/setup`}
+              >
+                إعداد الاستحقاق
+                <span aria-hidden="true">←</span>
+              </Link>
+            ) : null}
             <Link
-              className="presentation-primary-action"
+              className={user.role === "manager" ? "presentation-secondary-action" : "presentation-primary-action"}
               href={`/elections/${election.id}/command-center`}
             >
               غرفة القيادة

@@ -260,3 +260,75 @@ export type ElectionIncident = {
   closed_by?: { id: number; name: string } | null;
   closed_at?: string | null;
 };
+
+
+export type SetupRegion = {
+  id: number;
+  name: string;
+  code: string;
+};
+
+export type SetupCenter = {
+  id: number;
+  name: string;
+  code: string;
+  address?: string | null;
+  commune?: string | null;
+  constituency: {
+    id: number;
+    name: string;
+    code: string;
+  };
+  office_count: number;
+};
+
+export type SetupRepresentative = {
+  id: number;
+  name: string;
+  phone?: string | null;
+  email?: string | null;
+  has_user_account: boolean;
+};
+
+export type SetupAssignment = {
+  id: number;
+  role: "primary" | "backup" | "coordinator";
+  status:
+    | "planned"
+    | "notified"
+    | "confirmed"
+    | "present"
+    | "absent"
+    | "replaced"
+    | "cancelled"
+    | "closed";
+  check_in_at?: string | null;
+  office: {
+    id: number;
+    number: number;
+    code: string;
+    center_name: string;
+  };
+  representative: {
+    id: number;
+    name: string;
+    phone?: string | null;
+  };
+};
+
+export type ElectionSetupSnapshot = {
+  election: ElectionSummary;
+  regions: SetupRegion[];
+  constituencies: ConstituencySummary[];
+  centers: SetupCenter[];
+  offices: PollingOffice[];
+  representatives: SetupRepresentative[];
+  assignments: SetupAssignment[];
+};
+
+export type ElectionSetupSection =
+  | "constituencies"
+  | "centers"
+  | "offices"
+  | "representatives"
+  | "assignments";
