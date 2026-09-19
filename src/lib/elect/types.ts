@@ -316,6 +316,47 @@ export type SetupAssignment = {
   };
 };
 
+export type SetupParty = {
+  id: number;
+  name: string;
+  short_name?: string | null;
+  code: string;
+};
+
+export type SetupCandidate = {
+  id: number;
+  name: string;
+  birth_date?: string | null;
+};
+
+export type SetupCandidateListMember = {
+  id: number;
+  sequence: number;
+  candidate_list: {
+    id: number;
+    name: string;
+    code: string;
+  };
+  candidate: SetupCandidate;
+};
+
+export type SetupCandidateList = {
+  id: number;
+  name: string;
+  code: string;
+  ballot_number?: number | null;
+  head_candidate_name?: string | null;
+  constituency: {
+    id: number;
+    name: string;
+    code: string;
+    kind: "local" | "regional";
+  };
+  party?: SetupParty | null;
+  members: SetupCandidateListMember[];
+  member_count: number;
+};
+
 export type ElectionSetupSnapshot = {
   election: ElectionSummary;
   regions: SetupRegion[];
@@ -324,6 +365,10 @@ export type ElectionSetupSnapshot = {
   offices: PollingOffice[];
   representatives: SetupRepresentative[];
   assignments: SetupAssignment[];
+  parties: SetupParty[];
+  candidates: SetupCandidate[];
+  candidate_lists: SetupCandidateList[];
+  list_members: SetupCandidateListMember[];
 };
 
 export type ElectionSetupSection =
