@@ -127,6 +127,16 @@ export default async function ElectionSetupPage({
             <strong>{setup.assignments.length}</strong>
             <small>ربط ميداني</small>
           </div>
+          <div>
+            <span>اللوائح</span>
+            <strong>{setup.candidate_lists.length}</strong>
+            <small>لائحة مضبوطة</small>
+          </div>
+          <div>
+            <span>المرشحون</span>
+            <strong>{setup.candidates.length}</strong>
+            <small>مرشح مسجل</small>
+          </div>
         </div>
 
         <section className="setup-management-section">
@@ -370,6 +380,40 @@ export default async function ElectionSetupPage({
               لا توجد تعيينات بعد. أنشئ المكاتب والأشخاص أولًا.
             </div>
           )}
+        </section>
+
+        <section className="setup-management-section">
+          <div className="setup-section-heading">
+            <div>
+              <span>06 · الترشيحات</span>
+              <h2>اللوائح والمرشحون</h2>
+              <p>
+                إدارة اللوائح داخل الدوائر، والمرشحين، وترتيب أعضاء كل لائحة،
+                والهيئات المرتبطة بها.
+              </p>
+            </div>
+            <Link
+              className="setup-create-button"
+              href={`/elections/${electionId}/setup/candidacy`}
+            >
+              إدارة الترشيحات
+            </Link>
+          </div>
+
+          <div className="setup-table">
+            <div className="setup-row setup-row--header">
+              <span>اللوائح</span>
+              <span>المرشحون</span>
+              <span>أعضاء اللوائح</span>
+              <span>الهيئات</span>
+            </div>
+            <div className="setup-row">
+              <strong>{setup.candidate_lists.length}</strong>
+              <strong>{setup.candidates.length}</strong>
+              <strong>{setup.list_members.length}</strong>
+              <strong>{setup.parties.length}</strong>
+            </div>
+          </div>
         </section>
 
         <div className="setup-note">
