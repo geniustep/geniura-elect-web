@@ -5,12 +5,14 @@ import type { FormEvent } from "react";
 
 import type {
   ConstituencySummary,
+  SetupPollingArea,
   SetupScopedUser,
 } from "@/lib/elect/types";
 
 type Props = {
   electionId: string;
   constituencies: ConstituencySummary[];
+  pollingAreas: SetupPollingArea[];
   initialUsers: SetupScopedUser[];
 };
 
@@ -22,14 +24,16 @@ type BackendEnvelope<T> = {
 
 type ManagedRole = "coordinator" | "observer";
 type UserListTab = "active" | "archived";
+type ScopeLevel = "constituency" | "polling_area";
 
 type UserFormState = {
   name: string;
   login: string;
   password: string;
   role: ManagedRole;
-  constituencyIds: number[];
-  defaultConstituencyId: string;
+  scopeLevel: ScopeLevel;
+  constituencyId: string;
+  pollingAreaId: string;
 };
 
 const emptyForm: UserFormState = {
@@ -37,12 +41,13 @@ const emptyForm: UserFormState = {
   login: "",
   password: "",
   role: "coordinator",
-  constituencyIds: [],
-  defaultConstituencyId: "",
+  scopeLevel: "constituency",
+  constituencyId: "",
+  pollingAreaId: "",
 };
 
 const roleLabels: Record<ManagedRole, string> = {
-  coordinator: "منسق دائرة",
+  coordinator: "منسق",
   observer: "مراقب",
 };
 
@@ -64,6 +69,7 @@ function normalizeSearch(value: string) {
 export function ScopedUserManager({
   electionId,
   constituencies,
+  pollingAreas,
   initialUsers,
 }: Props) {
   const [users, setUsers] = useState(initialUsers);
@@ -88,7 +94,6 @@ export function ScopedUserManager({
 
   const visibleUsers = useMemo(() => {
     const needle = normalizeSearch(query);
-
     return users
       .filter((user) =>
         listTab === "active" ? user.active : !user.active,
@@ -101,6 +106,7 @@ export function ScopedUserManager({
             user.login,
             roleLabel(user),
             ...user.constituencies.map((item) => item.name),
+            ...(user.polling_areas ?? []).map((item) => item.name),
           ].join(" "),
         );
         return haystack.includes(needle);
@@ -126,21 +132,24 @@ export function ScopedUserManager({
 
   function beginEdit(user: SetupScopedUser) {
     if (user.role === "manager") return;
-
     clearFeedback();
     setDeleteCandidate(null);
     setEditingId(user.id);
+
+    const area = user.polling_areas?.[0];
     setForm({
       name: user.name,
       login: user.login,
       password: "",
       role: user.role,
-      constituencyIds: user.constituencies.map((item) => item.id),
-      defaultConstituencyId: String(
-        user.default_constituency?.id ??
+      scopeLevel: area ? "polling_area" : "constituency",
+      constituencyId: String(
+        area?.constituency_id ??
+          user.default_constituency?.id ??
           user.constituencies[0]?.id ??
           "",
       ),
+      pollingAreaId: area ? String(area.id) : "",
     });
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
@@ -152,34 +161,14 @@ export function ScopedUserManager({
     setForm((current) => ({ ...current, [key]: value }));
   }
 
-  function toggleConstituency(id: number) {
-    setForm((current) => {
-      const nextIds = current.constituencyIds.includes(id)
-        ? current.constituencyIds.filter((item) => item !== id)
-        : [...current.constituencyIds, id];
-
-      const currentDefault = Number(current.defaultConstituencyId);
-      let nextDefault = current.defaultConstituencyId;
-
-      if (!nextIds.length) {
-        nextDefault = "";
-      } else if (!nextIds.includes(currentDefault)) {
-        nextDefault = String(nextIds[0]);
-      }
-
-      return {
-        ...current,
-        constituencyIds: nextIds,
-        defaultConstituencyId: nextDefault,
-      };
-    });
-  }
-
   function validationError() {
     if (!form.name.trim()) return "أدخل اسم المستخدم.";
     if (!form.login.trim()) return "أدخل اسم الدخول.";
-    if (!form.constituencyIds.length) {
-      return "اختر دائرة محلية واحدة على الأقل.";
+    if (form.scopeLevel === "constituency" && !form.constituencyId) {
+      return "اختر الدائرة الانتخابية المسموح بها.";
+    }
+    if (form.scopeLevel === "polling_area" && !form.pollingAreaId) {
+      return "اختر الجماعة / المقاطعة المسموح بها.";
     }
     if (!editingId && form.password.length < 8) {
       return "كلمة المرور المؤقتة يجب أن تتكون من 8 أحرف على الأقل.";
@@ -200,22 +189,28 @@ export function ScopedUserManager({
       return;
     }
 
+    const selectedArea =
+      form.scopeLevel === "polling_area"
+        ? pollingAreas.find((item) => item.id === Number(form.pollingAreaId))
+        : null;
+    const constituencyId =
+      selectedArea?.constituency.id ?? Number(form.constituencyId);
+
     setSaving(true);
     try {
-      const defaultConstituencyId =
-        Number(form.defaultConstituencyId) || form.constituencyIds[0];
-
       const body: Record<string, unknown> = {
         name: form.name.trim(),
         login: form.login.trim(),
         role: form.role,
-        constituency_ids: form.constituencyIds,
-        default_constituency_id: defaultConstituencyId,
+        constituency_ids: constituencyId ? [constituencyId] : [],
+        default_constituency_id: constituencyId,
+        polling_area_ids:
+          form.scopeLevel === "polling_area" && selectedArea
+            ? [selectedArea.id]
+            : [],
       };
 
-      if (form.password) {
-        body.password = form.password;
-      }
+      if (form.password) body.password = form.password;
 
       const url = editingId
         ? `/api/operations/elections/${encodeURIComponent(electionId)}/setup/users/${editingId}`
@@ -226,7 +221,6 @@ export function ScopedUserManager({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
-
       const payload = (await response
         .json()
         .catch(() => null)) as BackendEnvelope<{ item: SetupScopedUser }> | null;
@@ -242,19 +236,15 @@ export function ScopedUserManager({
       }
 
       const saved = payload.data.item;
-      setUsers((current) => {
-        if (editingId) {
-          return current.map((item) =>
-            item.id === saved.id ? saved : item,
-          );
-        }
-        return [...current, saved];
-      });
-
+      setUsers((current) =>
+        editingId
+          ? current.map((item) => (item.id === saved.id ? saved : item))
+          : [...current, saved],
+      );
       setMessage(
         editingId
-          ? "تم حفظ تعديلات المستخدم بنجاح."
-          : "تم إنشاء المستخدم وتحديد صلاحياته بنجاح.",
+          ? "تم حفظ صلاحيات المستخدم."
+          : "تم إنشاء المستخدم وتحديد نطاق وصوله.",
       );
       resetForm();
       setListTab("active");
@@ -268,7 +258,6 @@ export function ScopedUserManager({
   async function setUserActive(user: SetupScopedUser, active: boolean) {
     clearFeedback();
     setBusyUserId(user.id);
-
     try {
       const response = await fetch(
         `/api/operations/elections/${encodeURIComponent(electionId)}/setup/users/${user.id}`,
@@ -278,7 +267,6 @@ export function ScopedUserManager({
           body: JSON.stringify({ active }),
         },
       );
-
       const payload = (await response
         .json()
         .catch(() => null)) as BackendEnvelope<{ item: SetupScopedUser }> | null;
@@ -286,27 +274,20 @@ export function ScopedUserManager({
       if (!response.ok || !payload?.success || !payload.data?.item) {
         setError(
           payload?.error?.message ||
-            (active
-              ? "تعذر استرجاع المستخدم."
-              : "تعذر حذف المستخدم."),
+            (active ? "تعذر استرجاع المستخدم." : "تعذر حذف المستخدم."),
         );
         return;
       }
-
       const saved = payload.data.item;
       setUsers((current) =>
         current.map((item) => (item.id === saved.id ? saved : item)),
       );
-
-      if (!active && editingId === user.id) {
-        resetForm();
-      }
-
+      if (!active && editingId === user.id) resetForm();
       setDeleteCandidate(null);
       setMessage(
         active
           ? "تم استرجاع المستخدم وأصبح حسابه نشطًا."
-          : "تم حذف المستخدم من الحسابات النشطة مع الاحتفاظ بسجله التاريخي.",
+          : "تم تعطيل المستخدم مع الاحتفاظ بسجله التاريخي.",
       );
     } catch {
       setError("تعذر الاتصال بالخدمة.");
@@ -316,9 +297,6 @@ export function ScopedUserManager({
   }
 
   const formTitle = editingId ? "تعديل المستخدم" : "إنشاء مستخدم";
-  const formSubtitle = editingId
-    ? "عدّل بيانات الدخول والدور والدوائر. اترك كلمة المرور فارغة إذا لم ترد تغييرها."
-    : "أنشئ حسابًا وحدد الدوائر التي يمكنه الوصول إليها.";
 
   return (
     <div className="scoped-user-admin">
@@ -327,9 +305,11 @@ export function ScopedUserManager({
           <div>
             <span>{editingId ? "تعديل الحساب" : "حساب جديد"}</span>
             <h2>{formTitle}</h2>
-            <p>{formSubtitle}</p>
+            <p>
+              اختر هل يصل المستخدم إلى دائرة كاملة أم إلى جماعة / مقاطعة
+              واحدة فقط.
+            </p>
           </div>
-
           {editingId ? (
             <button
               className="scoped-user-secondary-button"
@@ -349,22 +329,18 @@ export function ScopedUserManager({
                 required
                 value={form.name}
                 onChange={(event) => updateForm("name", event.target.value)}
-                placeholder="اسم المستخدم"
               />
             </label>
-
             <label>
               <span>اسم الدخول</span>
               <input
                 required
                 value={form.login}
                 onChange={(event) => updateForm("login", event.target.value)}
-                placeholder="login"
                 autoCapitalize="none"
                 autoComplete="username"
               />
             </label>
-
             <label>
               <span>
                 {editingId ? "كلمة مرور جديدة (اختياري)" : "كلمة مرور مؤقتة"}
@@ -374,14 +350,10 @@ export function ScopedUserManager({
                 type="password"
                 minLength={8}
                 value={form.password}
-                onChange={(event) =>
-                  updateForm("password", event.target.value)
-                }
+                onChange={(event) => updateForm("password", event.target.value)}
                 autoComplete="new-password"
-                placeholder={editingId ? "اتركها فارغة دون تغيير" : "8 أحرف على الأقل"}
               />
             </label>
-
             <label>
               <span>الدور</span>
               <select
@@ -390,56 +362,90 @@ export function ScopedUserManager({
                   updateForm("role", event.target.value as ManagedRole)
                 }
               >
-                <option value="coordinator">منسق دائرة</option>
+                <option value="coordinator">منسق</option>
                 <option value="observer">مراقب</option>
               </select>
             </label>
           </div>
 
-          <fieldset className="scoped-user-constituencies">
-            <legend>الدوائر المسموح بها</legend>
-            {localConstituencies.map((constituency) => (
-              <label key={constituency.id}>
-                <input
-                  type="checkbox"
-                  checked={form.constituencyIds.includes(constituency.id)}
-                  onChange={() => toggleConstituency(constituency.id)}
-                />
-                <span>
-                  <strong>{constituency.name}</strong>
-                  <small>{constituency.region.name}</small>
-                </span>
-              </label>
-            ))}
+          <fieldset className="scoped-user-scope-level">
+            <legend>نطاق الصلاحية</legend>
+            <label>
+              <input
+                type="radio"
+                name="scopeLevel"
+                checked={form.scopeLevel === "constituency"}
+                onChange={() =>
+                  setForm((current) => ({
+                    ...current,
+                    scopeLevel: "constituency",
+                    pollingAreaId: "",
+                  }))
+                }
+              />
+              <span>
+                <strong>دائرة انتخابية كاملة</strong>
+                <small>يرى كل الجماعات / المقاطعات التابعة للدائرة.</small>
+              </span>
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="scopeLevel"
+                checked={form.scopeLevel === "polling_area"}
+                onChange={() =>
+                  setForm((current) => ({
+                    ...current,
+                    scopeLevel: "polling_area",
+                    constituencyId: "",
+                  }))
+                }
+              />
+              <span>
+                <strong>جماعة / مقاطعة فقط</strong>
+                <small>لا يرى بقية الدائرة الانتخابية.</small>
+              </span>
+            </label>
           </fieldset>
 
-          {form.constituencyIds.length ? (
+          {form.scopeLevel === "constituency" ? (
             <label className="scoped-user-default-field">
-              <span>الدائرة التي تفتح مباشرة بعد تسجيل الدخول</span>
+              <span>الدائرة الانتخابية المسموح بها</span>
               <select
-                value={
-                  form.defaultConstituencyId ||
-                  String(form.constituencyIds[0])
-                }
+                value={form.constituencyId}
                 onChange={(event) =>
-                  updateForm(
-                    "defaultConstituencyId",
-                    event.target.value,
-                  )
+                  updateForm("constituencyId", event.target.value)
                 }
               >
-                {localConstituencies
-                  .filter((item) =>
-                    form.constituencyIds.includes(item.id),
-                  )
+                <option value="">اختر الدائرة</option>
+                {localConstituencies.map((item) => (
+                  <option value={item.id} key={item.id}>
+                    {item.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+          ) : (
+            <label className="scoped-user-default-field">
+              <span>الجماعة / المقاطعة المسموح بها</span>
+              <select
+                value={form.pollingAreaId}
+                onChange={(event) =>
+                  updateForm("pollingAreaId", event.target.value)
+                }
+              >
+                <option value="">اختر الجماعة / المقاطعة</option>
+                {pollingAreas
+                  .slice()
+                  .sort((a, b) => a.name.localeCompare(b.name, "ar"))
                   .map((item) => (
-                    <option key={item.id} value={item.id}>
-                      {item.name}
+                    <option value={item.id} key={item.id}>
+                      {item.name} · {item.constituency.name}
                     </option>
                   ))}
               </select>
             </label>
-          ) : null}
+          )}
 
           <div className="scoped-user-form-actions">
             <button type="submit" disabled={saving}>
@@ -449,10 +455,8 @@ export function ScopedUserManager({
                   ? "حفظ التعديلات"
                   : "إنشاء المستخدم"}
             </button>
-
             <small>
-              الحذف في Geniura آمن: يعطّل الحساب ويحتفظ بالسجل التاريخي
-              ويمكن استرجاعه لاحقًا.
+              الحذف آمن: يعطّل الحساب ولا يحذف سجله التاريخي.
             </small>
           </div>
 
@@ -461,7 +465,6 @@ export function ScopedUserManager({
               {error}
             </div>
           ) : null}
-
           {message ? (
             <div className="scoped-user-message is-success" role="status">
               {message}
@@ -475,7 +478,7 @@ export function ScopedUserManager({
           <div>
             <span>إدارة الحسابات</span>
             <h2>المستخدمون</h2>
-            <p>ابحث ثم عدّل الحساب أو احذفه أو استرجعه.</p>
+            <p>يظهر نطاق الوصول الحقيقي لكل مستخدم.</p>
           </div>
           <strong>{users.length}</strong>
         </div>
@@ -487,10 +490,9 @@ export function ScopedUserManager({
               type="search"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="الاسم، الدخول، الدور أو الدائرة"
+              placeholder="الاسم، الدخول، الدور، الدائرة أو الجماعة"
             />
           </label>
-
           <div className="scoped-user-tabs" role="tablist">
             <button
               type="button"
@@ -512,38 +514,27 @@ export function ScopedUserManager({
         {visibleUsers.length ? (
           <div className="scoped-user-list">
             {visibleUsers.map((user) => (
-              <article
-                className={!user.active ? "is-archived" : ""}
-                key={user.id}
-              >
+              <article className={!user.active ? "is-archived" : ""} key={user.id}>
                 <div className="scoped-user-identity">
                   <strong>{user.name}</strong>
                   <small>{user.login}</small>
                 </div>
-
-                <span className="scoped-user-role">
-                  {roleLabel(user)}
-                </span>
-
+                <span className="scoped-user-role">{roleLabel(user)}</span>
                 <div className="scoped-user-scope">
-                  {user.constituencies.map((constituency) => (
-                    <span key={constituency.id}>
-                      {constituency.name}
-                      {user.default_constituency?.id === constituency.id
-                        ? " · افتراضية"
-                        : ""}
-                    </span>
-                  ))}
+                  {user.polling_areas?.length
+                    ? user.polling_areas.map((item) => (
+                        <span className="is-area" key={item.id}>
+                          {item.name} فقط
+                        </span>
+                      ))
+                    : user.constituencies.map((item) => (
+                        <span key={item.id}>{item.name} · دائرة كاملة</span>
+                      ))}
                 </div>
-
                 <div className="scoped-user-row-actions">
                   {user.active ? (
                     <>
-                      <button
-                        type="button"
-                        onClick={() => beginEdit(user)}
-                        disabled={busyUserId === user.id}
-                      >
+                      <button type="button" onClick={() => beginEdit(user)}>
                         تعديل
                       </button>
                       <button
@@ -553,7 +544,6 @@ export function ScopedUserManager({
                           clearFeedback();
                           setDeleteCandidate(user);
                         }}
-                        disabled={busyUserId === user.id}
                       >
                         حذف
                       </button>
@@ -565,7 +555,7 @@ export function ScopedUserManager({
                       onClick={() => void setUserActive(user, true)}
                       disabled={busyUserId === user.id}
                     >
-                      {busyUserId === user.id ? "جارٍ الاسترجاع…" : "استرجاع"}
+                      استرجاع
                     </button>
                   )}
                 </div>
@@ -573,61 +563,37 @@ export function ScopedUserManager({
             ))}
           </div>
         ) : (
-          <div className="setup-empty">
-            {query
-              ? "لا يوجد مستخدم مطابق للبحث."
-              : listTab === "active"
-                ? "لا توجد حسابات نشطة."
-                : "لا توجد حسابات محذوفة."}
-          </div>
+          <div className="setup-empty">لا توجد حسابات مطابقة.</div>
         )}
       </section>
 
       {deleteCandidate ? (
-        <div
-          className="scoped-user-delete-backdrop"
-          role="presentation"
-          onMouseDown={(event) => {
-            if (event.target === event.currentTarget) {
-              setDeleteCandidate(null);
-            }
-          }}
-        >
+        <div className="scoped-user-delete-backdrop" role="presentation">
           <section
             className="scoped-user-delete-dialog"
             role="dialog"
             aria-modal="true"
-            aria-labelledby="delete-user-title"
           >
             <span>تأكيد الحذف</span>
-            <h3 id="delete-user-title">
-              حذف حساب {deleteCandidate.name}؟
-            </h3>
+            <h3>حذف حساب {deleteCandidate.name}؟</h3>
             <p>
-              سيتوقف المستخدم عن تسجيل الدخول فورًا، لكن لن نحذف سجله
-              التاريخي أو العلاقات المرتبطة به. يمكنك استرجاع الحساب لاحقًا
-              من تبويب «محذوفون».
+              سيُعطّل تسجيل الدخول، ويمكن استرجاع الحساب لاحقًا دون فقدان
+              السجل التاريخي.
             </p>
             <div>
               <button
                 type="button"
                 className="scoped-user-secondary-button"
                 onClick={() => setDeleteCandidate(null)}
-                disabled={busyUserId === deleteCandidate.id}
               >
                 إلغاء
               </button>
               <button
                 type="button"
                 className="scoped-user-confirm-delete"
-                onClick={() =>
-                  void setUserActive(deleteCandidate, false)
-                }
-                disabled={busyUserId === deleteCandidate.id}
+                onClick={() => void setUserActive(deleteCandidate, false)}
               >
-                {busyUserId === deleteCandidate.id
-                  ? "جارٍ الحذف…"
-                  : "نعم، حذف المستخدم"}
+                نعم، حذف المستخدم
               </button>
             </div>
           </section>

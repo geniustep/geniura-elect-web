@@ -3,21 +3,15 @@ import { notFound, redirect } from "next/navigation";
 
 import { AppHeader } from "@/components/navigation/app-header";
 import { ScopedUserManager } from "@/components/setup/scoped-user-manager";
-import type {
-  ConstituencySummary,
-  SetupScopedUser,
-} from "@/lib/elect/types";
+import type { SetupScopedUser } from "@/lib/elect/types";
 import { backendRequest } from "@/lib/server/backend";
+import { getElectionSetupSnapshot } from "@/lib/server/election-setup";
 import {
   getCurrentUser,
   readElectSessionId,
 } from "@/lib/server/session";
 
 export const dynamic = "force-dynamic";
-
-type ConstituenciesPayload = {
-  items: ConstituencySummary[];
-};
 
 type UsersPayload = {
   items: SetupScopedUser[];
@@ -38,14 +32,11 @@ export default async function ScopedUsersPage({
 
   const sessionId = await readElectSessionId();
 
-  let constituencies: ConstituenciesPayload;
+  let setup;
   let users: UsersPayload;
   try {
-    [constituencies, users] = await Promise.all([
-      backendRequest<ConstituenciesPayload>(
-        `/api/v1/elections/${encodeURIComponent(electionId)}/constituencies`,
-        { method: "GET", sessionId },
-      ),
+    [setup, users] = await Promise.all([
+      getElectionSetupSnapshot(electionId, sessionId),
       backendRequest<UsersPayload>(
         `/api/v1/elections/${encodeURIComponent(electionId)}/setup/users`,
         { method: "GET", sessionId },
@@ -56,33 +47,35 @@ export default async function ScopedUsersPage({
   }
 
   return (
-      <main className="dashboard-shell scoped-users-page">
-        <AppHeader user={user} />
-        <section className="dashboard-content scoped-users-content">
-          <nav className="breadcrumbs presentation-breadcrumbs">
-            <Link href="/dashboard">لوحة المتابعة</Link>
-            <span>/</span>
-            <Link href={`/elections/${electionId}/setup`}>إعداد الاستحقاق</Link>
-            <span>/</span>
-            <strong>المستخدمون والصلاحيات</strong>
-          </nav>
+    <main className="dashboard-shell scoped-users-page">
+      <AppHeader user={user} />
+      <section className="dashboard-content scoped-users-content">
+        <nav className="breadcrumbs presentation-breadcrumbs">
+          <Link href="/dashboard">لوحة المتابعة</Link>
+          <span>/</span>
+          <Link href={`/elections/${electionId}/setup`}>إعداد الاستحقاق</Link>
+          <span>/</span>
+          <strong>المستخدمون والصلاحيات</strong>
+        </nav>
 
-          <section className="scoped-users-hero">
-            <div>
-              <span>إدارة الوصول</span>
-              <h1>المستخدمون والصلاحيات</h1>
-              <p>
-                أنشئ المستخدمين وعدّل بياناتهم وصلاحياتهم أو احذفهم بأمان، مع تحديد الدائرة التي تفتح مباشرة بعد تسجيل الدخول.
-              </p>
-            </div>
-          </section>
-
-          <ScopedUserManager
-            electionId={electionId}
-            constituencies={constituencies.items}
-            initialUsers={users.items}
-          />
+        <section className="scoped-users-hero">
+          <div>
+            <span>إدارة الوصول</span>
+            <h1>المستخدمون والصلاحيات</h1>
+            <p>
+              يمكن منح المستخدم دائرة انتخابية كاملة، أو تقييده بجماعة /
+              مقاطعة واحدة فقط داخل الدائرة.
+            </p>
+          </div>
         </section>
-      </main>
+
+        <ScopedUserManager
+          electionId={electionId}
+          constituencies={setup.constituencies}
+          pollingAreas={setup.areas}
+          initialUsers={users.items}
+        />
+      </section>
+    </main>
   );
 }

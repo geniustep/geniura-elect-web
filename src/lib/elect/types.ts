@@ -343,14 +343,24 @@ export type ElectConstituencyScopeRef = {
   region_name: string;
 };
 
+export type ElectPollingAreaScopeRef = {
+  id: number;
+  name: string;
+  code: string;
+  constituency_id: number;
+  constituency_name: string;
+  election_id: number;
+};
+
 export type SetupScopedUser = {
   id: number;
   name: string;
   login: string;
   role: "observer" | "coordinator" | "manager";
   active: boolean;
-  scope_mode: "all" | "constituencies";
+  scope_mode: "all" | "constituencies" | "polling_areas";
   constituencies: ElectConstituencyScopeRef[];
+  polling_areas: ElectPollingAreaScopeRef[];
   default_constituency?: ElectConstituencyScopeRef | null;
 };
 
