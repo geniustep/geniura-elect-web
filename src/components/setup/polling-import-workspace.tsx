@@ -243,7 +243,7 @@ async function parseWorkbookFile(file: File): Promise<ImportArea> {
 
   const workbook = new ExcelJS.Workbook();
   const bytes = new Uint8Array(await file.arrayBuffer());
-  await workbook.xlsx.load(bytes as unknown as Buffer);
+  await workbook.xlsx.load(bytes as never);
 
   const worksheet =
     workbook.getWorksheet("معطيات المراقبين") ?? workbook.worksheets[0];
