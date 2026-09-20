@@ -54,7 +54,20 @@ export default async function EditSetupEntityPage({
     notFound();
   }
 
-  const items = snapshot[section as ElectionSetupSection];
+  const collections: Record<
+    ElectionSetupSection,
+    readonly { id: number }[]
+  > = {
+    constituencies: snapshot.constituencies,
+    areas: snapshot.areas,
+    "central-offices": snapshot.central_offices,
+    centers: snapshot.centers,
+    offices: snapshot.offices,
+    representatives: snapshot.representatives,
+    assignments: snapshot.assignments,
+  };
+
+  const items = collections[section as ElectionSetupSection];
   if (!items.some((item) => item.id === numericId)) {
     notFound();
   }
