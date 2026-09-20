@@ -18,6 +18,13 @@ type ImportRow = {
   rbo: string;
 };
 
+type ManualObserverDraft = {
+  observer_name: string;
+  phone: string;
+  voter_number: string;
+  rbo: string;
+};
+
 type PreviewIssue = {
   code: string;
   message: string;
@@ -407,6 +414,15 @@ export function RepresentativeImportWorkspace({
   const [confirmed, setConfirmed] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [editingRow, setEditingRow] = useState<number | null>(null);
+  const [manualRows, setManualRows] = useState<number[]>([]);
+  const [rowDraft, setRowDraft] = useState<ManualObserverDraft>({
+    observer_name: "",
+    phone: "",
+    voter_number: "",
+    rbo: "",
+  });
+  const [rowEditError, setRowEditError] = useState("");
 
   async function onFileChange(file: File | undefined) {
     setError("");
@@ -414,6 +430,9 @@ export function RepresentativeImportWorkspace({
     setConflictChoices({});
     setCommit(null);
     setConfirmed(false);
+    setEditingRow(null);
+    setManualRows([]);
+    setRowEditError("");
     if (!file) {
       setFileName("");
       setRows([]);
@@ -439,18 +458,18 @@ export function RepresentativeImportWorkspace({
     }
   }
 
-  function payload() {
+  function payload(inputRows: ImportRow[] = rows) {
     return {
       local_constituency_id: constituencyId,
       polling_area_id: Number(areaId),
       source_filename: fileName,
-      rows,
+      rows: inputRows,
       conflict_resolutions: conflictChoices,
     };
   }
 
-  async function runPreview() {
-    if (!areaId || !rows.length) {
+  async function runPreview(inputRows: ImportRow[] = rows) {
+    if (!areaId || !inputRows.length) {
       setError("اختر الجماعة / المقاطعة وحمّل ملف XLSX أولًا.");
       return;
     }
@@ -465,7 +484,7 @@ export function RepresentativeImportWorkspace({
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload()),
+          body: JSON.stringify(payload(inputRows)),
         },
       );
       const envelope = (await response
@@ -494,6 +513,50 @@ export function RepresentativeImportWorkspace({
     } finally {
       setBusy(false);
     }
+  }
+
+  function beginManualObserver(row: ImportRow) {
+    setEditingRow(row.row);
+    setRowDraft({
+      observer_name: row.observer_name,
+      phone: row.phone,
+      voter_number: row.voter_number,
+      rbo: row.rbo,
+    });
+    setRowEditError("");
+  }
+
+  function cancelManualObserver() {
+    setEditingRow(null);
+    setRowEditError("");
+  }
+
+  async function saveManualObserver(row: ImportRow) {
+    const observerName = normalizeText(rowDraft.observer_name);
+    if (!observerName) {
+      setRowEditError("اسم المراقب مطلوب.");
+      return;
+    }
+
+    const nextRows = rows.map((item) =>
+      item.row === row.row
+        ? {
+            ...item,
+            observer_name: observerName,
+            phone: normalizeText(rowDraft.phone),
+            voter_number: normalizeText(rowDraft.voter_number),
+            rbo: normalizeText(rowDraft.rbo),
+          }
+        : item,
+    );
+
+    setRows(nextRows);
+    setManualRows((current) =>
+      current.includes(row.row) ? current : [...current, row.row],
+    );
+    setEditingRow(null);
+    setRowEditError("");
+    await runPreview(nextRows);
   }
 
   async function runCommit() {
@@ -538,6 +601,19 @@ export function RepresentativeImportWorkspace({
     const current = reviewByRow.get(review.row) ?? [];
     current.push(review);
     reviewByRow.set(review.row, current);
+  }
+  for (const warning of preview?.warnings ?? []) {
+    if (
+      warning.code !== "observer_missing_skipped" ||
+      !warning.row
+    ) {
+      continue;
+    }
+    const current = reviewByRow.get(warning.row) ?? [];
+    if (!current.some((item) => item.code === warning.code)) {
+      current.push(warning);
+      reviewByRow.set(warning.row, current);
+    }
   }
 
   return (
@@ -675,42 +751,134 @@ export function RepresentativeImportWorkspace({
 
               {rows.map((row) => {
                 const reviews = reviewByRow.get(row.row) ?? [];
+                const isEditing = editingRow === row.row;
+                const isBlankObserver = !row.observer_name.trim();
+                const isManual = manualRows.includes(row.row);
+
                 return (
                   <div
-                    className={`representative-import-row${reviews.length ? " has-review" : ""}`}
+                    className={`representative-import-row${reviews.length ? " has-review" : ""}${isBlankObserver ? " is-empty-observer" : ""}${isEditing ? " is-inline-editing" : ""}`}
                     id={`import-row-${row.row}`}
                     key={`${row.row}-${row.office_number}`}
                   >
                     <strong>{row.row}</strong>
                     <strong>{row.office_number}</strong>
-                    <span>{row.observer_name || "—"}</span>
-                    <span>{row.phone || "—"}</span>
-                    <span>{row.voter_number || "—"}</span>
-                    <span>{row.rbo || "—"}</span>
-                    <div className="representative-import-row-review">
-                      {reviews.length ? (
-                        reviews.map((review, index) => (
-                          <div key={`${review.code}-${index}`}>
-                            <strong>مقبول مع مراجعة</strong>
-                            <p>{previewIssueMessage(review)}</p>
-                            {review.matched_rows?.length ? (
-                              <div className="representative-import-row-refs">
-                                {review.matched_rows.map((matchedRow) => (
-                                  <a
-                                    href={`#import-row-${matchedRow}`}
-                                    key={matchedRow}
-                                  >
-                                    السطر {matchedRow}
-                                  </a>
-                                ))}
-                              </div>
-                            ) : null}
+
+                    {isEditing ? (
+                      <>
+                        <input
+                          value={rowDraft.observer_name}
+                          onChange={(event) =>
+                            setRowDraft((current) => ({
+                              ...current,
+                              observer_name: event.target.value,
+                            }))
+                          }
+                          placeholder="اسم المراقب"
+                          autoFocus
+                        />
+                        <input
+                          value={rowDraft.phone}
+                          onChange={(event) =>
+                            setRowDraft((current) => ({
+                              ...current,
+                              phone: event.target.value,
+                            }))
+                          }
+                          placeholder="الهاتف"
+                        />
+                        <input
+                          value={rowDraft.voter_number}
+                          onChange={(event) =>
+                            setRowDraft((current) => ({
+                              ...current,
+                              voter_number: event.target.value,
+                            }))
+                          }
+                          placeholder="رقم الناخب"
+                        />
+                        <input
+                          value={rowDraft.rbo}
+                          onChange={(event) =>
+                            setRowDraft((current) => ({
+                              ...current,
+                              rbo: event.target.value,
+                            }))
+                          }
+                          placeholder="ر ب و"
+                        />
+                        <div className="representative-import-row-review representative-import-row-editor-actions">
+                          {rowEditError ? (
+                            <p className="is-inline-error">{rowEditError}</p>
+                          ) : null}
+                          <div>
+                            <button
+                              type="button"
+                              onClick={() => void saveManualObserver(row)}
+                              disabled={busy}
+                            >
+                              {busy ? "فحص…" : "حفظ وإعادة المعاينة"}
+                            </button>
+                            <button
+                              type="button"
+                              className="is-secondary"
+                              onClick={cancelManualObserver}
+                              disabled={busy}
+                            >
+                              إلغاء
+                            </button>
                           </div>
-                        ))
-                      ) : (
-                        <span className="is-ok">سليم</span>
-                      )}
-                    </div>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <span>{row.observer_name || "—"}</span>
+                        <span>{row.phone || "—"}</span>
+                        <span>{row.voter_number || "—"}</span>
+                        <span>{row.rbo || "—"}</span>
+                        <div className="representative-import-row-review">
+                          {reviews.length ? (
+                            reviews.map((review, index) => (
+                              <div key={`${review.code}-${index}`}>
+                                <strong>
+                                  {review.code === "observer_missing_skipped"
+                                    ? "المكتب بدون مراقب"
+                                    : "مقبول مع مراجعة"}
+                                </strong>
+                                <p>{previewIssueMessage(review)}</p>
+                                {review.matched_rows?.length ? (
+                                  <div className="representative-import-row-refs">
+                                    {review.matched_rows.map((matchedRow) => (
+                                      <a
+                                        href={`#import-row-${matchedRow}`}
+                                        key={matchedRow}
+                                      >
+                                        السطر {matchedRow}
+                                      </a>
+                                    ))}
+                                  </div>
+                                ) : null}
+                              </div>
+                            ))
+                          ) : (
+                            <span className="is-ok">
+                              {isManual ? "أضيف يدويًا · سليم" : "سليم"}
+                            </span>
+                          )}
+
+                          {isBlankObserver || isManual ? (
+                            <button
+                              type="button"
+                              className="representative-import-inline-add"
+                              onClick={() => beginManualObserver(row)}
+                              disabled={busy}
+                            >
+                              {isBlankObserver ? "+ إضافة مراقب" : "تعديل"}
+                            </button>
+                          ) : null}
+                        </div>
+                      </>
+                    )}
                   </div>
                 );
               })}

@@ -6899,3 +6899,75 @@ a {
 .area-office-actions button.is-delete:hover {
   background: #ffe6e3;
 }
+
+
+/* Inline observer creation for blank imported rows */
+.representative-import-row.is-empty-observer {
+  background: #fffdf4;
+}
+
+.representative-import-row.is-inline-editing {
+  background: #f7fbff;
+  box-shadow: inset 4px 0 0 #315f9f;
+}
+
+.representative-import-row.is-inline-editing > input {
+  width: calc(100% - 12px);
+  min-width: 0;
+  margin: 6px;
+  padding: 7px 8px;
+  border: 1px solid #cfd8e6;
+  border-radius: 8px;
+  background: #fff;
+  font: inherit;
+}
+
+.representative-import-inline-add {
+  width: fit-content;
+  margin-top: 5px;
+  padding: 5px 8px;
+  border: 0;
+  border-radius: 8px;
+  background: #eef4ff;
+  color: #214f8f;
+  font-size: 8px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.representative-import-inline-add:hover {
+  background: #dfeaff;
+}
+
+.representative-import-row-editor-actions {
+  align-content: center;
+}
+
+.representative-import-row-editor-actions > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.representative-import-row-editor-actions button {
+  border: 0;
+  border-radius: 8px;
+  padding: 6px 8px;
+  background: #123d75;
+  color: #fff;
+  font-size: 8px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.representative-import-row-editor-actions button.is-secondary {
+  background: #edf1f6;
+  color: #536174;
+}
+
+.representative-import-row-editor-actions .is-inline-error {
+  margin: 0 0 4px;
+  color: #b42318;
+  font-size: 8px;
+  font-weight: 800;
+}
