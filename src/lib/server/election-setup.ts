@@ -15,6 +15,8 @@ export async function getElectionSetupSnapshot(
 
   return {
     ...snapshot,
+    areas: snapshot.areas ?? [],
+    central_offices: snapshot.central_offices ?? [],
     parties: snapshot.parties ?? [],
     candidates: snapshot.candidates ?? [],
     candidate_lists: snapshot.candidate_lists ?? [],
