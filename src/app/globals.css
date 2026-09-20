@@ -6751,3 +6751,137 @@ a {
   font-size: 9px;
   font-weight: 800;
 }
+
+
+/* Observer import row review */
+.representative-import-row-preview {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.representative-import-row-preview-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid #dfe5ed;
+  border-radius: 12px;
+  background: #f8fafc;
+}
+
+.representative-import-row-preview-head strong {
+  color: #102f63;
+  font-size: 12px;
+}
+
+.representative-import-row-preview-head p {
+  margin: 4px 0 0;
+  color: #7b8594;
+  font-size: 9px;
+  line-height: 1.7;
+}
+
+.representative-import-row-preview-head > span {
+  min-width: 56px;
+  padding: 6px 8px;
+  border-radius: 9px;
+  background: #102f63;
+  color: #fff;
+  text-align: center;
+  font-size: 9px;
+  font-weight: 900;
+}
+
+.representative-import-row-table {
+  overflow-x: auto;
+  border: 1px solid #e1e6ed;
+  border-radius: 12px;
+}
+
+.representative-import-row {
+  display: grid;
+  grid-template-columns: 64px 70px minmax(160px, 1.2fr) 110px 110px 110px minmax(260px, 1.6fr);
+  align-items: stretch;
+  min-width: 980px;
+  border-top: 1px solid #edf0f4;
+  background: #fff;
+}
+
+.representative-import-row:first-child {
+  border-top: 0;
+}
+
+.representative-import-row > * {
+  padding: 9px 10px;
+  border-inline-start: 1px solid #edf0f4;
+  font-size: 9px;
+}
+
+.representative-import-row > *:first-child {
+  border-inline-start: 0;
+}
+
+.representative-import-row.is-head {
+  background: #f3f6fa;
+  color: #5d6879;
+  font-weight: 900;
+}
+
+.representative-import-row.has-review {
+  background: #fff8e7;
+  box-shadow: inset 4px 0 0 #d8902f;
+}
+
+.representative-import-row.has-review > * {
+  border-color: #f1dfbd;
+}
+
+.representative-import-row-review {
+  display: grid;
+  gap: 6px;
+}
+
+.representative-import-row-review > div {
+  display: grid;
+  gap: 4px;
+}
+
+.representative-import-row-review strong {
+  color: #9a5b18;
+  font-size: 9px;
+}
+
+.representative-import-row-review p {
+  margin: 0;
+  color: #6e5429;
+  font-size: 9px;
+  line-height: 1.6;
+}
+
+.representative-import-row-review .is-ok {
+  color: #0b765b;
+  font-weight: 900;
+}
+
+.representative-import-row-refs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.representative-import-row-refs a {
+  padding: 3px 6px;
+  border-radius: 7px;
+  background: #fff;
+  color: #8a5a1e;
+  text-decoration: none;
+  font-size: 8px;
+  font-weight: 900;
+  box-shadow: inset 0 0 0 1px #e5c994;
+}
+
+.representative-import-row-refs a:hover {
+  background: #fff2d3;
+}

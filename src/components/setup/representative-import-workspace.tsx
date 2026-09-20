@@ -21,10 +21,18 @@ type ImportRow = {
 type PreviewIssue = {
   code: string;
   message: string;
+  row?: number;
   field?: string;
   office_number?: number;
   office_numbers?: number[];
   fields?: string[];
+  matched_rows?: number[];
+  matched_office_numbers?: number[];
+  identity_field?: string;
+  identity_value?: string | number | null;
+  representative_id?: number;
+  current?: ImportConflictPerson;
+  imported?: ImportConflictPerson;
 };
 
 type ImportConflictPerson = {
@@ -78,6 +86,7 @@ type PreviewData = {
   source_updates: number;
   errors: PreviewIssue[];
   warnings: PreviewIssue[];
+  row_reviews: PreviewIssue[];
 };
 
 type CommitData = {
@@ -169,6 +178,31 @@ function previewIssueMessage(issue: PreviewIssue) {
       return "مكتب التصويت نفسه مكرر أكثر من مرة داخل الملف.";
     case "office_not_found":
       return "رقم مكتب التصويت غير موجود ضمن الجماعة / المقاطعة المختارة.";
+    case "batch_identity_review": {
+      const identityLabel =
+        issue.identity_field === "rbo"
+          ? "ر ب و"
+          : issue.identity_field === "voter_number"
+            ? "رقم الناخب"
+            : issue.identity_field === "phone_name"
+              ? "الهاتف + الاسم"
+              : "هوية المراقب";
+      const rowRefs = issue.matched_rows?.length
+        ? `السطر ${issue.matched_rows.join("، ")}`
+        : "سطر آخر";
+      const officeRefs = issue.matched_office_numbers?.length
+        ? ` (مكتب ${issue.matched_office_numbers.join("، ")})`
+        : "";
+      const diff = fields ? ` وتختلف الحقول: ${fields}` : "";
+      return `${identityLabel} «${issue.identity_value ?? "—"}» مطابق لـ ${rowRefs}${officeRefs}${diff}. تم قبول هذا السطر كمراقب مستقل ويحتاج إلى مراجعة.`;
+    }
+    case "existing_representative_review": {
+      const officeRefs = issue.matched_office_numbers?.length
+        ? ` وهو مرتبط حاليًا بالمكتب/المكاتب ${issue.matched_office_numbers.join("، ")}`
+        : "";
+      const diff = fields ? ` الحقول المختلفة: ${fields}.` : "";
+      return `يوجد مراقب مسجل في النظام بنفس الهوية (السجل #${issue.representative_id ?? "—"})${officeRefs}، لكن بياناته تختلف عن هذا السطر.${diff} تم قبول السطر كسجل مستقل دون الكتابة فوق السجل الموجود.`;
+    }
     case "batch_identity_conflict":
       return "بيانات المراقب نفسه متعارضة بين أكثر من سطر في الملف.";
     case "ambiguous_existing_representative":
@@ -496,6 +530,14 @@ export function RepresentativeImportWorkspace({
     }
   }
 
+  const reviewByRow = new Map<number, PreviewIssue[]>();
+  for (const review of preview?.row_reviews ?? []) {
+    if (!review.row) continue;
+    const current = reviewByRow.get(review.row) ?? [];
+    current.push(review);
+    reviewByRow.set(review.row, current);
+  }
+
   return (
     <section className="representative-import-card">
       <div className="representative-import-head">
@@ -604,6 +646,73 @@ export function RepresentativeImportWorkspace({
               <strong>{preview.representatives.incomplete}</strong>
             </div>
           </div>
+
+          <section className="representative-import-row-preview">
+            <div className="representative-import-row-preview-head">
+              <div>
+                <strong>معاينة أسطر الملف</strong>
+                <p>
+                  الأسطر ذات اللون المختلف مقبولة في الاستيراد، لكنها تحمل
+                  ملاحظة مراجعة مع الإحالة إلى السطر أو السجل المطابق.
+                </p>
+              </div>
+              <span>{rows.length} سطر</span>
+            </div>
+
+            <div className="representative-import-row-table">
+              <div className="representative-import-row is-head">
+                <span>السطر</span>
+                <span>المكتب</span>
+                <span>المراقب</span>
+                <span>الهاتف</span>
+                <span>رقم الناخب</span>
+                <span>ر ب و</span>
+                <span>المراجعة</span>
+              </div>
+
+              {rows.map((row) => {
+                const reviews = reviewByRow.get(row.row) ?? [];
+                return (
+                  <div
+                    className={`representative-import-row${reviews.length ? " has-review" : ""}`}
+                    id={`import-row-${row.row}`}
+                    key={`${row.row}-${row.office_number}`}
+                  >
+                    <strong>{row.row}</strong>
+                    <strong>{row.office_number}</strong>
+                    <span>{row.observer_name || "—"}</span>
+                    <span>{row.phone || "—"}</span>
+                    <span>{row.voter_number || "—"}</span>
+                    <span>{row.rbo || "—"}</span>
+                    <div className="representative-import-row-review">
+                      {reviews.length ? (
+                        reviews.map((review, index) => (
+                          <div key={`${review.code}-${index}`}>
+                            <strong>مقبول مع مراجعة</strong>
+                            <p>{previewIssueMessage(review)}</p>
+                            {review.matched_rows?.length ? (
+                              <div className="representative-import-row-refs">
+                                {review.matched_rows.map((matchedRow) => (
+                                  <a
+                                    href={`#import-row-${matchedRow}`}
+                                    key={matchedRow}
+                                  >
+                                    السطر {matchedRow}
+                                  </a>
+                                ))}
+                              </div>
+                            ) : null}
+                          </div>
+                        ))
+                      ) : (
+                        <span className="is-ok">سليم</span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
 
           {preview.conflicts.length ? (
             <div className="representative-import-conflicts">
@@ -720,7 +829,7 @@ export function RepresentativeImportWorkspace({
 
           {preview.errors.length ? (
             <div className="representative-import-issues is-error">
-              <strong>تعارضات حقيقية تمنع الاستيراد</strong>
+              <strong>أخطاء فعلية تمنع الاستيراد</strong>
               {preview.errors.map((issue, index) => (
                 <p key={`${issue.code}-${index}`}>
                   {issue.office_number
@@ -742,9 +851,7 @@ export function RepresentativeImportWorkspace({
                     : issue.office_number
                       ? `مكتب ${issue.office_number}: `
                       : ""}
-                  {issue.code === "observer_missing_skipped"
-                    ? "لا يوجد اسم مراقب؛ سيبقى المكتب بدون مراقب ولن يمنع استيراد باقي اللائحة."
-                    : issue.message}
+                  {previewIssueMessage(issue)}
                 </p>
               ))}
             </div>
