@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
 import { AppHeader } from "@/components/navigation/app-header";
+import { RepresentativeImportWorkspace } from "@/components/setup/representative-import-workspace";
 import type { ConstituencyCoverageDashboard } from "@/lib/elect/types";
 import { backendRequest } from "@/lib/server/backend";
 import {
@@ -178,6 +179,14 @@ export default async function ConstituencyDashboardPage({
             })}
           </div>
         </section>
+
+        {user.role === "manager" ? (
+          <RepresentativeImportWorkspace
+            electionId={electionId}
+            constituencyId={dashboard.constituency.id}
+            areas={dashboard.areas}
+          />
+        ) : null}
 
         <section className="constituency-dashboard-section">
           <div className="constituency-dashboard-section-head">

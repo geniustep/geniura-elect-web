@@ -5533,3 +5533,189 @@ a {
     grid-column: 1 / -1;
   }
 }
+
+
+/* Observer-list XLSX import */
+.representative-import-card {
+  margin-top: 30px;
+  padding: 22px;
+  border: 1px solid #e1e6ed;
+  border-radius: 20px;
+  background: #fff;
+}
+
+.representative-import-head span {
+  color: #dd7c18;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.representative-import-head h2 {
+  margin: 5px 0 0;
+  color: #071d43;
+  font-size: 25px;
+}
+
+.representative-import-head p {
+  margin: 8px 0 0;
+  color: #788292;
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+.representative-import-controls {
+  display: grid;
+  grid-template-columns: minmax(180px, 0.7fr) minmax(260px, 1.3fr) auto;
+  align-items: end;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.representative-import-controls label {
+  display: grid;
+  gap: 6px;
+}
+
+.representative-import-controls label > span {
+  color: #687385;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.representative-import-controls select,
+.representative-import-controls input[type="file"] {
+  min-height: 43px;
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #cfd7e1;
+  border-radius: 11px;
+  background: #fff;
+}
+
+.representative-import-file small {
+  color: #8b94a2;
+  font-size: 9px;
+}
+
+.representative-import-controls > button,
+.representative-import-confirm > button {
+  min-height: 43px;
+  padding: 9px 14px;
+  border: 0;
+  border-radius: 11px;
+  background: #102f63;
+  color: #fff;
+  font-weight: 800;
+}
+
+.representative-import-controls button:disabled,
+.representative-import-confirm button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.representative-import-preview {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.representative-import-kpis {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.representative-import-kpis > div {
+  display: grid;
+  gap: 5px;
+  padding: 11px;
+  border-radius: 11px;
+  background: #f7f9fb;
+}
+
+.representative-import-kpis span {
+  color: #7b8594;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.representative-import-kpis strong {
+  color: #172033;
+  font-size: 20px;
+}
+
+.representative-import-issues,
+.representative-import-message {
+  padding: 11px 13px;
+  border-radius: 11px;
+  font-size: 11px;
+  line-height: 1.7;
+}
+
+.representative-import-issues p {
+  margin: 5px 0 0;
+}
+
+.representative-import-issues.is-error,
+.representative-import-message.is-error {
+  background: #fff2f0;
+  color: #b42318;
+}
+
+.representative-import-issues.is-warning {
+  background: #fff8e7;
+  color: #8a631d;
+}
+
+.representative-import-message.is-success {
+  margin-top: 12px;
+  background: #edf7f3;
+  color: #0b765b;
+}
+
+.representative-import-confirm {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 13px;
+  border: 1px solid #cfe2db;
+  border-radius: 12px;
+  background: #f5fbf8;
+}
+
+.representative-import-confirm label {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  color: #29413b;
+  font-size: 11px;
+  line-height: 1.7;
+}
+
+@media (max-width: 900px) {
+  .representative-import-controls {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .representative-import-controls > button {
+    grid-column: 1 / -1;
+  }
+
+  .representative-import-kpis {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 620px) {
+  .representative-import-controls,
+  .representative-import-kpis {
+    grid-template-columns: 1fr;
+  }
+
+  .representative-import-confirm {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}
