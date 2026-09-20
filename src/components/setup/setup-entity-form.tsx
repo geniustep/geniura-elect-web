@@ -69,10 +69,7 @@ function initialValues(
       region_id: String(item?.region.id ?? snapshot.regions[0]?.id ?? ""),
       kind: item?.kind ?? "local",
       seat_count: String(item?.seat_count ?? 1),
-      registered_voters:
-        item?.registered_voters === null || item?.registered_voters === undefined
-          ? ""
-          : String(item.registered_voters),
+      registered_voters: String(item?.registered_voters ?? 0),
     };
   }
 
@@ -104,7 +101,10 @@ function initialValues(
       center_id: String(item?.center.id ?? snapshot.centers[0]?.id ?? ""),
       code: item?.code ?? "",
       number: String(item?.number ?? 1),
-      registered_voters: String(item?.registered_voters ?? 0),
+      registered_voters:
+        item?.registered_voters === null || item?.registered_voters === undefined
+          ? ""
+          : String(item.registered_voters),
     };
   }
 
@@ -549,7 +549,6 @@ export function SetupEntityForm({
                   <input
                     type="number"
                     min={0}
-                    required
                     value={values.registered_voters}
                     onChange={(event) =>
                       update("registered_voters", event.target.value)
