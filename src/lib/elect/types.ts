@@ -298,6 +298,18 @@ export type SetupPollingArea = {
   central_office_count: number;
 };
 
+export type AreaManagementSnapshot = {
+  area: SetupPollingArea;
+  central_offices: SetupCentralOffice[];
+  centers: SetupCenter[];
+  offices: PollingOffice[];
+  capabilities: {
+    edit: boolean;
+    archive: boolean;
+    create: boolean;
+  };
+};
+
 export type SetupCentralOffice = {
   id: number;
   number: number;

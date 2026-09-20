@@ -6,11 +6,10 @@ import { AreaOfficeObserverTable } from "@/components/operations/area-office-obs
 import { AreaXlsxExportButton } from "@/components/operations/area-xlsx-export-button";
 import { AreaStructureManager } from "@/components/operations/area-structure-manager";
 import type {
+  AreaManagementSnapshot,
   ConstituencyCoverageDashboard,
-  ElectionSetupSnapshot,
 } from "@/lib/elect/types";
 import { backendRequest } from "@/lib/server/backend";
-import { getElectionSetupSnapshot } from "@/lib/server/election-setup";
 import {
   getCurrentUser,
   readElectSessionId,
@@ -41,9 +40,8 @@ export default async function PollingAreaPage({
   }
 
   const sessionId = await readElectSessionId();
-  let dashboard: ConstituencyCoverageDashboard;
-  let setup: ElectionSetupSnapshot | null = null;
 
+  let dashboard: ConstituencyCoverageDashboard;
   try {
     dashboard = await backendRequest<ConstituencyCoverageDashboard>(
       `/api/v1/elections/${encodeURIComponent(electionId)}/constituencies/${encodeURIComponent(constituencyId)}/dashboard`,
@@ -52,10 +50,6 @@ export default async function PollingAreaPage({
         sessionId,
       },
     );
-
-    if (user.role === "manager") {
-      setup = await getElectionSetupSnapshot(electionId, sessionId);
-    }
   } catch {
     notFound();
   }
@@ -63,17 +57,38 @@ export default async function PollingAreaPage({
   const area = dashboard.areas.find((item) => item.id === numericAreaId);
   if (!area) notFound();
 
+  const isAreaScopedCoordinator =
+    user.role === "coordinator" &&
+    user.scope_mode === "polling_areas" &&
+    Boolean(
+      user.polling_areas?.some(
+        (item) =>
+          item.id === numericAreaId &&
+          item.election_id === Number(electionId),
+      ),
+    );
+
+  const canRequestManagement =
+    user.role === "manager" || isAreaScopedCoordinator;
+
+  let management: AreaManagementSnapshot | null = null;
+  if (canRequestManagement) {
+    try {
+      management = await backendRequest<AreaManagementSnapshot>(
+        `/api/v1/elections/${encodeURIComponent(electionId)}/setup/areas/${numericAreaId}/management`,
+        {
+          method: "GET",
+          sessionId,
+        },
+      );
+    } catch {
+      management = null;
+    }
+  }
+
   const offices = dashboard.offices
     .filter((office) => office.area?.id === numericAreaId)
     .sort((a, b) => a.number - b.number);
-
-  const setupArea = setup?.areas.find((item) => item.id === numericAreaId);
-  const setupCentralOffices =
-    setup?.central_offices.filter((item) => item.area.id === numericAreaId) ?? [];
-  const setupCenters =
-    setup?.centers.filter((item) => item.area?.id === numericAreaId) ?? [];
-  const setupOffices =
-    setup?.offices.filter((item) => item.area?.id === numericAreaId) ?? [];
 
   const percentage = area.total ? (100 * area.covered) / area.total : 0;
 
@@ -103,17 +118,18 @@ export default async function PollingAreaPage({
             <span>الجماعة / المقاطعة</span>
             <h1>{area.name}</h1>
             <p>
-              لائحة مكاتب التصويت والمراقبين داخل هذه الجماعة أو المقاطعة،
-              مع إدارة البنية التنظيمية للمسؤول المخول.
+              لائحة مكاتب التصويت والمراقبين داخل هذه الجماعة أو المقاطعة.
+              المستخدم المقيّد بهذه الجماعة يستطيع تعديل وأرشفة البيانات
+              الواقعة داخل نطاقه فقط.
             </p>
-            {user.role === "manager" && setupArea ? (
+            {management ? (
               <div className="polling-area-export-wrap">
                 <AreaXlsxExportButton
-                  areaName={setupArea.name}
-                  sourceFilename={setupArea.source_filename}
+                  areaName={management.area.name}
+                  sourceFilename={management.area.source_filename}
                   electionDate={dashboard.election.election_date}
                   coverageOffices={offices}
-                  structuralOffices={setupOffices}
+                  structuralOffices={management.offices}
                 />
               </div>
             ) : null}
@@ -138,20 +154,25 @@ export default async function PollingAreaPage({
           </div>
         </section>
 
-        {user.role === "manager" && setupArea ? (
+        {management ? (
           <AreaStructureManager
             electionId={electionId}
-            initialArea={setupArea}
-            initialCentralOffices={setupCentralOffices}
-            centers={setupCenters}
-            initialOffices={setupOffices}
+            initialArea={management.area}
+            initialCentralOffices={management.central_offices}
+            centers={management.centers}
+            initialOffices={management.offices}
+            canCreate={management.capabilities.create}
+            canArchive={management.capabilities.archive}
           />
         ) : null}
 
         <AreaOfficeObserverTable
           electionId={electionId}
+          areaId={numericAreaId}
           offices={offices}
-          canEdit={user.role === "manager"}
+          canEdit={Boolean(management?.capabilities.edit)}
+          canCreate={Boolean(management?.capabilities.create)}
+          canDelete={Boolean(management?.capabilities.archive)}
         />
       </section>
     </main>
