@@ -6885,3 +6885,17 @@ a {
 .representative-import-row-refs a:hover {
   background: #fff2d3;
 }
+
+
+/* Scoped destructive actions are archive/cancel, never hard delete */
+.area-structure-manager button.is-delete,
+.area-office-actions button.is-delete {
+  background: #fff1f0;
+  color: #b42318;
+  box-shadow: inset 0 0 0 1px #f2b8b3;
+}
+
+.area-structure-manager button.is-delete:hover,
+.area-office-actions button.is-delete:hover {
+  background: #ffe6e3;
+}

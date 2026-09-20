@@ -10,8 +10,11 @@ import type {
 
 type Props = {
   electionId: string;
+  areaId: number;
   offices: ConstituencyCoverageOffice[];
   canEdit: boolean;
+  canCreate: boolean;
+  canDelete: boolean;
 };
 
 type Draft = {
@@ -65,8 +68,11 @@ function normalizeSearch(value: string) {
 
 export function AreaOfficeObserverTable({
   electionId,
+  areaId,
   offices,
   canEdit,
+  canCreate,
+  canDelete,
 }: Props) {
   const [items, setItems] = useState(offices);
   const [query, setQuery] = useState("");
@@ -257,7 +263,7 @@ export function AreaOfficeObserverTable({
     setSavedOfficeId(null);
     try {
       const response = await fetch(
-        `/api/operations/elections/${encodeURIComponent(electionId)}/setup/representatives/${representative.id}`,
+        `/api/operations/elections/${encodeURIComponent(electionId)}/setup/areas/${areaId}/representatives/${representative.id}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -292,6 +298,64 @@ export function AreaOfficeObserverTable({
       setEditingId(null);
       setSavedOfficeId(office.id);
       clearOfficeError(office.id);
+    } catch {
+      setErrorByOffice((current) => ({
+        ...current,
+        [office.id]: "تعذر الاتصال بالخدمة.",
+      }));
+    } finally {
+      setSavingId(null);
+    }
+  }
+
+  async function removeRepresentative(office: ConstituencyCoverageOffice) {
+    if (!canDelete || !office.assignment || !office.representative) return;
+
+    const confirmed = window.confirm(
+      `حذف تعيين المراقب «${office.representative.name}» من مكتب التصويت ${office.number}؟ سيُلغى التعيين مع الاحتفاظ بالسجل التاريخي.`,
+    );
+    if (!confirmed) return;
+
+    setSavingId(office.id);
+    setSavedOfficeId(null);
+    try {
+      const response = await fetch(
+        `/api/operations/elections/${encodeURIComponent(electionId)}/setup/areas/${areaId}/assignments/${office.assignment.id}/cancel`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({}),
+        },
+      );
+      const payload = (await response.json().catch(() => null)) as
+        | { success: boolean; error?: { message?: string } }
+        | null;
+
+      if (!response.ok || !payload?.success) {
+        setErrorByOffice((current) => ({
+          ...current,
+          [office.id]:
+            payload?.error?.message || "تعذر حذف تعيين المراقب.",
+        }));
+        return;
+      }
+
+      setItems((current) =>
+        current.map((item) =>
+          item.id === office.id
+            ? {
+                ...item,
+                assignment: null,
+                representative: null,
+                missing_fields: [],
+                review_flags: [],
+                coverage_state: "uncovered",
+              }
+            : item,
+        ),
+      );
+      clearOfficeError(office.id);
+      setSavedOfficeId(office.id);
     } catch {
       setErrorByOffice((current) => ({
         ...current,
@@ -531,11 +595,25 @@ export function AreaOfficeObserverTable({
                       إلغاء
                     </button>
                   </>
-                ) : canEdit && representative ? (
-                  <button type="button" onClick={() => startEdit(office)}>
-                    تعديل
-                  </button>
-                ) : canEdit ? (
+                ) : representative ? (
+                  <>
+                    {canEdit ? (
+                      <button type="button" onClick={() => startEdit(office)}>
+                        تعديل
+                      </button>
+                    ) : null}
+                    {canDelete && office.assignment ? (
+                      <button
+                        type="button"
+                        className="is-delete"
+                        onClick={() => void removeRepresentative(office)}
+                        disabled={savingId === office.id}
+                      >
+                        حذف
+                      </button>
+                    ) : null}
+                  </>
+                ) : canCreate ? (
                   <button
                     type="button"
                     className="is-add"
@@ -554,7 +632,7 @@ export function AreaOfficeObserverTable({
 
               {savedOfficeId === office.id ? (
                 <div className="area-office-feedback is-success" role="status">
-                  تم حفظ بيانات المراقب
+                  تم تنفيذ العملية بنجاح
                 </div>
               ) : null}
             </article>
