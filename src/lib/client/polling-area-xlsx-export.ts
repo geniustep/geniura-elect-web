@@ -1,6 +1,7 @@
 "use client";
 
 import ExcelJS from "@andreeewill/exceljs/dist/exceljs.min.js";
+import JSZip from "jszip";
 
 export type PollingAreaExportRow = {
   compensation?: number | null;
@@ -32,8 +33,6 @@ const exactHeaders = [
 const BLACK = "FF000000";
 const HEADER_BLUE = "FF95B3D7";
 const EMPTY_OBSERVER_GRAY = "FFD9D9D9";
-const TITLE_BORDER = "FFBFBFBF";
-
 const thinBlack = {
   top: { style: "thin" as const, color: { argb: BLACK } },
   bottom: { style: "thin" as const, color: { argb: BLACK } },
@@ -104,39 +103,7 @@ function buildAreaSheet(
   worksheet.getRow(3).height = 13.5;
   worksheet.getRow(4).height = 33.95;
 
-  for (let row = 1; row <= 2; row += 1) {
-    for (let col = 4; col <= 9; col += 1) {
-      const cell = worksheet.getRow(row).getCell(col);
-      cell.fill = {
-        type: "pattern",
-        pattern: "solid",
-        fgColor: { argb: "FFFFFFFF" },
-      };
-      cell.border = {
-        top: { style: "thin", color: { argb: TITLE_BORDER } },
-        bottom: { style: "thin", color: { argb: TITLE_BORDER } },
-        left: { style: "thin", color: { argb: TITLE_BORDER } },
-        right: { style: "thin", color: { argb: TITLE_BORDER } },
-      };
-    }
-  }
-
-  worksheet.mergeCells("D1:I2");
-  const title = worksheet.getCell("D1");
-  title.value =
-    "لائحة المراقبين بمكاتب التصويت للانتخابات التشريعية\n" +
-    `اقتراع ${electionDateLabel(electionDate)}`;
-  title.font = {
-    name: "Arial",
-    size: 12,
-    bold: true,
-    color: { argb: BLACK },
-  };
-  title.alignment = {
-    horizontal: "center",
-    vertical: "middle",
-    wrapText: true,
-  };
+  worksheet.getRow(1).height = 33.95;
 
   const header = worksheet.getRow(4);
   exactHeaders.forEach((value, index) => {
@@ -244,6 +211,145 @@ function buildAreaSheet(
   return worksheet;
 }
 
+function escapeXml(value: string) {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
+}
+
+function titleDrawingXml(dateLabel: string) {
+  const safeDate = escapeXml(dateLabel);
+  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<xdr:wsDr xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">
+  <xdr:twoCellAnchor>
+    <xdr:from>
+      <xdr:col>3</xdr:col><xdr:colOff>381000</xdr:colOff>
+      <xdr:row>0</xdr:row><xdr:rowOff>0</xdr:rowOff>
+    </xdr:from>
+    <xdr:to>
+      <xdr:col>8</xdr:col><xdr:colOff>1333500</xdr:colOff>
+      <xdr:row>1</xdr:row><xdr:rowOff>104775</xdr:rowOff>
+    </xdr:to>
+    <xdr:sp macro="" textlink="">
+      <xdr:nvSpPr>
+        <xdr:cNvPr id="3" name="ZoneTexte 2"/>
+        <xdr:cNvSpPr txBox="1"/>
+      </xdr:nvSpPr>
+      <xdr:spPr>
+        <a:xfrm>
+          <a:off x="942975" y="0"/>
+          <a:ext cx="4791075" cy="533400"/>
+        </a:xfrm>
+        <a:prstGeom prst="rect"><a:avLst/></a:prstGeom>
+        <a:solidFill><a:schemeClr val="lt1"/></a:solidFill>
+        <a:ln w="9525" cmpd="sng">
+          <a:solidFill><a:schemeClr val="lt1"><a:shade val="50000"/></a:schemeClr></a:solidFill>
+        </a:ln>
+      </xdr:spPr>
+      <xdr:style>
+        <a:lnRef idx="0"><a:scrgbClr r="0" g="0" b="0"/></a:lnRef>
+        <a:fillRef idx="0"><a:scrgbClr r="0" g="0" b="0"/></a:fillRef>
+        <a:effectRef idx="0"><a:scrgbClr r="0" g="0" b="0"/></a:effectRef>
+        <a:fontRef idx="minor"><a:schemeClr val="dk1"/></a:fontRef>
+      </xdr:style>
+      <xdr:txBody>
+        <a:bodyPr vertOverflow="clip" horzOverflow="clip" wrap="square" rtlCol="0" anchor="t"/>
+        <a:lstStyle/>
+        <a:p>
+          <a:pPr algn="ctr" rtl="1"/>
+          <a:r>
+            <a:rPr lang="ar-MA" sz="1200" b="1"/>
+            <a:t>لائحة المراقبين بمكاتب التصويت للانتخابات التشريعية</a:t>
+          </a:r>
+        </a:p>
+        <a:p>
+          <a:pPr algn="ctr" rtl="1"/>
+          <a:r>
+            <a:rPr lang="ar-MA" sz="1200" b="1"/>
+            <a:t>اقتراع ${safeDate}</a:t>
+          </a:r>
+          <a:endParaRPr lang="ar-MA" sz="1200" b="1"/>
+        </a:p>
+      </xdr:txBody>
+    </xdr:sp>
+    <xdr:clientData/>
+  </xdr:twoCellAnchor>
+</xdr:wsDr>`;
+}
+
+async function injectReferenceTitleBox(
+  workbookBuffer: ArrayBuffer,
+  dateLabel: string,
+) {
+  const zip = await JSZip.loadAsync(workbookBuffer);
+
+  const sheetPath = "xl/worksheets/sheet1.xml";
+  const relPath = "xl/worksheets/_rels/sheet1.xml.rels";
+  const contentTypesPath = "[Content_Types].xml";
+  const drawingPath = "xl/drawings/drawing1.xml";
+
+  const sheetFile = zip.file(sheetPath);
+  const typesFile = zip.file(contentTypesPath);
+  if (!sheetFile || !typesFile) {
+    throw new Error("تعذر تجهيز بنية ملف Excel المرجعي.");
+  }
+
+  let sheetXml = await sheetFile.async("string");
+  let relXml = zip.file(relPath)
+    ? await zip.file(relPath)!.async("string")
+    : '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"></Relationships>';
+
+  const usedIds = [...relXml.matchAll(/Id="rId(\d+)"/g)].map((match) =>
+    Number(match[1]),
+  );
+  const nextId = Math.max(0, ...usedIds) + 1;
+  const relationId = `rId${nextId}`;
+
+  if (!sheetXml.includes("xmlns:r=")) {
+    sheetXml = sheetXml.replace(
+      /<worksheet\b/,
+      '<worksheet xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"',
+    );
+  }
+
+  sheetXml = sheetXml.replace(/<drawing\b[^>]*\/>/g, "");
+  sheetXml = sheetXml.replace(
+    "</worksheet>",
+    `<drawing r:id="${relationId}"/></worksheet>`,
+  );
+
+  relXml = relXml.replace(
+    /<Relationship\b[^>]*Type="http:\/\/schemas\.openxmlformats\.org\/officeDocument\/2006\/relationships\/drawing"[^>]*\/>/g,
+    "",
+  );
+  relXml = relXml.replace(
+    "</Relationships>",
+    `<Relationship Id="${relationId}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing" Target="../drawings/drawing1.xml"/></Relationships>`,
+  );
+
+  let contentTypes = await typesFile.async("string");
+  if (!contentTypes.includes('PartName="/xl/drawings/drawing1.xml"')) {
+    contentTypes = contentTypes.replace(
+      "</Types>",
+      '<Override PartName="/xl/drawings/drawing1.xml" ContentType="application/vnd.openxmlformats-officedocument.drawing+xml"/></Types>',
+    );
+  }
+
+  zip.file(sheetPath, sheetXml);
+  zip.file(relPath, relXml);
+  zip.file(contentTypesPath, contentTypes);
+  zip.file(drawingPath, titleDrawingXml(dateLabel));
+
+  return zip.generateAsync({
+    type: "uint8array",
+    compression: "DEFLATE",
+    compressionOptions: { level: 6 },
+  });
+}
+
 function safeFilename(value: string) {
   const cleaned = value.replace(/[\\/:*?"<>|]/g, " ").trim();
   return cleaned || "معطيات المراقبين";
@@ -264,7 +370,11 @@ export async function downloadPollingAreaWorkbook({
   buildAreaSheet(workbook, electionDate, rows);
 
   const buffer = await workbook.xlsx.writeBuffer();
-  const blob = new Blob([buffer], {
+  const exactBuffer = await injectReferenceTitleBox(
+    buffer,
+    electionDateLabel(electionDate),
+  );
+  const blob = new Blob([exactBuffer], {
     type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
   });
   const url = URL.createObjectURL(blob);
