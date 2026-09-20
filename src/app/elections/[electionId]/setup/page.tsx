@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
 import { AppHeader } from "@/components/navigation/app-header";
+import { CentralOfficeQuickTable } from "@/components/setup/central-office-quick-table";
 import { getElectionSetupSnapshot } from "@/lib/server/election-setup";
 import {
   getCurrentUser,
@@ -244,7 +245,7 @@ export default async function ElectionSetupPage({
             <div>
               <span>03 · التجميع</span>
               <h2>المكاتب المركزية</h2>
-              <p>رقم واسم كل مكتب مركزي كما يردان في ملفات Excel.</p>
+              <p>تصحيح رقم واسم المكتب المركزي مباشرة مع الحفاظ على روابط مكاتب التصويت.</p>
             </div>
             <Link
               className="setup-create-button"
@@ -254,34 +255,10 @@ export default async function ElectionSetupPage({
             </Link>
           </div>
 
-          {setup.central_offices.length ? (
-            <div className="setup-table">
-              <div className="setup-row setup-row--header">
-                <span>الرقم</span>
-                <span>المكتب المركزي</span>
-                <span>النطاق</span>
-                <span />
-              </div>
-              {setup.central_offices.map((item) => (
-                <div className="setup-row" key={item.id}>
-                  <strong>{item.number}</strong>
-                  <div className="setup-row-main">
-                    <strong>{item.name || "بدون اسم"}</strong>
-                    <small>{item.office_count} مكتب تصويت</small>
-                  </div>
-                  <span>{item.area.name}</span>
-                  <Link
-                    className="setup-edit-link"
-                    href={`/elections/${electionId}/setup/central-offices/${item.id}/edit`}
-                  >
-                    تعديل
-                  </Link>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="setup-empty">لا توجد مكاتب مركزية بعد.</div>
-          )}
+          <CentralOfficeQuickTable
+            electionId={electionId}
+            initialItems={setup.central_offices}
+          />
         </section>
 
         <section className="setup-management-section">
