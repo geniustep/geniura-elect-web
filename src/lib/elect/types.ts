@@ -50,6 +50,16 @@ export type PollingOffice = {
   registered_voters: number | null;
   registered_voters_known: boolean;
   coverage_state: string;
+  area?: {
+    id: number;
+    name: string;
+    code: string;
+  } | null;
+  central_office?: {
+    id: number;
+    number: number;
+    name: string;
+  } | null;
   center: {
     id: number;
     name: string;
@@ -269,12 +279,35 @@ export type SetupRegion = {
   code: string;
 };
 
+export type SetupPollingArea = {
+  id: number;
+  name: string;
+  code: string;
+  source_filename?: string | null;
+  constituency: {
+    id: number;
+    name: string;
+    code: string;
+  };
+  center_count: number;
+  central_office_count: number;
+};
+
+export type SetupCentralOffice = {
+  id: number;
+  number: number;
+  name: string;
+  area: SetupPollingArea;
+  office_count: number;
+};
+
 export type SetupCenter = {
   id: number;
   name: string;
   code: string;
   address?: string | null;
   commune?: string | null;
+  area?: SetupPollingArea | null;
   constituency: {
     id: number;
     name: string;
@@ -362,6 +395,8 @@ export type ElectionSetupSnapshot = {
   election: ElectionSummary;
   regions: SetupRegion[];
   constituencies: ConstituencySummary[];
+  areas: SetupPollingArea[];
+  central_offices: SetupCentralOffice[];
   centers: SetupCenter[];
   offices: PollingOffice[];
   representatives: SetupRepresentative[];
@@ -374,6 +409,8 @@ export type ElectionSetupSnapshot = {
 
 export type ElectionSetupSection =
   | "constituencies"
+  | "areas"
+  | "central-offices"
   | "centers"
   | "offices"
   | "representatives"
