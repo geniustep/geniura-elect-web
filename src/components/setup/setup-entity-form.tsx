@@ -38,7 +38,21 @@ function getRecord(
 ) {
   if (section === "election") return snapshot.election;
   if (!recordId) return undefined;
-  return snapshot[section].find((item) => item.id === recordId);
+
+  const collections: Record<
+    ElectionSetupSection,
+    readonly { id: number }[]
+  > = {
+    constituencies: snapshot.constituencies,
+    areas: snapshot.areas,
+    "central-offices": snapshot.central_offices,
+    centers: snapshot.centers,
+    offices: snapshot.offices,
+    representatives: snapshot.representatives,
+    assignments: snapshot.assignments,
+  };
+
+  return collections[section].find((item) => item.id === recordId);
 }
 
 function initialValues(
@@ -570,7 +584,6 @@ export function SetupEntityForm({
                 <label className="setup-field setup-field--full">
                   <span>اسم المكتب المركزي</span>
                   <input
-                    required
                     value={values.name}
                     onChange={(event) => update("name", event.target.value)}
                   />
