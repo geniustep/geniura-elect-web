@@ -243,7 +243,7 @@ async function parseWorkbookFile(file: File): Promise<ImportArea> {
 
   const workbook = new ExcelJS.Workbook();
   const bytes = new Uint8Array(await file.arrayBuffer());
-  await workbook.xlsx.load(bytes);
+  await workbook.xlsx.load(bytes as unknown as Buffer);
 
   const worksheet =
     workbook.getWorksheet("معطيات المراقبين") ?? workbook.worksheets[0];
@@ -275,8 +275,16 @@ async function parseWorkbookFile(file: File): Promise<ImportArea> {
       worksheet.getRow(rowNumber).getCell(header.centralNumber).value,
     );
 
-    if (centralNameCell) lastCentralName = centralNameCell;
-    if (centralNumberCell !== "") lastCentralNumber = centralNumberCell;
+    if (
+      centralNumberCell !== "" &&
+      centralNumberCell !== lastCentralNumber
+    ) {
+      lastCentralNumber = centralNumberCell;
+      lastCentralName = centralNameCell;
+    } else {
+      if (centralNumberCell !== "") lastCentralNumber = centralNumberCell;
+      if (centralNameCell) lastCentralName = centralNameCell;
+    }
 
     if (officeNumber === "" && !officeName) {
       continue;
