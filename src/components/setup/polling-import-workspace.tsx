@@ -135,6 +135,10 @@ type Props = {
   exportSnapshot: ExportSnapshot;
 };
 
+type BrowserXlsxLoader = {
+  load(data: ArrayBuffer): Promise<ExcelJS.Workbook>;
+};
+
 const exactHeaders = [
   "التعويض",
   "رقم الهاتف",
@@ -273,8 +277,8 @@ async function parseWorkbookFile(file: File): Promise<ImportArea> {
   }
 
   const workbook = new ExcelJS.Workbook();
-  const bytes = new Uint8Array(await file.arrayBuffer());
-  await workbook.xlsx.load(bytes as never);
+  const browserXlsx = workbook.xlsx as unknown as BrowserXlsxLoader;
+  await browserXlsx.load(await file.arrayBuffer());
 
   const worksheet =
     workbook.getWorksheet("معطيات المراقبين") ?? workbook.worksheets[0];
