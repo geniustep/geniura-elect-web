@@ -9,7 +9,7 @@ import type {
   ElectionSummary,
   PollingOffice,
 } from "@/lib/elect/types";
-import { backendRequest } from "@/lib/server/backend";
+import { backendHttp, backendRequest } from "@/lib/server/backend";
 import {
   getCurrentUser,
   readElectSessionId,
@@ -78,25 +78,42 @@ export default async function ElectionPage({
   const { electionId } = await params;
   const sessionId = await readElectSessionId();
 
-  let electionData: ElectionPayload;
-  let officesData: OfficesPayload;
+  const electionResult = await backendHttp<ElectionPayload>(
+    `/api/v1/elections/${electionId}`,
+    {
+      method: "GET",
+      sessionId,
+    },
+  );
+
+  if (electionResult.response.status === 401) {
+    redirect("/login");
+  }
+  if (electionResult.response.status === 404) {
+    notFound();
+  }
+  if (
+    !electionResult.response.ok ||
+    !electionResult.payload ||
+    !electionResult.payload.success
+  ) {
+    throw new Error("تعذر تحميل بيانات الانتخابات من الخدمة.");
+  }
+
+  const electionData = electionResult.payload.data;
+  let officesData: OfficesPayload = { items: [] };
+  let officesRequestFailed = false;
 
   try {
-    [electionData, officesData] = await Promise.all([
-      backendRequest<ElectionPayload>(`/api/v1/elections/${electionId}`, {
+    officesData = await backendRequest<OfficesPayload>(
+      `/api/v1/elections/${electionId}/polling-offices`,
+      {
         method: "GET",
         sessionId,
-      }),
-      backendRequest<OfficesPayload>(
-        `/api/v1/elections/${electionId}/polling-offices`,
-        {
-          method: "GET",
-          sessionId,
-        },
-      ),
-    ]);
+      },
+    );
   } catch {
-    notFound();
+    officesRequestFailed = true;
   }
 
   let constituencies: ConstituencySummary[] = [];
@@ -129,7 +146,7 @@ export default async function ElectionPage({
     (office) => office.coverage_state === "present",
   ).length;
   const protocols = offices.filter((office) => office.protocol).length;
-  const officesLoaded = offices.length > 0;
+  const officesLoaded = !officesRequestFailed && offices.length > 0;
 
   return (
     <main
@@ -313,7 +330,21 @@ export default async function ElectionPage({
             </div>
           </div>
 
-          {officesLoaded ? (
+          {officesRequestFailed ? (
+            <div className="pjd-polling-empty is-load-error">
+              <div className="pjd-polling-empty-icon" aria-hidden="true">
+                !
+              </div>
+              <div>
+                <h3>تعذر تحميل مكاتب التصويت الآن</h3>
+                <p>
+                  بيانات الانتخابات والدوائر ما زالت متاحة. أعد المحاولة
+                  لتحميل لائحة المكاتب.
+                </p>
+              </div>
+              <Link href={`/elections/${election.id}`}>إعادة المحاولة</Link>
+            </div>
+          ) : officesLoaded ? (
             <div className="pjd-office-grid">
               {offices.map((office) => (
                 <Link
