@@ -49,6 +49,11 @@ export type PollingOffice = {
   number: number;
   registered_voters: number | null;
   registered_voters_known: boolean;
+  source_compensation: number | null;
+  source_phone?: string | null;
+  source_voter_number?: string | null;
+  source_rbo?: string | null;
+  source_observer_name?: string | null;
   coverage_state: string;
   area?: {
     id: number;
