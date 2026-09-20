@@ -6249,3 +6249,183 @@ a {
 .area-office-actions button.is-add {
   background: #0b765b;
 }
+
+
+/* XLSX existing-observer comparison */
+.representative-import-conflicts {
+  display: grid;
+  gap: 12px;
+}
+
+.representative-import-conflicts-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 16px;
+  border: 1px solid #d9e1eb;
+  border-radius: 13px;
+  background: #f7f9fc;
+}
+
+.representative-import-conflicts-head strong {
+  color: #071d43;
+  font-size: 13px;
+}
+
+.representative-import-conflicts-head p {
+  margin: 5px 0 0;
+  color: #6f7989;
+  font-size: 10px;
+  line-height: 1.7;
+}
+
+.representative-import-conflicts-head > span {
+  min-width: 34px;
+  min-height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: #102f63;
+  color: #fff;
+  font-weight: 900;
+}
+
+.representative-import-conflict-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.representative-import-conflict-card {
+  padding: 15px;
+  border: 1px solid #dfe5ed;
+  border-radius: 15px;
+  background: #fff;
+}
+
+.representative-import-conflict-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.representative-import-conflict-title > div {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+}
+
+.representative-import-conflict-title span,
+.representative-import-conflict-title small {
+  color: #7d8795;
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.representative-import-conflict-title strong {
+  color: #102f63;
+  font-size: 20px;
+}
+
+.representative-import-compare {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.representative-import-compare > div {
+  padding: 12px;
+  border-radius: 12px;
+  background: #f8fafc;
+}
+
+.representative-import-compare > div > span {
+  display: block;
+  margin-bottom: 8px;
+  color: #687385;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.representative-import-compare > div > div {
+  display: grid;
+  grid-template-columns: 90px 1fr;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid #edf0f4;
+}
+
+.representative-import-compare > div > div:last-child {
+  border-bottom: 0;
+}
+
+.representative-import-compare small {
+  color: #8b94a2;
+  font-size: 9px;
+}
+
+.representative-import-compare strong {
+  color: #253044;
+  font-size: 10px;
+}
+
+.representative-import-compare .is-different {
+  margin-inline: -6px;
+  padding-inline: 6px;
+  border-radius: 7px;
+  background: #fff8e7;
+}
+
+.representative-import-compare .is-imported {
+  box-shadow: inset 3px 0 0 #dd7c18;
+}
+
+.representative-import-conflict-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.representative-import-conflict-actions button {
+  min-height: 52px;
+  display: grid;
+  gap: 2px;
+  padding: 8px 11px;
+  border: 1px solid #d8dfe8;
+  border-radius: 11px;
+  background: #fff;
+  color: #536074;
+  text-align: start;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.representative-import-conflict-actions button small {
+  color: #8b94a2;
+  font-size: 8px;
+  font-weight: 700;
+}
+
+.representative-import-conflict-actions button.is-selected {
+  border-color: #7a9cc5;
+  background: #f1f6fc;
+  color: #184780;
+  box-shadow: inset 0 0 0 1px #7a9cc5;
+}
+
+.representative-import-conflict-actions button.is-selected.is-replace {
+  border-color: #d89a58;
+  background: #fff8ee;
+  color: #9a5b18;
+  box-shadow: inset 0 0 0 1px #d89a58;
+}
+
+@media (max-width: 700px) {
+  .representative-import-compare,
+  .representative-import-conflict-actions {
+    grid-template-columns: 1fr;
+  }
+}

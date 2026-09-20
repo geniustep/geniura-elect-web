@@ -27,6 +27,28 @@ type PreviewIssue = {
   fields?: string[];
 };
 
+type ImportConflictPerson = {
+  name?: string | null;
+  phone?: string | null;
+  voter_number?: string | null;
+  rbo?: string | null;
+};
+
+type ImportConflict = {
+  office_number: number;
+  row: number;
+  code: string;
+  message: string;
+  current: ImportConflictPerson & {
+    representative_id: number;
+    assignment_id: number;
+  };
+  imported: ImportConflictPerson;
+  differences: string[];
+  selected_action: "skip" | "replace";
+  allowed_actions: Array<"skip" | "replace">;
+};
+
 type PreviewData = {
   valid: boolean;
   row_count: number;
@@ -49,7 +71,10 @@ type PreviewData = {
     new: number;
     reused: number;
     conflicts: number;
+    replace_selected: number;
+    skip_selected: number;
   };
+  conflicts: ImportConflict[];
   source_updates: number;
   errors: PreviewIssue[];
   warnings: PreviewIssue[];
@@ -62,6 +87,8 @@ type CommitData = {
     representatives_enriched: number;
     assignments_created: number;
     assignments_reused: number;
+    assignments_replaced?: number;
+    conflicts_skipped?: number;
     offices_source_updated: number;
   };
 };
@@ -277,6 +304,9 @@ export function RepresentativeImportWorkspace({
     null,
   );
   const [preview, setPreview] = useState<PreviewData | null>(null);
+  const [conflictChoices, setConflictChoices] = useState<
+    Record<string, "skip" | "replace">
+  >({});
   const [commit, setCommit] = useState<CommitData | null>(null);
   const [confirmed, setConfirmed] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -285,6 +315,7 @@ export function RepresentativeImportWorkspace({
   async function onFileChange(file: File | undefined) {
     setError("");
     setPreview(null);
+    setConflictChoices({});
     setCommit(null);
     setConfirmed(false);
     if (!file) {
@@ -318,6 +349,7 @@ export function RepresentativeImportWorkspace({
       polling_area_id: Number(areaId),
       source_filename: fileName,
       rows,
+      conflict_resolutions: conflictChoices,
     };
   }
 
@@ -350,6 +382,14 @@ export function RepresentativeImportWorkspace({
         return;
       }
       setPreview(envelope.data);
+      setConflictChoices(
+        Object.fromEntries(
+          envelope.data.conflicts.map((conflict) => [
+            String(conflict.office_number),
+            conflict.selected_action ?? "skip",
+          ]),
+        ),
+      );
     } catch {
       setError("تعذر الاتصال بالخدمة.");
     } finally {
@@ -412,6 +452,7 @@ export function RepresentativeImportWorkspace({
             onChange={(event) => {
               setAreaId(event.target.value);
               setPreview(null);
+              setConflictChoices({});
               setCommit(null);
               setConfirmed(false);
             }}
@@ -498,6 +539,119 @@ export function RepresentativeImportWorkspace({
             </div>
           </div>
 
+          {preview.conflicts.length ? (
+            <div className="representative-import-conflicts">
+              <div className="representative-import-conflicts-head">
+                <div>
+                  <strong>مكاتب لديها مراقب موجود</strong>
+                  <p>
+                    قارن بيانات المراقب الحالي مع بيانات ملف Excel، ثم اختر
+                    القرار لكل مكتب بشكل مستقل.
+                  </p>
+                </div>
+                <span>{preview.conflicts.length}</span>
+              </div>
+
+              <div className="representative-import-conflict-grid">
+                {preview.conflicts.map((conflict) => {
+                  const choice =
+                    conflictChoices[String(conflict.office_number)] ?? "skip";
+                  const fields = [
+                    ["name", "الاسم"],
+                    ["phone", "الهاتف"],
+                    ["voter_number", "رقم الناخب"],
+                    ["rbo", "ر ب و"],
+                  ] as const;
+
+                  return (
+                    <article
+                      className="representative-import-conflict-card"
+                      key={conflict.office_number}
+                    >
+                      <div className="representative-import-conflict-title">
+                        <div>
+                          <span>مكتب التصويت</span>
+                          <strong>{conflict.office_number}</strong>
+                        </div>
+                        <small>السطر {conflict.row}</small>
+                      </div>
+
+                      <div className="representative-import-compare">
+                        <div className="is-current">
+                          <span>المراقب الحالي</span>
+                          {fields.map(([field, label]) => (
+                            <div
+                              className={
+                                conflict.differences.includes(field)
+                                  ? "is-different"
+                                  : ""
+                              }
+                              key={field}
+                            >
+                              <small>{label}</small>
+                              <strong>{conflict.current[field] || "—"}</strong>
+                            </div>
+                          ))}
+                        </div>
+
+                        <div className="is-imported">
+                          <span>المراقب في ملف Excel</span>
+                          {fields.map(([field, label]) => (
+                            <div
+                              className={
+                                conflict.differences.includes(field)
+                                  ? "is-different"
+                                  : ""
+                              }
+                              key={field}
+                            >
+                              <small>{label}</small>
+                              <strong>{conflict.imported[field] || "—"}</strong>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="representative-import-conflict-actions">
+                        <button
+                          type="button"
+                          className={choice === "skip" ? "is-selected" : ""}
+                          onClick={() =>
+                            setConflictChoices((current) => ({
+                              ...current,
+                              [String(conflict.office_number)]: "skip",
+                            }))
+                          }
+                        >
+                          عدم استيراد هذا السطر
+                          <small>الإبقاء على المراقب الحالي</small>
+                        </button>
+
+                        <button
+                          type="button"
+                          className={
+                            choice === "replace"
+                              ? "is-selected is-replace"
+                              : "is-replace"
+                          }
+                          onClick={() =>
+                            setConflictChoices((current) => ({
+                              ...current,
+                              [String(conflict.office_number)]: "replace",
+                            }))
+                          }
+                        >
+                          استبدال المراقب
+                          <small>الاحتفاظ بالسابق كسجل مستبدل</small>
+                        </button>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            </div>
+          ) : null}
+
           {preview.errors.length ? (
             <div className="representative-import-issues is-error">
               <strong>تعارضات حقيقية تمنع الاستيراد</strong>
@@ -524,7 +678,9 @@ export function RepresentativeImportWorkspace({
                     : issue.office_number
                       ? `مكتب ${issue.office_number}: `
                       : ""}
-                  {issue.message}
+                  {issue.code === "observer_missing_skipped"
+                    ? "لا يوجد اسم مراقب؛ سيبقى المكتب بدون مراقب ولن يمنع استيراد باقي اللائحة."
+                    : issue.message}
                 </p>
               ))}
             </div>
@@ -539,8 +695,8 @@ export function RepresentativeImportWorkspace({
                   onChange={(event) => setConfirmed(event.target.checked)}
                 />
                 <span>
-                  راجعت المعاينة والتنبيهات وأوافق على إنشاء/ربط المراقبين
-                  الظاهرين في هذه اللائحة.
+                  راجعت المعاينة والتنبيهات وقرارات المقارنة، وأوافق على
+                  تنفيذ الاستيراد وفق الاختيارات الظاهرة.
                 </span>
               </label>
               <button
@@ -557,10 +713,15 @@ export function RepresentativeImportWorkspace({
 
       {commit ? (
         <div className="representative-import-message is-success">
-          تم الدمج: {commit.counts.representatives_created} مراقب جديد،
-          {" "}
-          {commit.counts.assignments_created} تعيين جديد، و
-          {commit.counts.representatives_reused} مراقب موجود أُعيد استخدامه.
+          تم الدمج: {commit.counts.representatives_created} مراقب جديد،{" "}
+          {commit.counts.assignments_created} تعيين جديد، و{" "}
+          {commit.counts.representatives_reused} مراقب موجود أُعيد استخدامه
+          {commit.counts.assignments_replaced
+            ? `، وتم استبدال ${commit.counts.assignments_replaced} تعيين`
+            : ""}
+          {commit.counts.conflicts_skipped
+            ? `، وتم تجاوز ${commit.counts.conflicts_skipped} سطر متعارض`
+            : ""}.
         </div>
       ) : null}
     </section>
