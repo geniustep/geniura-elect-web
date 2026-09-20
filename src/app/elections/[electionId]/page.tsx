@@ -1,6 +1,8 @@
+import { Tajawal } from "next/font/google";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
+import { BrandLogo } from "@/components/branding/brand-logo";
 import { AppHeader } from "@/components/navigation/app-header";
 import type {
   ConstituencySummary,
@@ -15,17 +17,43 @@ import {
 
 export const dynamic = "force-dynamic";
 
+const tajawal = Tajawal({
+  subsets: ["arabic"],
+  weight: ["400", "500", "700", "800"],
+  display: "swap",
+});
+
 type ElectionPayload = { election: ElectionSummary };
 type OfficesPayload = { items: PollingOffice[] };
 type ConstituenciesPayload = { items: ConstituencySummary[] };
 
 const stateNames: Record<string, string> = {
   draft: "مسودة",
-  setup: "مرحلة الإعداد",
+  setup: "الإعداد",
   ready: "جاهز",
-  polling: "يوم الاقتراع",
-  counting: "الفرز والتجميع",
+  polling: "الاقتراع",
+  counting: "الفرز",
   closed: "مغلق",
+};
+
+const coverageNames: Record<string, string> = {
+  uncovered: "غير مغطى",
+  planned: "مبرمج",
+  confirmed: "مؤكد",
+  present: "حاضر",
+  absent: "غائب",
+  replaced: "مستبدل",
+  cancelled: "ملغى",
+  closed: "مغلق",
+};
+
+const protocolNames: Record<string, string> = {
+  draft: "مسودة",
+  entered: "مدخل",
+  document_attached: "مرفق",
+  validated: "مصادق",
+  verified: "متحقق",
+  rejected: "مرفوض",
 };
 
 function formatElectionDate(value: string) {
@@ -100,163 +128,205 @@ export default async function ElectionPage({
   const present = offices.filter(
     (office) => office.coverage_state === "present",
   ).length;
+  const protocols = offices.filter((office) => office.protocol).length;
   const officesLoaded = offices.length > 0;
 
   return (
-    <main className="dashboard-shell presentation-dashboard">
+    <main
+      className={`dashboard-shell pjd-dashboard pjd-election-page ${tajawal.className}`}
+    >
       <AppHeader user={user} />
-      <section className="dashboard-content presentation-content">
-        <nav className="breadcrumbs presentation-breadcrumbs">
-          <Link href="/dashboard">مركز العمليات</Link>
+
+      <section className="dashboard-content pjd-election-content">
+        <nav className="pjd-election-breadcrumbs">
+          <Link href="/dashboard">لوحة المتابعة</Link>
           <span>/</span>
           <strong>{election.name}</strong>
         </nav>
 
-        <section className="election-overview-hero">
-          <div>
-            <div className="presentation-heading-meta">
+        <section className="pjd-election-hero">
+          <div className="pjd-election-hero-copy">
+            <div className="pjd-election-hero-meta">
               <span>{formatElectionDate(election.election_date)}</span>
               {regionName ? <span>{regionName}</span> : null}
             </div>
+
             <h1>{election.name}</h1>
-            <p>
-              لوحة تشغيل موحدة لمتابعة الهيكلة والتغطية الميدانية والمحاضر
-              والنتائج.
-            </p>
+
+            <div className="pjd-election-hero-actions">
+              {user.role === "manager" ? (
+                <Link
+                  className="pjd-election-primary-action"
+                  href={`/elections/${election.id}/setup`}
+                >
+                  الإعداد
+                  <span aria-hidden="true">←</span>
+                </Link>
+              ) : null}
+
+              {user.role !== "observer" ? (
+                <>
+                  <Link
+                    className="pjd-election-secondary-action"
+                    href={`/elections/${election.id}/command-center`}
+                  >
+                    المتابعة
+                  </Link>
+                  <Link
+                    className="pjd-election-secondary-action"
+                    href={`/elections/${election.id}/results`}
+                  >
+                    النتائج
+                  </Link>
+                </>
+              ) : null}
+            </div>
           </div>
-          <span
-            className={`state-pill state-${election.state} presentation-state`}
-          >
-            {stateNames[election.state] ?? election.state}
-          </span>
+
+          <div className="pjd-election-hero-side">
+            <div className="pjd-election-emblem">
+              <BrandLogo priority />
+            </div>
+            <span
+              className={`pjd-election-state pjd-election-state--hero state-${election.state}`}
+            >
+              {stateNames[election.state] ?? election.state}
+            </span>
+          </div>
         </section>
 
-        {user.role !== "observer" ? (
-          <div className="presentation-action-row">
-            {user.role === "manager" ? (
-              <Link
-                className="presentation-primary-action"
-                href={`/elections/${election.id}/setup`}
-              >
-                إعداد الاستحقاق
-                <span aria-hidden="true">←</span>
-              </Link>
-            ) : null}
-            <Link
-              className={user.role === "manager" ? "presentation-secondary-action" : "presentation-primary-action"}
-              href={`/elections/${election.id}/command-center`}
-            >
-              غرفة القيادة
-              <span aria-hidden="true">←</span>
-            </Link>
-            <Link
-              className="presentation-secondary-action"
-              href={`/elections/${election.id}/results`}
-            >
-              النتائج والتجميع
-            </Link>
-          </div>
-        ) : null}
-
-        <div className="election-kpi-grid">
+        <div className="pjd-election-kpis">
           <div>
             <span>الدوائر المحلية</span>
             <strong>{election.constituencies.local_count}</strong>
-            <small>{local.length ? `${localSeats} مقعدًا` : "ضمن نطاق الحساب"}</small>
+            <small>{local.length ? `${localSeats} مقعدًا` : "—"}</small>
           </div>
           <div>
             <span>الدائرة الجهوية</span>
             <strong>{election.constituencies.regional_count}</strong>
-            <small>{regional.length ? `${regionalSeats} مقاعد` : "ضمن نطاق الحساب"}</small>
+            <small>{regional.length ? `${regionalSeats} مقاعد` : "—"}</small>
           </div>
           <div>
             <span>مكاتب التصويت</span>
             <strong>{officesLoaded ? offices.length : "—"}</strong>
-            <small>{officesLoaded ? "مكتب محمل" : "بانتظار المصدر الرسمي"}</small>
+            <small>{officesLoaded ? `${present} حاضر` : "—"}</small>
           </div>
           <div>
-            <span>الحضور الميداني</span>
-            <strong>{officesLoaded ? present : "—"}</strong>
-            <small>{officesLoaded ? "موكل حاضر" : "يبدأ بعد التوزيع"}</small>
+            <span>المحاضر</span>
+            <strong>{officesLoaded ? protocols : "—"}</strong>
+            <small>{officesLoaded ? `${offices.length} مكتب` : "—"}</small>
           </div>
           <div>
             <span>التغطية</span>
             <strong>
               {officesLoaded ? `${election.coverage.percent.toFixed(0)}%` : "—"}
             </strong>
-            <small>{officesLoaded ? "من المكاتب" : "غير قابلة للحساب بعد"}</small>
+            <small>
+              {officesLoaded
+                ? `${election.coverage.covered_office_count}/${election.coverage.polling_office_count}`
+                : "—"}
+            </small>
           </div>
         </div>
 
-        {user.role !== "observer" && constituencies.length ? (
-          <section className="presentation-section-block">
-            <div className="presentation-section-heading">
+        {user.role !== "observer" ? (
+          <section className="pjd-election-section">
+            <div className="pjd-election-section-head">
               <div>
-                <span>الهيكلة الانتخابية</span>
-                <h2>الدوائر الجاهزة للتشغيل</h2>
+                <span>الهيكلة</span>
+                <h2>الدوائر الانتخابية</h2>
               </div>
-              <small>
-                {local.length} محلية · {regional.length} جهوية
-              </small>
+              <span className="pjd-election-count">
+                {local.length} محلية
+                {regional.length ? ` · ${regional.length} جهوية` : ""}
+              </span>
             </div>
 
-            <div className="constituency-catalog">
-              {local.map((constituency) => (
-                <article className="constituency-card" key={constituency.id}>
-                  <div className="constituency-card-top">
-                    <span className="constituency-kind">دائرة محلية</span>
-                    <span className="structure-status">جاهزة للربط</span>
-                  </div>
-                  <h3>{constituency.name}</h3>
-                  <div className="constituency-card-foot">
-                    <span>{constituency.seat_count} مقاعد</span>
-                    <span>
-                      {constituency.coverage.polling_office_count
-                        ? `${constituency.coverage.polling_office_count} مكتب`
-                        : "المكاتب بانتظار التحميل"}
-                    </span>
-                  </div>
-                </article>
-              ))}
-              {regional.map((constituency) => (
-                <article
-                  className="constituency-card constituency-card--regional"
-                  key={constituency.id}
-                >
-                  <div className="constituency-card-top">
-                    <span className="constituency-kind">دائرة جهوية</span>
-                    <span className="structure-status">مهيأة</span>
-                  </div>
-                  <h3>{constituency.name}</h3>
-                  <div className="constituency-card-foot">
-                    <span>{constituency.seat_count} مقاعد</span>
-                    <span>مرتبطة بمحاضر المكاتب المحلية</span>
-                  </div>
-                </article>
-              ))}
-            </div>
+            {constituencies.length ? (
+              <div className="pjd-constituency-grid">
+                {local.map((constituency) => (
+                  <article
+                    className="pjd-constituency-card"
+                    key={constituency.id}
+                  >
+                    <div className="pjd-constituency-card-top">
+                      <span>محلية</span>
+                      <b>{constituency.seat_count}</b>
+                    </div>
+                    <h3>{constituency.name}</h3>
+                    <div className="pjd-constituency-card-foot">
+                      <span>
+                        {constituency.coverage.polling_office_count
+                          ? `${constituency.coverage.polling_office_count} مكتب`
+                          : "لا مكاتب بعد"}
+                      </span>
+                      <i
+                        className={
+                          constituency.coverage.polling_office_count
+                            ? "is-ready"
+                            : "is-waiting"
+                        }
+                        aria-hidden="true"
+                      />
+                    </div>
+                  </article>
+                ))}
+
+                {regional.map((constituency) => (
+                  <article
+                    className="pjd-constituency-card pjd-constituency-card--regional"
+                    key={constituency.id}
+                  >
+                    <div className="pjd-constituency-card-top">
+                      <span>جهوية</span>
+                      <b>{constituency.seat_count}</b>
+                    </div>
+                    <h3>{constituency.name}</h3>
+                    <div className="pjd-constituency-card-foot">
+                      <span>دائرة جهوية</span>
+                      <i className="is-ready" aria-hidden="true" />
+                    </div>
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <div className="pjd-election-empty">لا توجد دوائر.</div>
+            )}
           </section>
         ) : null}
 
-        <section className="presentation-section-block">
-          <div className="presentation-section-heading">
+        <section className="pjd-election-section">
+          <div className="pjd-election-section-head">
             <div>
-              <span>التغطية الميدانية</span>
+              <span>التصويت</span>
               <h2>مراكز ومكاتب التصويت</h2>
             </div>
-            <small>{officesLoaded ? `${offices.length} مكتب` : "بانتظار المصدر الرسمي"}</small>
+
+            <div className="pjd-election-section-actions">
+              {user.role === "manager" ? (
+                <Link
+                  href={`/elections/${election.id}/setup/polling-import`}
+                >
+                  استيراد
+                </Link>
+              ) : null}
+              <span className="pjd-election-count">
+                {officesLoaded ? `${offices.length} مكتب` : "—"}
+              </span>
+            </div>
           </div>
 
           {officesLoaded ? (
-            <div className="office-list presentation-office-list">
+            <div className="pjd-office-grid">
               {offices.map((office) => (
                 <Link
-                  className="office-row"
+                  className="pjd-office-card"
                   href={`/polling-offices/${office.id}`}
                   key={office.id}
                 >
-                  <div className="office-number">{office.number}</div>
-                  <div className="office-main">
+                  <div className="pjd-office-number">{office.number}</div>
+
+                  <div className="pjd-office-main">
                     <strong>{office.center.name}</strong>
                     <span>
                       {office.constituency.name}
@@ -265,36 +335,39 @@ export default async function ElectionPage({
                         : ""}
                     </span>
                   </div>
-                  <div className="office-meta">
-                    <span className={`coverage-chip ${office.coverage_state}`}>
-                      {office.coverage_state}
+
+                  <div className="pjd-office-status">
+                    <span
+                      className={`pjd-office-coverage ${office.coverage_state}`}
+                    >
+                      {coverageNames[office.coverage_state] ??
+                        office.coverage_state}
                     </span>
                     <small>
                       {office.protocol
-                        ? `محضر: ${office.protocol.state}`
-                        : "لا يوجد محضر"}
+                        ? protocolNames[office.protocol.state] ??
+                          office.protocol.state
+                        : "بدون محضر"}
                     </small>
                   </div>
                 </Link>
               ))}
             </div>
           ) : (
-            <div className="structured-empty-state">
-              <div className="structured-empty-icon" aria-hidden="true">
+            <div className="pjd-polling-empty">
+              <div className="pjd-polling-empty-icon" aria-hidden="true">
                 ◌
               </div>
               <div>
-                <span>المرحلة التالية</span>
-                <h3>تحميل بنية مراكز ومكاتب التصويت</h3>
-                <p>
-                  الدوائر الانتخابية جاهزة. ستظهر المراكز والمكاتب هنا فور
-                  اعتماد المصدر الرسمي، دون استخدام أرقام تقديرية.
-                </p>
+                <h3>لم تُحمّل المراكز والمكاتب بعد</h3>
               </div>
-              <div className="structured-empty-status">
-                <span className="status-orb status-orb--waiting" />
-                بانتظار المصدر الرسمي
-              </div>
+              {user.role === "manager" ? (
+                <Link
+                  href={`/elections/${election.id}/setup/polling-import`}
+                >
+                  استيراد
+                </Link>
+              ) : null}
             </div>
           )}
         </section>
