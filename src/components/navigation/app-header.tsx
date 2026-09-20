@@ -7,7 +7,7 @@ import type { ElectUser } from "@/lib/server/session";
 const roleNames = {
   observer: "موكل",
   coordinator: "منسق",
-  manager: "مدير العمليات",
+  manager: "مدير",
 } as const;
 
 export function AppHeader({ user }: { user: ElectUser }) {
@@ -19,12 +19,11 @@ export function AppHeader({ user }: { user: ElectUser }) {
         <Link
           className="brand-link presentation-brand-link"
           href="/dashboard"
-          aria-label="العودة إلى مركز العمليات الانتخابية"
+          aria-label="العودة إلى لوحة المتابعة"
         >
           <BrandLogo compact />
           <span className="presentation-brand-copy">
-            <small>GENIURA ELECT</small>
-            <strong>مركز العمليات الانتخابية</strong>
+            <strong>حزب العدالة والتنمية</strong>
           </span>
         </Link>
 
