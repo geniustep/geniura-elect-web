@@ -151,6 +151,7 @@ const exactHeaders = [
 function normalizeText(value: unknown) {
   return String(value ?? "")
     .replace(/[\u064B-\u065F\u0670]/g, "")
+    .replace(/[إأآٱ]/g, "ا")
     .replace(/\s+/g, " ")
     .trim();
 }
