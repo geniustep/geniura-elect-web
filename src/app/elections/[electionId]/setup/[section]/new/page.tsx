@@ -13,6 +13,8 @@ export const dynamic = "force-dynamic";
 
 const allowedSections = new Set<ElectionSetupSection>([
   "constituencies",
+  "areas",
+  "central-offices",
   "centers",
   "offices",
   "representatives",
