@@ -374,7 +374,9 @@ export async function downloadPollingAreaWorkbook({
     buffer,
     electionDateLabel(electionDate),
   );
-  const blob = new Blob([exactBuffer], {
+  const blobBytes = new Uint8Array(exactBuffer.byteLength);
+  blobBytes.set(exactBuffer);
+  const blob = new Blob([blobBytes.buffer], {
     type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
   });
   const url = URL.createObjectURL(blob);
