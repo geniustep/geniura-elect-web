@@ -23,7 +23,9 @@ type Props = {
 const sectionNames: Record<SetupFormSection, string> = {
   election: "الاستحقاق",
   constituencies: "الدائرة الانتخابية",
-  centers: "مركز التصويت",
+  areas: "النطاق الترابي",
+  "central-offices": "المكتب المركزي",
+  centers: "مقر التصويت",
   offices: "مكتب التصويت",
   representatives: "الموكل أو المنسق",
   assignments: "التعيين الميداني",
@@ -73,6 +75,36 @@ function initialValues(
     };
   }
 
+  if (section === "areas") {
+    const item =
+      mode === "edit"
+        ? snapshot.areas.find((value) => value.id === recordId)
+        : undefined;
+    const firstLocal = snapshot.constituencies.find(
+      (value) => value.kind === "local",
+    );
+    return {
+      name: item?.name ?? "",
+      code: item?.code ?? "",
+      source_filename: item?.source_filename ?? "",
+      local_constituency_id: String(
+        item?.constituency.id ?? firstLocal?.id ?? "",
+      ),
+    };
+  }
+
+  if (section === "central-offices") {
+    const item =
+      mode === "edit"
+        ? snapshot.central_offices.find((value) => value.id === recordId)
+        : undefined;
+    return {
+      name: item?.name ?? "",
+      number: String(item?.number ?? 1),
+      polling_area_id: String(item?.area.id ?? snapshot.areas[0]?.id ?? ""),
+    };
+  }
+
   if (section === "centers") {
     const item =
       mode === "edit"
@@ -89,6 +121,7 @@ function initialValues(
       ),
       commune: item?.commune ?? "",
       address: item?.address ?? "",
+      polling_area_id: String(item?.area?.id ?? ""),
     };
   }
 
@@ -101,6 +134,7 @@ function initialValues(
       center_id: String(item?.center.id ?? snapshot.centers[0]?.id ?? ""),
       code: item?.code ?? "",
       number: String(item?.number ?? 1),
+      central_office_id: String(item?.central_office?.id ?? ""),
       registered_voters:
         item?.registered_voters === null || item?.registered_voters === undefined
           ? ""
@@ -148,13 +182,22 @@ function prerequisiteMessage(
     return "يجب إعداد جهة انتخابية أولًا قبل إنشاء دائرة.";
   }
   if (
+    section === "areas" &&
+    !snapshot.constituencies.some((item) => item.kind === "local")
+  ) {
+    return "يجب إنشاء دائرة محلية أولًا قبل إضافة نطاق ترابي.";
+  }
+  if (section === "central-offices" && snapshot.areas.length === 0) {
+    return "يجب إنشاء نطاق ترابي أولًا قبل إضافة مكتب مركزي.";
+  }
+  if (
     section === "centers" &&
     !snapshot.constituencies.some((item) => item.kind === "local")
   ) {
     return "يجب إنشاء دائرة محلية أولًا قبل إضافة مركز تصويت.";
   }
   if (section === "offices" && snapshot.centers.length === 0) {
-    return "يجب إنشاء مركز تصويت أولًا قبل إضافة مكتب.";
+    return "يجب إنشاء مقر تصويت أولًا قبل إضافة مكتب.";
   }
   if (
     section === "assignments" &&
@@ -220,6 +263,19 @@ export function SetupEntityForm({
       if (mode === "create") {
         payload.kind = values.kind;
       }
+    } else if (section === "areas") {
+      payload = {
+        name: values.name,
+        code: values.code,
+        source_filename: values.source_filename,
+        local_constituency_id: Number(values.local_constituency_id),
+      };
+    } else if (section === "central-offices") {
+      payload = {
+        name: values.name,
+        number: Number(values.number),
+        polling_area_id: Number(values.polling_area_id),
+      };
     } else if (section === "centers") {
       payload = {
         name: values.name,
@@ -227,12 +283,18 @@ export function SetupEntityForm({
         local_constituency_id: Number(values.local_constituency_id),
         commune: values.commune,
         address: values.address,
+        polling_area_id: values.polling_area_id
+          ? Number(values.polling_area_id)
+          : null,
       };
     } else if (section === "offices") {
       payload = {
         center_id: Number(values.center_id),
         code: values.code,
         number: Number(values.number),
+        central_office_id: values.central_office_id
+          ? Number(values.central_office_id)
+          : null,
         registered_voters: values.registered_voters
           ? Number(values.registered_voters)
           : null,
@@ -391,6 +453,22 @@ export function SetupEntityForm({
                   />
                 </label>
                 <label className="setup-field">
+                  <span>النطاق الترابي</span>
+                  <select
+                    value={values.polling_area_id}
+                    onChange={(event) =>
+                      update("polling_area_id", event.target.value)
+                    }
+                  >
+                    <option value="">بدون نطاق</option>
+                    {snapshot.areas.map((item) => (
+                      <option key={item.id} value={item.id}>
+                        {item.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="setup-field">
                   <span>الكود الداخلي</span>
                   <input
                     required
@@ -451,6 +529,93 @@ export function SetupEntityForm({
                     }
                   />
                   <small>ضع 0 فقط إذا لم يتم تحميل العدد بعد.</small>
+                </label>
+              </>
+            ) : null}
+
+            {section === "areas" ? (
+              <>
+                <label className="setup-field setup-field--full">
+                  <span>اسم النطاق</span>
+                  <input
+                    required
+                    value={values.name}
+                    onChange={(event) => update("name", event.target.value)}
+                  />
+                </label>
+                <label className="setup-field">
+                  <span>الدائرة المحلية</span>
+                  <select
+                    required
+                    value={values.local_constituency_id}
+                    onChange={(event) =>
+                      update("local_constituency_id", event.target.value)
+                    }
+                  >
+                    {snapshot.constituencies
+                      .filter((item) => item.kind === "local")
+                      .map((item) => (
+                        <option key={item.id} value={item.id}>
+                          {item.name}
+                        </option>
+                      ))}
+                  </select>
+                </label>
+                <label className="setup-field">
+                  <span>الكود الداخلي</span>
+                  <input
+                    required
+                    value={values.code}
+                    onChange={(event) => update("code", event.target.value)}
+                  />
+                </label>
+                <label className="setup-field setup-field--full">
+                  <span>ملف Excel المصدر</span>
+                  <input
+                    value={values.source_filename}
+                    onChange={(event) =>
+                      update("source_filename", event.target.value)
+                    }
+                  />
+                </label>
+              </>
+            ) : null}
+
+            {section === "central-offices" ? (
+              <>
+                <label className="setup-field setup-field--full">
+                  <span>اسم المكتب المركزي</span>
+                  <input
+                    required
+                    value={values.name}
+                    onChange={(event) => update("name", event.target.value)}
+                  />
+                </label>
+                <label className="setup-field">
+                  <span>رقم المكتب المركزي</span>
+                  <input
+                    type="number"
+                    min={1}
+                    required
+                    value={values.number}
+                    onChange={(event) => update("number", event.target.value)}
+                  />
+                </label>
+                <label className="setup-field">
+                  <span>النطاق الترابي</span>
+                  <select
+                    required
+                    value={values.polling_area_id}
+                    onChange={(event) =>
+                      update("polling_area_id", event.target.value)
+                    }
+                  >
+                    {snapshot.areas.map((item) => (
+                      <option key={item.id} value={item.id}>
+                        {item.name}
+                      </option>
+                    ))}
+                  </select>
                 </label>
               </>
             ) : null}
@@ -522,6 +687,22 @@ export function SetupEntityForm({
                     {snapshot.centers.map((item) => (
                       <option key={item.id} value={item.id}>
                         {item.name} · {item.constituency.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="setup-field setup-field--full">
+                  <span>المكتب المركزي</span>
+                  <select
+                    value={values.central_office_id}
+                    onChange={(event) =>
+                      update("central_office_id", event.target.value)
+                    }
+                  >
+                    <option value="">بدون مكتب مركزي</option>
+                    {snapshot.central_offices.map((item) => (
+                      <option key={item.id} value={item.id}>
+                        {item.number} · {item.name} · {item.area.name}
                       </option>
                     ))}
                   </select>
