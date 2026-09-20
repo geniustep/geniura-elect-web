@@ -142,39 +142,56 @@ export default async function ConstituencyDashboardPage({
                 ? (100 * area.covered) / area.total
                 : 0;
               return (
-                <article className="constituency-area-card" key={area.id ?? area.name}>
-                  <div className="constituency-area-card-head">
-                    <h3>{area.name}</h3>
-                    <strong>{percentage.toFixed(0)}%</strong>
-                  </div>
-                  <div className="constituency-area-progress" aria-hidden="true">
-                    <span style={{ width: `${percentage}%` }} />
-                  </div>
-                  <dl>
-                    <div>
-                      <dt>المكاتب</dt>
-                      <dd>{area.total}</dd>
+                area.id ? (
+                  <Link
+                    className="constituency-area-card constituency-area-card--link"
+                    href={`/elections/${electionId}/constituencies/${constituencyId}/areas/${area.id}`}
+                    key={area.id}
+                  >
+                    <div className="constituency-area-card-head">
+                      <h3>{area.name}</h3>
+                      <strong>{percentage.toFixed(0)}%</strong>
                     </div>
-                    <div>
-                      <dt>بدون مراقب</dt>
-                      <dd>{area.uncovered}</dd>
+                    <div className="constituency-area-progress" aria-hidden="true">
+                      <span style={{ width: `${percentage}%` }} />
                     </div>
-                    <div>
-                      <dt>بيانات ناقصة</dt>
-                      <dd>{area.missing_representative_info}</dd>
+                    <dl>
+                      <div>
+                        <dt>المكاتب</dt>
+                        <dd>{area.total}</dd>
+                      </div>
+                      <div>
+                        <dt>بدون مراقب</dt>
+                        <dd>{area.uncovered}</dd>
+                      </div>
+                      <div>
+                        <dt>بيانات ناقصة</dt>
+                        <dd>{area.missing_representative_info}</dd>
+                      </div>
+                      <div>
+                        <dt>مراجعة</dt>
+                        <dd>{area.needs_review}</dd>
+                      </div>
+                    </dl>
+                    {area.source_candidates_unassigned ? (
+                      <p>
+                        {area.source_candidates_unassigned} مراقب موجود في بيانات المصدر
+                        ولم يُعيَّن بعد.
+                      </p>
+                    ) : null}
+                    <span className="constituency-area-open">
+                      فتح لائحة المكاتب
+                      <span aria-hidden="true">←</span>
+                    </span>
+                  </Link>
+                ) : (
+                  <article className="constituency-area-card" key={area.name}>
+                    <div className="constituency-area-card-head">
+                      <h3>{area.name}</h3>
+                      <strong>{percentage.toFixed(0)}%</strong>
                     </div>
-                    <div>
-                      <dt>مراجعة</dt>
-                      <dd>{area.needs_review}</dd>
-                    </div>
-                  </dl>
-                  {area.source_candidates_unassigned ? (
-                    <p>
-                      {area.source_candidates_unassigned} مراقب موجود في بيانات المصدر
-                      ولم يُعيَّن بعد.
-                    </p>
-                  ) : null}
-                </article>
+                  </article>
+                )
               );
             })}
           </div>

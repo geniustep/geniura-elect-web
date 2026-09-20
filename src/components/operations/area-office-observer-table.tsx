@@ -1,0 +1,435 @@
+"use client";
+
+import { useMemo, useState } from "react";
+import type { KeyboardEvent } from "react";
+
+import type {
+  ConstituencyCoverageOffice,
+  SetupRepresentative,
+} from "@/lib/elect/types";
+
+type Props = {
+  electionId: string;
+  offices: ConstituencyCoverageOffice[];
+  canEdit: boolean;
+};
+
+type Draft = {
+  name: string;
+  phone: string;
+  voterNumber: string;
+  rbo: string;
+};
+
+type Envelope = {
+  success: boolean;
+  data?: { item: SetupRepresentative };
+  error?: { message?: string };
+};
+
+const missingLabels: Record<string, string> = {
+  name: "الاسم",
+  phone: "الهاتف",
+  voter_number: "رقم الناخب",
+  rbo: "ر ب و",
+};
+
+const reviewLabels: Record<string, string> = {
+  duplicate_phone: "هاتف مكرر",
+  duplicate_voter_number: "رقم ناخب مكرر",
+  duplicate_rbo: "ر ب و مكرر",
+};
+
+function normalizeSearch(value: string) {
+  return value
+    .trim()
+    .toLocaleLowerCase("ar")
+    .normalize("NFKD")
+    .replace(/[\u064b-\u065f\u0670]/g, "")
+    .replace(/[إأآٱ]/g, "ا");
+}
+
+export function AreaOfficeObserverTable({
+  electionId,
+  offices,
+  canEdit,
+}: Props) {
+  const [items, setItems] = useState(offices);
+  const [query, setQuery] = useState("");
+  const [coverage, setCoverage] = useState<"all" | "covered" | "uncovered">(
+    "all",
+  );
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [draft, setDraft] = useState<Draft>({
+    name: "",
+    phone: "",
+    voterNumber: "",
+    rbo: "",
+  });
+  const [savingId, setSavingId] = useState<number | null>(null);
+  const [errorByOffice, setErrorByOffice] = useState<Record<number, string>>({});
+  const [savedOfficeId, setSavedOfficeId] = useState<number | null>(null);
+
+  const visible = useMemo(() => {
+    const needle = normalizeSearch(query);
+    return items.filter((office) => {
+      const isCovered = Boolean(office.assignment && office.representative);
+      if (coverage === "covered" && !isCovered) return false;
+      if (coverage === "uncovered" && isCovered) return false;
+      if (!needle) return true;
+
+      const representative = office.representative;
+      const source = office.source_observer;
+      const haystack = normalizeSearch(
+        [
+          office.number,
+          office.center.name,
+          office.central_office?.number ?? "",
+          office.central_office?.name ?? "",
+          representative?.name ?? "",
+          representative?.phone ?? "",
+          representative?.voter_number ?? "",
+          representative?.rbo ?? "",
+          source?.name ?? "",
+          source?.phone ?? "",
+        ].join(" "),
+      );
+      return haystack.includes(needle);
+    });
+  }, [coverage, items, query]);
+
+  function startEdit(office: ConstituencyCoverageOffice) {
+    if (!office.representative) return;
+    setEditingId(office.id);
+    setSavedOfficeId(null);
+    setDraft({
+      name: office.representative.name,
+      phone: office.representative.phone ?? "",
+      voterNumber: office.representative.voter_number ?? "",
+      rbo: office.representative.rbo ?? "",
+    });
+    setErrorByOffice((current) => {
+      const next = { ...current };
+      delete next[office.id];
+      return next;
+    });
+  }
+
+  function cancelEdit() {
+    setEditingId(null);
+  }
+
+  async function save(office: ConstituencyCoverageOffice) {
+    const representative = office.representative;
+    if (!representative) return;
+
+    if (!draft.name.trim()) {
+      setErrorByOffice((current) => ({
+        ...current,
+        [office.id]: "اسم المراقب مطلوب عند تعديل مراقب موجود.",
+      }));
+      return;
+    }
+
+    const body: Record<string, string> = {};
+    const nextName = draft.name.trim();
+    const nextPhone = draft.phone.trim();
+    const nextVoterNumber = draft.voterNumber.trim();
+    const nextRbo = draft.rbo.trim();
+
+    if (nextName !== representative.name) body.name = nextName;
+    if (nextPhone !== (representative.phone ?? "")) body.phone = nextPhone;
+    if (nextVoterNumber !== (representative.voter_number ?? "")) {
+      body.voter_number = nextVoterNumber;
+    }
+    if (nextRbo !== (representative.rbo ?? "")) body.rbo = nextRbo;
+
+    if (!Object.keys(body).length) {
+      cancelEdit();
+      return;
+    }
+
+    setSavingId(office.id);
+    setSavedOfficeId(null);
+    try {
+      const response = await fetch(
+        `/api/operations/elections/${encodeURIComponent(electionId)}/setup/representatives/${representative.id}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        },
+      );
+      const payload = (await response
+        .json()
+        .catch(() => null)) as Envelope | null;
+
+      if (!response.ok || !payload?.success || !payload.data?.item) {
+        setErrorByOffice((current) => ({
+          ...current,
+          [office.id]:
+            payload?.error?.message || "تعذر حفظ بيانات المراقب.",
+        }));
+        return;
+      }
+
+      const saved = payload.data.item;
+      setItems((current) =>
+        current.map((item) =>
+          item.id === office.id
+            ? {
+                ...item,
+                representative: saved,
+                missing_fields: saved.missing_fields ?? [],
+              }
+            : item,
+        ),
+      );
+      setEditingId(null);
+      setSavedOfficeId(office.id);
+      setErrorByOffice((current) => {
+        const next = { ...current };
+        delete next[office.id];
+        return next;
+      });
+    } catch {
+      setErrorByOffice((current) => ({
+        ...current,
+        [office.id]: "تعذر الاتصال بالخدمة.",
+      }));
+    } finally {
+      setSavingId(null);
+    }
+  }
+
+  function onKeyDown(
+    event: KeyboardEvent<HTMLInputElement>,
+    office: ConstituencyCoverageOffice,
+  ) {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      cancelEdit();
+    } else if (event.key === "Enter") {
+      event.preventDefault();
+      void save(office);
+    }
+  }
+
+  return (
+    <section className="area-office-list-section">
+      <div className="area-office-toolbar">
+        <label>
+          <span>بحث</span>
+          <input
+            type="search"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="رقم المكتب، المقر، اسم المراقب أو الهاتف"
+          />
+        </label>
+
+        <label>
+          <span>التغطية</span>
+          <select
+            value={coverage}
+            onChange={(event) =>
+              setCoverage(
+                event.target.value as "all" | "covered" | "uncovered",
+              )
+            }
+          >
+            <option value="all">كل المكاتب</option>
+            <option value="covered">لديها مراقب</option>
+            <option value="uncovered">بدون مراقب</option>
+          </select>
+        </label>
+
+        <strong>{visible.length} مكتب</strong>
+      </div>
+
+      <div className="area-office-table">
+        <div className="area-office-row area-office-row--head">
+          <span>المكتب</span>
+          <span>مقر التصويت</span>
+          <span>المراقب</span>
+          <span>الهاتف</span>
+          <span>رقم الناخب</span>
+          <span>ر ب و</span>
+          <span>الحالة</span>
+          <span />
+        </div>
+
+        {visible.map((office) => {
+          const representative = office.representative;
+          const isEditing = editingId === office.id;
+          const missing = office.missing_fields.map(
+            (field) => missingLabels[field] ?? field,
+          );
+          const reviews = office.review_flags.map(
+            (flag) => reviewLabels[flag] ?? flag,
+          );
+
+          return (
+            <article
+              className={`area-office-row${isEditing ? " is-editing" : ""}`}
+              key={office.id}
+            >
+              <div className="area-office-number">
+                <strong>{office.number}</strong>
+                {office.central_office ? (
+                  <small>مركزي {office.central_office.number}</small>
+                ) : null}
+              </div>
+
+              <div className="area-office-center">
+                <strong>{office.center.name}</strong>
+                {office.central_office?.name ? (
+                  <small>{office.central_office.name}</small>
+                ) : null}
+              </div>
+
+              <div>
+                {isEditing ? (
+                  <input
+                    value={draft.name}
+                    onChange={(event) =>
+                      setDraft((current) => ({
+                        ...current,
+                        name: event.target.value,
+                      }))
+                    }
+                    onKeyDown={(event) => onKeyDown(event, office)}
+                    autoFocus
+                  />
+                ) : representative ? (
+                  <strong>{representative.name}</strong>
+                ) : office.source_observer?.name ? (
+                  <span className="area-office-source-value">
+                    {office.source_observer.name}
+                    <small>من الملف فقط</small>
+                  </span>
+                ) : (
+                  <span className="area-office-empty">بدون مراقب</span>
+                )}
+              </div>
+
+              <div>
+                {isEditing ? (
+                  <input
+                    value={draft.phone}
+                    onChange={(event) =>
+                      setDraft((current) => ({
+                        ...current,
+                        phone: event.target.value,
+                      }))
+                    }
+                    onKeyDown={(event) => onKeyDown(event, office)}
+                  />
+                ) : (
+                  representative?.phone ??
+                  office.source_observer?.phone ??
+                  "—"
+                )}
+              </div>
+
+              <div>
+                {isEditing ? (
+                  <input
+                    value={draft.voterNumber}
+                    onChange={(event) =>
+                      setDraft((current) => ({
+                        ...current,
+                        voterNumber: event.target.value,
+                      }))
+                    }
+                    onKeyDown={(event) => onKeyDown(event, office)}
+                  />
+                ) : (
+                  representative?.voter_number ??
+                  office.source_observer?.voter_number ??
+                  "—"
+                )}
+              </div>
+
+              <div>
+                {isEditing ? (
+                  <input
+                    value={draft.rbo}
+                    onChange={(event) =>
+                      setDraft((current) => ({
+                        ...current,
+                        rbo: event.target.value,
+                      }))
+                    }
+                    onKeyDown={(event) => onKeyDown(event, office)}
+                  />
+                ) : (
+                  representative?.rbo ?? office.source_observer?.rbo ?? "—"
+                )}
+              </div>
+
+              <div className="area-office-statuses">
+                {!representative ? (
+                  <span className="is-uncovered">بدون مراقب</span>
+                ) : null}
+                {missing.length ? (
+                  <span className="is-missing">ناقص: {missing.join("، ")}</span>
+                ) : null}
+                {reviews.map((review) => (
+                  <span className="is-review" key={review}>
+                    {review}
+                  </span>
+                ))}
+                {representative && !missing.length && !reviews.length ? (
+                  <span className="is-complete">مكتمل</span>
+                ) : null}
+              </div>
+
+              <div className="area-office-actions">
+                {isEditing ? (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => void save(office)}
+                      disabled={savingId === office.id}
+                    >
+                      {savingId === office.id ? "حفظ…" : "حفظ"}
+                    </button>
+                    <button
+                      type="button"
+                      className="is-secondary"
+                      onClick={cancelEdit}
+                      disabled={savingId === office.id}
+                    >
+                      إلغاء
+                    </button>
+                  </>
+                ) : canEdit && representative ? (
+                  <button type="button" onClick={() => startEdit(office)}>
+                    تعديل
+                  </button>
+                ) : null}
+              </div>
+
+              {errorByOffice[office.id] ? (
+                <div className="area-office-feedback is-error" role="alert">
+                  {errorByOffice[office.id]}
+                </div>
+              ) : null}
+
+              {savedOfficeId === office.id ? (
+                <div className="area-office-feedback is-success" role="status">
+                  تم حفظ بيانات المراقب
+                </div>
+              ) : null}
+            </article>
+          );
+        })}
+      </div>
+
+      {!visible.length ? (
+        <div className="setup-empty">لا توجد مكاتب مطابقة للبحث الحالي.</div>
+      ) : null}
+    </section>
+  );
+}

@@ -32,12 +32,18 @@ type PreviewData = {
   row_count: number;
   constituency: { id: number; name: string; code: string };
   area: { id: number; name: string; code: string };
-  offices: { matched: number; missing: number };
+  offices: {
+    matched: number;
+    with_observer: number;
+    without_observer: number;
+    missing: number;
+  };
   representatives: {
     new: number;
     reused: number;
     enriched: number;
     incomplete: number;
+    skipped_without_name: number;
   };
   assignments: {
     new: number;
@@ -471,6 +477,10 @@ export function RepresentativeImportWorkspace({
               <strong>{preview.offices.matched}</strong>
             </div>
             <div>
+              <span>بدون مراقب</span>
+              <strong>{preview.offices.without_observer}</strong>
+            </div>
+            <div>
               <span>مراقبون جدد</span>
               <strong>{preview.representatives.new}</strong>
             </div>
@@ -490,13 +500,15 @@ export function RepresentativeImportWorkspace({
 
           {preview.errors.length ? (
             <div className="representative-import-issues is-error">
-              <strong>أخطاء تمنع الدمج</strong>
+              <strong>تعارضات حقيقية تمنع الاستيراد</strong>
               {preview.errors.map((issue, index) => (
                 <p key={`${issue.code}-${index}`}>
                   {issue.office_number
                     ? `مكتب ${issue.office_number}: `
                     : ""}
-                  {issue.message}
+                  {issue.code === "observer_missing_skipped"
+                    ? "لا يوجد اسم مراقب؛ سيبقى المكتب بدون مراقب ولن يمنع استيراد باقي اللائحة."
+                    : issue.message}
                 </p>
               ))}
             </div>
