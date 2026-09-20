@@ -14,6 +14,11 @@ import type {
 
 type ImportRow = {
   row: number;
+  compensation: number | string | null;
+  phone: string;
+  voter_number: string;
+  rbo: string;
+  observer_name: string;
   office_number: number | string;
   office_name: string;
   central_office_number: number | string;
@@ -182,6 +187,11 @@ function findHeader(
   worksheet: ExcelJS.Worksheet,
 ): {
   row: number;
+  compensation: number | null;
+  phone: number | null;
+  voterNumber: number | null;
+  rbo: number | null;
+  observerName: number | null;
   registeredVoters: number | null;
   officeNumber: number;
   officeName: number;
@@ -212,6 +222,21 @@ function findHeader(
     const centralNumber = [...map.entries()].find(([key]) =>
       key.includes("رقم المكتب المركزي"),
     )?.[1];
+    const compensation = [...map.entries()].find(([key]) =>
+      key.includes("التعويض"),
+    )?.[1];
+    const phone = [...map.entries()].find(([key]) =>
+      key.includes("رقم الهاتف"),
+    )?.[1];
+    const voterNumber = [...map.entries()].find(([key]) =>
+      key.includes("رقم الناخب"),
+    )?.[1];
+    const rbo = [...map.entries()].find(([key]) =>
+      key === "ر ب و" || key.replace(/\s+/g, "") === "ربو",
+    )?.[1];
+    const observerName = [...map.entries()].find(([key]) =>
+      key.includes("اسم المراقب"),
+    )?.[1];
     const registeredVoters = [...map.entries()].find(([key]) =>
       key.includes("عدد المسجل"),
     )?.[1];
@@ -219,6 +244,11 @@ function findHeader(
     if (officeNumber && officeName && centralName && centralNumber) {
       return {
         row: rowNumber,
+        compensation: compensation ?? null,
+        phone: phone ?? null,
+        voterNumber: voterNumber ?? null,
+        rbo: rbo ?? null,
+        observerName: observerName ?? null,
         registeredVoters: registeredVoters ?? null,
         officeNumber,
         officeName,
@@ -290,6 +320,23 @@ async function parseWorkbookFile(file: File): Promise<ImportArea> {
       continue;
     }
 
+    const compensation = header.compensation
+      ? numericCell(
+          worksheet.getRow(rowNumber).getCell(header.compensation).value,
+        )
+      : "";
+    const phone = header.phone
+      ? cellText(worksheet, rowNumber, header.phone)
+      : "";
+    const voterNumber = header.voterNumber
+      ? cellText(worksheet, rowNumber, header.voterNumber)
+      : "";
+    const rbo = header.rbo
+      ? cellText(worksheet, rowNumber, header.rbo)
+      : "";
+    const observerName = header.observerName
+      ? cellText(worksheet, rowNumber, header.observerName)
+      : "";
     const registeredVoters = header.registeredVoters
       ? numericCell(
           worksheet
@@ -300,6 +347,11 @@ async function parseWorkbookFile(file: File): Promise<ImportArea> {
 
     rows.push({
       row: rowNumber,
+      compensation: compensation === "" ? null : compensation,
+      phone,
+      voter_number: voterNumber,
+      rbo,
+      observer_name: observerName,
       office_number: officeNumber,
       office_name: officeName,
       central_office_number: lastCentralNumber,
@@ -431,11 +483,11 @@ async function exportCurrentStructure(snapshot: ExportSnapshot) {
 
     for (const office of offices) {
       worksheet.addRow([
-        "",
-        "",
-        "",
-        "",
-        "",
+        office.source_compensation ?? "",
+        office.source_phone ?? "",
+        office.source_voter_number ?? "",
+        office.source_rbo ?? "",
+        office.source_observer_name ?? "",
         office.registered_voters ?? "",
         office.number,
         office.center.name,
