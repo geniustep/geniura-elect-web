@@ -574,7 +574,7 @@ export function PollingImportWorkspace({
 
       if (duplicateNames.length) {
         throw new Error(
-          "هناك ملفان يحملان نفس اسم النطاق بعد التنظيف. عدّل أسماء الملفات أو ارفعها على دفعتين.",
+          "هناك ملفان يحملان نفس اسم الجماعة أو المقاطعة بعد التنظيف. عدّل أسماء الملفات أو ارفعها على دفعتين.",
         );
       }
 
@@ -688,7 +688,7 @@ export function PollingImportWorkspace({
 
         <div className="setup-form-grid">
           <label className="setup-field">
-            <span>الدائرة المحلية</span>
+            <span>الدائرة الانتخابية المحلية</span>
             <select
               value={constituencyId}
               onChange={(event) => {
@@ -760,7 +760,7 @@ export function PollingImportWorkspace({
 
             <div className="setup-table">
               <div className="setup-row setup-row--header">
-                <span>النطاق</span>
+                <span>الجماعة / المقاطعة</span>
                 <span>الملف</span>
                 <span>المكاتب</span>
                 <span />
@@ -799,7 +799,7 @@ export function PollingImportWorkspace({
 
             <div className="setup-summary-grid">
               <div>
-                <span>النطاقات</span>
+                <span>الجماعات / المقاطعات</span>
                 <strong>{preview.areas.total}</strong>
                 <small>{preview.areas.new} جديد</small>
               </div>
@@ -828,7 +828,7 @@ export function PollingImportWorkspace({
             {preview.errors.length ? (
               <div className="setup-table">
                 <div className="setup-row setup-row--header">
-                  <span>النطاق / السطر</span>
+                  <span>الجماعة / المقاطعة · السطر</span>
                   <span>الحقل</span>
                   <span>الرمز</span>
                   <span>الخطأ</span>

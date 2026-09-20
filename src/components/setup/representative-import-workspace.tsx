@@ -96,7 +96,7 @@ type CommitData = {
 type Envelope<T> = {
   success: boolean;
   data?: T;
-  error?: { message?: string };
+  error?: { code?: string; message?: string };
 };
 
 type Props = {
@@ -128,6 +128,66 @@ type ParsedObserverWorkbook = {
     rbo: boolean;
   };
 };
+
+const previewFieldLabels: Record<string, string> = {
+  observer_name: "اسم المراقب",
+  name: "الاسم",
+  phone: "رقم الهاتف",
+  voter_number: "رقم الناخب",
+  rbo: "ر ب و",
+  office_number: "رقم مكتب التصويت",
+  assignment: "التعيين",
+  representative: "المراقب",
+  row: "السطر",
+};
+
+function previewIssueMessage(issue: PreviewIssue) {
+  const fields = (issue.fields ?? [])
+    .map((field) => previewFieldLabels[field] ?? field)
+    .join("، ");
+
+  switch (issue.code) {
+    case "observer_missing_skipped":
+      return "لا يوجد اسم مراقب في هذا السطر؛ سيبقى مكتب التصويت بدون مراقب، ولن يمنع ذلك استيراد بقية اللائحة.";
+    case "missing_observer_fields":
+      return fields
+        ? `بيانات المراقب غير مكتملة. الحقول الناقصة: ${fields}.`
+        : "بيانات المراقب غير مكتملة.";
+    case "duplicate_phone":
+      return "رقم الهاتف نفسه مستعمل لأكثر من مراقب في اللائحة.";
+    case "duplicate_voter_number":
+      return "رقم الناخب نفسه مستعمل لأكثر من مراقب في اللائحة.";
+    case "duplicate_rbo":
+      return "رقم ر ب و نفسه مستعمل لأكثر من مراقب في اللائحة.";
+    case "source_observer_metadata_change":
+      return "ستتغير بيانات المراقب المسجلة كمصدر لهذا المكتب إذا تم تنفيذ الاستيراد.";
+    case "invalid_row":
+      return "تعذر قراءة هذا السطر من ملف Excel.";
+    case "invalid_office_number":
+      return "رقم مكتب التصويت غير صالح؛ يجب أن يكون رقمًا صحيحًا موجبًا.";
+    case "duplicate_office_number":
+      return "مكتب التصويت نفسه مكرر أكثر من مرة داخل الملف.";
+    case "office_not_found":
+      return "رقم مكتب التصويت غير موجود ضمن الجماعة / المقاطعة المختارة.";
+    case "batch_identity_conflict":
+      return "بيانات المراقب نفسه متعارضة بين أكثر من سطر في الملف.";
+    case "ambiguous_existing_representative":
+      return "يوجد أكثر من مراقب مسجل يطابق هذه الهوية؛ يلزم حسم السجل الصحيح.";
+    case "existing_representative_conflict":
+      return "بيانات المراقب الموجود في النظام تتعارض مع البيانات الواردة في الملف.";
+    case "existing_primary_assignment_conflict":
+      return "مكتب التصويت لديه مراقب أساسي مختلف مسجل حاليًا.";
+    default:
+      return "توجد ملاحظة على هذا السطر تحتاج إلى مراجعة قبل الاستيراد.";
+  }
+}
+
+function safeArabicBackendMessage(
+  message: string | undefined,
+  fallback: string,
+) {
+  return message && /[\u0600-\u06FF]/.test(message) ? message : fallback;
+}
 
 function normalizeText(value: unknown) {
   return String(value ?? "")
@@ -377,7 +437,10 @@ export function RepresentativeImportWorkspace({
         .catch(() => null)) as Envelope<PreviewData> | null;
       if (!response.ok || !envelope?.success || !envelope.data) {
         setError(
-          envelope?.error?.message || "تعذر تنفيذ معاينة اللائحة.",
+          safeArabicBackendMessage(
+            envelope?.error?.message,
+            "تعذر تنفيذ معاينة اللائحة. راجع البيانات ثم أعد المحاولة.",
+          ),
         );
         return;
       }
@@ -416,7 +479,10 @@ export function RepresentativeImportWorkspace({
         .catch(() => null)) as Envelope<CommitData> | null;
       if (!response.ok || !envelope?.success || !envelope.data) {
         setError(
-          envelope?.error?.message || "تعذر دمج لائحة المراقبين.",
+          safeArabicBackendMessage(
+            envelope?.error?.message,
+            "تعذر تنفيذ استيراد لائحة المراقبين.",
+          ),
         );
         return;
       }
@@ -446,7 +512,7 @@ export function RepresentativeImportWorkspace({
 
       <div className="representative-import-controls">
         <label>
-          <span>النطاق الترابي</span>
+          <span>الجماعة / المقاطعة</span>
           <select
             value={areaId}
             onChange={(event) => {
@@ -457,7 +523,7 @@ export function RepresentativeImportWorkspace({
               setConfirmed(false);
             }}
           >
-            <option value="">اختر النطاق</option>
+            <option value="">اختر الجماعة / المقاطعة</option>
             {selectableAreas.map((area) => (
               <option key={area.id} value={area.id}>
                 {area.name}
@@ -543,7 +609,7 @@ export function RepresentativeImportWorkspace({
             <div className="representative-import-conflicts">
               <div className="representative-import-conflicts-head">
                 <div>
-                  <strong>مكاتب لديها مراقب موجود</strong>
+                  <strong>مكاتب تصويت لديها مراقب مسجل</strong>
                   <p>
                     قارن بيانات المراقب الحالي مع بيانات ملف Excel، ثم اختر
                     القرار لكل مكتب بشكل مستقل.
@@ -660,9 +726,7 @@ export function RepresentativeImportWorkspace({
                   {issue.office_number
                     ? `مكتب ${issue.office_number}: `
                     : ""}
-                  {issue.code === "observer_missing_skipped"
-                    ? "لا يوجد اسم مراقب؛ سيبقى المكتب بدون مراقب ولن يمنع استيراد باقي اللائحة."
-                    : issue.message}
+                  {previewIssueMessage(issue)}
                 </p>
               ))}
             </div>

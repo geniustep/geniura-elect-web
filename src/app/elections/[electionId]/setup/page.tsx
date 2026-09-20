@@ -110,14 +110,14 @@ export default async function ElectionSetupPage({
 
         <div className="setup-summary-grid">
           <div>
-            <span>الدوائر المحلية</span>
+            <span>الدوائر الانتخابية المحلية</span>
             <strong>{localCount}</strong>
             <small>جاهزة للربط بالمراكز</small>
           </div>
           <div>
-            <span>النطاقات الترابية</span>
+            <span>الجماعات / المقاطعات</span>
             <strong>{setup.areas.length}</strong>
-            <small>نطاق مسجل</small>
+            <small>وحدة ترابية مسجلة</small>
           </div>
           <div>
             <span>المكاتب المركزية</span>
@@ -125,7 +125,7 @@ export default async function ElectionSetupPage({
             <small>مكتب مركزي</small>
           </div>
           <div>
-            <span>مقار التصويت</span>
+            <span>مقار مكاتب التصويت</span>
             <strong>{setup.centers.length}</strong>
             <small>مقر مسجل</small>
           </div>
@@ -205,21 +205,21 @@ export default async function ElectionSetupPage({
           <div className="setup-section-heading">
             <div>
               <span>02 · البنية الترابية</span>
-              <h2>النطاقات الترابية</h2>
+              <h2>الجماعات / المقاطعات</h2>
               <p>تحافظ على نفس تقسيم ملفات Excel الأصلية.</p>
             </div>
             <Link
               className="setup-create-button"
               href={`/elections/${electionId}/setup/areas/new`}
             >
-              + إضافة نطاق
+              + إضافة جماعة / مقاطعة
             </Link>
           </div>
 
           {setup.areas.length ? (
             <div className="setup-table">
               <div className="setup-row setup-row--header">
-                <span>النطاق</span>
+                <span>الجماعة / المقاطعة</span>
                 <span>الدائرة</span>
                 <span>المكاتب المركزية</span>
                 <span />
@@ -270,8 +270,8 @@ export default async function ElectionSetupPage({
         <section className="setup-management-section">
           <div className="setup-section-heading">
             <div>
-              <span>04 · مقار التصويت</span>
-              <h2>مقار التصويت</h2>
+              <span>04 · مقار مكاتب التصويت</span>
+              <h2>مقار مكاتب التصويت</h2>
               <p>المكان الفعلي الوارد في عمود «عنوان مكتب التصويت».</p>
             </div>
             <div className="setup-hero-actions">
@@ -294,7 +294,7 @@ export default async function ElectionSetupPage({
             <div className="setup-table">
               <div className="setup-row setup-row--header">
                 <span>المقر</span>
-                <span>النطاق</span>
+                <span>الجماعة / المقاطعة</span>
                 <span>المكاتب</span>
                 <span />
               </div>
@@ -325,7 +325,7 @@ export default async function ElectionSetupPage({
             <div>
               <span>05 · مكاتب التصويت</span>
               <h2>مكاتب التصويت</h2>
-              <p>تعديل رقم المكتب وربطه بمقر التصويت والمكتب المركزي.</p>
+              <p>تعديل رقم المكتب وربطه بمقر مكتب التصويت والمكتب المركزي.</p>
             </div>
             <Link
               className="setup-create-button"
@@ -339,7 +339,7 @@ export default async function ElectionSetupPage({
             <div className="setup-table">
               <div className="setup-row setup-row--offices setup-row--header">
                 <span>الرقم</span>
-                <span>مقر التصويت</span>
+                <span>مقر مكتب التصويت</span>
                 <span>المكتب المركزي</span>
                 <span>المسجلون</span>
                 <span />

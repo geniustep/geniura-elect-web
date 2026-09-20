@@ -355,7 +355,7 @@ export function AreaOfficeObserverTable({
       <div className="area-office-table">
         <div className="area-office-row area-office-row--head">
           <span>المكتب</span>
-          <span>مقر التصويت</span>
+          <span>مقر مكتب التصويت</span>
           <span>المراقب</span>
           <span>الهاتف</span>
           <span>رقم الناخب</span>

@@ -80,10 +80,10 @@ export default async function PollingAreaPage({
 
         <section className="polling-area-hero">
           <div>
-            <span>النطاق الترابي</span>
+            <span>الجماعة / المقاطعة</span>
             <h1>{area.name}</h1>
             <p>
-              لائحة مكاتب التصويت والمراقبين داخل هذا النطاق، مع إظهار
+              لائحة مكاتب التصويت والمراقبين داخل هذه الجماعة أو المقاطعة، مع إظهار
               المكاتب غير المغطاة ونواقص بيانات المراقبين.
             </p>
           </div>

@@ -74,7 +74,7 @@ export default async function ConstituencyDashboardPage({
 
         <section className="constituency-dashboard-hero">
           <div>
-            <span className="constituency-dashboard-kicker">الدائرة المحلية</span>
+            <span className="constituency-dashboard-kicker">الدائرة الانتخابية المحلية</span>
             <h1>{dashboard.constituency.name}</h1>
             <div className="constituency-dashboard-meta">
               <span>{dashboard.constituency.region.name}</span>
@@ -131,7 +131,7 @@ export default async function ConstituencyDashboardPage({
         <section className="constituency-dashboard-section">
           <div className="constituency-dashboard-section-head">
             <div>
-              <span>التغطية حسب النطاق</span>
+              <span>التغطية حسب الجماعة / المقاطعة</span>
               <h2>أين توجد الفجوات؟</h2>
             </div>
           </div>
@@ -231,7 +231,7 @@ export default async function ConstituencyDashboardPage({
                     <div className="constituency-attention-main">
                       <strong>{office.center.name}</strong>
                       <span>
-                        {office.area?.name ?? "بدون نطاق"}
+                        {office.area?.name ?? "غير محدد"}
                         {office.central_office
                           ? ` · مركزي ${office.central_office.number}`
                           : ""}

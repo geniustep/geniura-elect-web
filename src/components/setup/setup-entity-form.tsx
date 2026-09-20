@@ -23,11 +23,11 @@ type Props = {
 const sectionNames: Record<SetupFormSection, string> = {
   election: "الاستحقاق",
   constituencies: "الدائرة الانتخابية",
-  areas: "النطاق الترابي",
+  areas: "الجماعة / المقاطعة",
   "central-offices": "المكتب المركزي",
-  centers: "مقر التصويت",
+  centers: "مقر مكتب التصويت",
   offices: "مكتب التصويت",
-  representatives: "الموكل أو المنسق",
+  representatives: "المراقب أو المنسق",
   assignments: "التعيين الميداني",
 };
 
@@ -199,19 +199,19 @@ function prerequisiteMessage(
     section === "areas" &&
     !snapshot.constituencies.some((item) => item.kind === "local")
   ) {
-    return "يجب إنشاء دائرة محلية أولًا قبل إضافة نطاق ترابي.";
+    return "يجب إنشاء دائرة انتخابية محلية أولًا قبل إضافة جماعة / مقاطعة.";
   }
   if (section === "central-offices" && snapshot.areas.length === 0) {
-    return "يجب إنشاء نطاق ترابي أولًا قبل إضافة مكتب مركزي.";
+    return "يجب إنشاء جماعة / مقاطعة أولًا قبل إضافة مكتب مركزي.";
   }
   if (
     section === "centers" &&
     !snapshot.constituencies.some((item) => item.kind === "local")
   ) {
-    return "يجب إنشاء دائرة محلية أولًا قبل إضافة مركز تصويت.";
+    return "يجب إنشاء دائرة انتخابية محلية أولًا قبل إضافة مركز تصويت.";
   }
   if (section === "offices" && snapshot.centers.length === 0) {
-    return "يجب إنشاء مقر تصويت أولًا قبل إضافة مكتب.";
+    return "يجب إنشاء مقر مكتب تصويت أولًا قبل إضافة مكتب.";
   }
   if (
     section === "assignments" &&
@@ -534,7 +534,7 @@ export function SetupEntityForm({
             {section === "areas" ? (
               <>
                 <label className="setup-field setup-field--full">
-                  <span>اسم النطاق</span>
+                  <span>اسم الجماعة / المقاطعة</span>
                   <input
                     required
                     value={values.name}
@@ -620,7 +620,7 @@ export function SetupEntityForm({
             {section === "centers" ? (
               <>
                 <label className="setup-field setup-field--full">
-                  <span>اسم مقر التصويت</span>
+                  <span>اسم مقر مكتب التصويت</span>
                   <input
                     required
                     value={values.name}
@@ -653,7 +653,7 @@ export function SetupEntityForm({
                       update("polling_area_id", event.target.value)
                     }
                   >
-                    <option value="">بدون نطاق</option>
+                    <option value="">بدون جماعة / مقاطعة</option>
                     {snapshot.areas
                       .filter(
                         (item) =>
@@ -695,7 +695,7 @@ export function SetupEntityForm({
             {section === "offices" ? (
               <>
                 <label className="setup-field setup-field--full">
-                  <span>مقر التصويت</span>
+                  <span>مقر مكتب التصويت</span>
                   <select
                     required
                     value={values.center_id}
@@ -806,7 +806,7 @@ export function SetupEntityForm({
                   </select>
                 </label>
                 <label className="setup-field setup-field--full">
-                  <span>الموكل أو المنسق</span>
+                  <span>المراقب أو المنسق</span>
                   <select
                     required
                     value={values.representative_id}
@@ -828,8 +828,8 @@ export function SetupEntityForm({
                     value={values.role}
                     onChange={(event) => update("role", event.target.value)}
                   >
-                    <option value="primary">موكل أساسي</option>
-                    <option value="backup">موكل احتياطي</option>
+                    <option value="primary">مراقب أساسي</option>
+                    <option value="backup">مراقب احتياطي</option>
                     <option value="coordinator">منسق مركز</option>
                   </select>
                 </label>
