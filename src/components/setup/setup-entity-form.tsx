@@ -453,22 +453,6 @@ export function SetupEntityForm({
                   />
                 </label>
                 <label className="setup-field">
-                  <span>النطاق الترابي</span>
-                  <select
-                    value={values.polling_area_id}
-                    onChange={(event) =>
-                      update("polling_area_id", event.target.value)
-                    }
-                  >
-                    <option value="">بدون نطاق</option>
-                    {snapshot.areas.map((item) => (
-                      <option key={item.id} value={item.id}>
-                        {item.name}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label className="setup-field">
                   <span>الكود الداخلي</span>
                   <input
                     required
@@ -623,7 +607,7 @@ export function SetupEntityForm({
             {section === "centers" ? (
               <>
                 <label className="setup-field setup-field--full">
-                  <span>اسم المركز</span>
+                  <span>اسم مقر التصويت</span>
                   <input
                     required
                     value={values.name}
@@ -641,6 +625,28 @@ export function SetupEntityForm({
                   >
                     {snapshot.constituencies
                       .filter((item) => item.kind === "local")
+                      .map((item) => (
+                        <option key={item.id} value={item.id}>
+                          {item.name}
+                        </option>
+                      ))}
+                  </select>
+                </label>
+                <label className="setup-field">
+                  <span>النطاق الترابي</span>
+                  <select
+                    value={values.polling_area_id}
+                    onChange={(event) =>
+                      update("polling_area_id", event.target.value)
+                    }
+                  >
+                    <option value="">بدون نطاق</option>
+                    {snapshot.areas
+                      .filter(
+                        (item) =>
+                          String(item.constituency.id) ===
+                          values.local_constituency_id,
+                      )
                       .map((item) => (
                         <option key={item.id} value={item.id}>
                           {item.name}
@@ -676,7 +682,7 @@ export function SetupEntityForm({
             {section === "offices" ? (
               <>
                 <label className="setup-field setup-field--full">
-                  <span>مركز التصويت</span>
+                  <span>مقر التصويت</span>
                   <select
                     required
                     value={values.center_id}
