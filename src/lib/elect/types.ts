@@ -47,7 +47,8 @@ export type PollingOffice = {
   id: number;
   code: string;
   number: number;
-  registered_voters: number;
+  registered_voters: number | null;
+  registered_voters_known: boolean;
   coverage_state: string;
   center: {
     id: number;
