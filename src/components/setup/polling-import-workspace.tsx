@@ -1,6 +1,6 @@
 "use client";
 
-import ExcelJS from "@andreeewill/exceljs";
+import ExcelJS from "@andreeewill/exceljs/dist/exceljs.min.js";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
