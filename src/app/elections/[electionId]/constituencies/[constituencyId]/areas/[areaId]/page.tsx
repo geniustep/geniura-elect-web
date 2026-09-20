@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 
 import { AppHeader } from "@/components/navigation/app-header";
 import { AreaOfficeObserverTable } from "@/components/operations/area-office-observer-table";
+import { AreaXlsxExportButton } from "@/components/operations/area-xlsx-export-button";
 import { AreaStructureManager } from "@/components/operations/area-structure-manager";
 import type {
   ConstituencyCoverageDashboard,
@@ -105,6 +106,17 @@ export default async function PollingAreaPage({
               لائحة مكاتب التصويت والمراقبين داخل هذه الجماعة أو المقاطعة،
               مع إدارة البنية التنظيمية للمسؤول المخول.
             </p>
+            {user.role === "manager" && setupArea ? (
+              <div className="polling-area-export-wrap">
+                <AreaXlsxExportButton
+                  areaName={setupArea.name}
+                  sourceFilename={setupArea.source_filename}
+                  electionDate={dashboard.election.election_date}
+                  coverageOffices={offices}
+                  structuralOffices={setupOffices}
+                />
+              </div>
+            ) : null}
           </div>
           <div className="polling-area-hero-stats">
             <div>

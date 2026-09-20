@@ -6712,3 +6712,42 @@ a {
     grid-template-columns: 1fr;
   }
 }
+
+
+/* Exact polling-area XLSX export */
+.polling-area-export-wrap {
+  margin-top: 14px;
+}
+
+.polling-area-export {
+  display: inline-grid;
+  gap: 4px;
+}
+
+.polling-area-export button {
+  min-height: 38px;
+  width: fit-content;
+  padding: 8px 13px;
+  border: 0;
+  border-radius: 10px;
+  background: #0b765b;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.polling-area-export button:disabled {
+  cursor: wait;
+  opacity: .58;
+}
+
+.polling-area-export small {
+  color: #7b8594;
+  font-size: 9px;
+}
+
+.polling-area-export > span {
+  color: #b42318;
+  font-size: 9px;
+  font-weight: 800;
+}
