@@ -1,0 +1,263 @@
+/*
+ * Geniura Elect — global visual foundation
+ *
+ * Canonical visual source: current PJD login experience.
+ * This layer is loaded after legacy styles so new semantic tokens win
+ * without requiring a risky repository-wide CSS rewrite in one step.
+ */
+
+:root {
+  color-scheme: light;
+
+  /* Typography */
+  --ge-font-ui: var(--font-tajawal), "Noto Sans Arabic", Arial, sans-serif;
+  --ge-font-weight-regular: 400;
+  --ge-font-weight-medium: 500;
+  --ge-font-weight-bold: 700;
+  --ge-font-weight-extra-bold: 800;
+
+  /* Brand — extracted from the current login */
+  --ge-brand-primary: #102f63;
+  --ge-brand-primary-deep: #071d43;
+  --ge-brand-secondary: #184780;
+  --ge-brand-accent: #f39a2e;
+  --ge-brand-accent-strong: #dd7c18;
+  --ge-brand-accent-bright: #f7a23c;
+  --ge-brand-accent-soft: #fff1df;
+  --ge-brand-primary-soft: #eef4fb;
+
+  /* Surfaces */
+  --ge-bg-page: #f8f9fb;
+  --ge-bg-panel: #fbfbfc;
+  --ge-surface: #ffffff;
+  --ge-surface-soft: #f5f7fa;
+  --ge-surface-strong: #eef2f6;
+  --ge-surface-disabled: #f5f6f8;
+
+  /* Text */
+  --ge-text-primary: #172033;
+  --ge-text-secondary: #354052;
+  --ge-text-muted: #6e7787;
+  --ge-text-subtle: #9099a7;
+  --ge-text-placeholder: #aab1bc;
+  --ge-text-on-dark: #ffffff;
+
+  /* Borders */
+  --ge-border: #e4e7ec;
+  --ge-border-control: #d9dee6;
+  --ge-border-strong: #cfd7e1;
+
+  /* Interaction */
+  --ge-focus: #184780;
+  --ge-focus-border: rgba(24, 71, 128, 0.62);
+  --ge-focus-ring: rgba(24, 71, 128, 0.12);
+
+  /* Semantic states.
+     Success/warning remain semantic rather than brand colors.
+     Danger follows the login error treatment. */
+  --ge-success: #0b765b;
+  --ge-success-bg: #edf7f3;
+  --ge-success-border: #bfe0d3;
+  --ge-warning: #8a631d;
+  --ge-warning-bg: #fff8e7;
+  --ge-warning-border: #ead5a4;
+  --ge-danger: #9f2d18;
+  --ge-danger-bg: #fff5f2;
+  --ge-danger-border: #f1c1b5;
+
+  /* Shape */
+  --ge-radius-control: 16px;
+  --ge-radius-card: 20px;
+  --ge-radius-dialog: 24px;
+  --ge-radius-pill: 999px;
+
+  /* Elevation */
+  --ge-shadow-sm: 0 8px 24px rgba(7, 29, 67, 0.06);
+  --ge-shadow-md: 0 18px 44px rgba(7, 29, 67, 0.11);
+  --ge-shadow-action: 0 14px 28px rgba(221, 124, 24, 0.2);
+
+  /*
+   * Compatibility aliases.
+   * Existing screens can migrate incrementally while resolving through
+   * the same visual language immediately.
+   */
+  --background: var(--ge-bg-page);
+  --surface: var(--ge-surface);
+  --surface-soft: var(--ge-surface-soft);
+  --surface-strong: var(--ge-surface-strong);
+  --text: var(--ge-text-primary);
+  --text-soft: var(--ge-text-secondary);
+  --muted: var(--ge-text-muted);
+  --border: var(--ge-border);
+  --border-strong: var(--ge-border-control);
+  --accent: var(--ge-brand-primary);
+  --accent-hover: var(--ge-brand-primary-deep);
+  --accent-soft: var(--ge-brand-primary-soft);
+  --ink: var(--ge-brand-primary-deep);
+  --ink-soft: var(--ge-brand-primary);
+  --success: var(--ge-success);
+  --success-soft: var(--ge-success-bg);
+  --warning: var(--ge-warning);
+  --warning-bg: var(--ge-warning-bg);
+  --warning-border: var(--ge-warning-border);
+  --danger: var(--ge-danger);
+  --danger-bg: var(--ge-danger-bg);
+  --shadow-sm: var(--ge-shadow-sm);
+  --shadow-md: var(--ge-shadow-md);
+
+  /* Temporary aliases for the existing PJD-prefixed screens. */
+  --pjd-navy: var(--ge-brand-primary);
+  --pjd-navy-deep: var(--ge-brand-primary-deep);
+  --pjd-blue: var(--ge-brand-secondary);
+  --pjd-orange: var(--ge-brand-accent);
+  --pjd-orange-deep: var(--ge-brand-accent-strong);
+  --pjd-orange-soft: var(--ge-brand-accent-soft);
+  --pjd-ink: var(--ge-text-primary);
+  --pjd-muted: var(--ge-text-muted);
+}
+
+html,
+body {
+  font-family: var(--ge-font-ui);
+}
+
+body {
+  background:
+    radial-gradient(
+      circle at 8% 0%,
+      rgba(24, 71, 128, 0.055),
+      transparent 30rem
+    ),
+    linear-gradient(180deg, #fbfcfe 0, var(--ge-bg-page) 36rem);
+  color: var(--ge-text-primary);
+}
+
+/* Global keyboard focus now follows the login blue focus language. */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid var(--ge-focus-ring);
+  outline-offset: 2px;
+}
+
+/* Shared application shell */
+.topbar {
+  border-bottom-color: var(--ge-border);
+  background: rgba(255, 255, 255, 0.94);
+}
+
+.brand-link {
+  color: var(--ge-brand-primary-deep);
+}
+
+.user-avatar {
+  background: var(--ge-brand-primary-soft);
+  color: var(--ge-brand-primary);
+}
+
+.ghost-button {
+  border-color: var(--ge-border);
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--ge-text-secondary);
+}
+
+.ghost-button:hover:not(:disabled) {
+  border-color: var(--ge-border-strong);
+  background: var(--ge-surface-strong);
+  color: var(--ge-brand-primary-deep);
+}
+
+/* Shared actions */
+.primary-button,
+.primary-link {
+  background: linear-gradient(
+    135deg,
+    var(--ge-brand-accent-bright),
+    var(--ge-brand-accent-strong)
+  );
+  color: var(--ge-text-on-dark);
+  box-shadow: var(--ge-shadow-action);
+}
+
+.primary-button:hover:not(:disabled),
+.primary-link:hover {
+  box-shadow: 0 18px 34px rgba(221, 124, 24, 0.25);
+}
+
+.secondary-button {
+  border-color: var(--ge-border-control);
+  background: var(--ge-surface);
+  color: var(--ge-text-secondary);
+}
+
+.secondary-button:hover:not(:disabled) {
+  border-color: var(--ge-border-strong);
+  background: var(--ge-surface-strong);
+}
+
+/* Shared content surfaces */
+.election-card,
+.summary-grid > div,
+.detail-card,
+.protocol-callout,
+.protocol-section,
+.workflow-panel,
+.command-card,
+.progress-panel,
+.result-card,
+.incident-panel,
+.office-row,
+.attention-row {
+  border-color: var(--ge-border);
+  background-color: var(--ge-surface);
+  box-shadow: var(--ge-shadow-sm);
+}
+
+/* Shared form controls */
+.login-form input,
+.count-grid input,
+.result-row input,
+.incident-form select,
+.incident-form textarea {
+  border-color: var(--ge-border-control);
+  background: var(--ge-surface);
+  color: var(--ge-text-primary);
+}
+
+.login-form input:focus,
+.count-grid input:focus,
+.result-row input:focus,
+.incident-form select:focus,
+.incident-form textarea:focus {
+  border-color: var(--ge-focus-border);
+  outline: none;
+  box-shadow: 0 0 0 4px var(--ge-focus-ring);
+}
+
+/* Semantic feedback remains independent from brand colors. */
+.notice.warning,
+.consistency.pending {
+  border-color: var(--ge-warning-border);
+  background: var(--ge-warning-bg);
+  color: var(--ge-warning);
+}
+
+.coverage-chip.present,
+.consistency.ok {
+  border-color: var(--ge-success-border);
+  background: var(--ge-success-bg);
+  color: var(--ge-success);
+}
+
+.coverage-chip.absent,
+.form-error,
+.inline-error {
+  color: var(--ge-danger);
+}
+
+.form-error {
+  border-color: var(--ge-danger-border);
+  background: var(--ge-danger-bg);
+}
