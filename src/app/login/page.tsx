@@ -1,4 +1,3 @@
-import { Tajawal } from "next/font/google";
 import { redirect } from "next/navigation";
 
 import { LoginForm } from "@/components/auth/login-form";
@@ -6,12 +5,6 @@ import { BrandLogo } from "@/components/branding/brand-logo";
 import { getCurrentUser } from "@/lib/server/session";
 
 export const dynamic = "force-dynamic";
-
-const tajawal = Tajawal({
-  subsets: ["arabic"],
-  weight: ["400", "500", "700", "800"],
-  display: "swap",
-});
 
 export default async function LoginPage() {
   const user = await getCurrentUser();
@@ -21,7 +14,7 @@ export default async function LoginPage() {
   }
 
   return (
-    <main className={`pjd-auth-shell ${tajawal.className}`}>
+    <main className="pjd-auth-shell">
       <section className="pjd-auth-visual" aria-label="حزب العدالة والتنمية">
         <div className="pjd-auth-grid" aria-hidden="true" />
         <div className="pjd-auth-glow pjd-auth-glow--one" aria-hidden="true" />
