@@ -42,12 +42,11 @@ export function LoginForm() {
   }
 
   return (
-    <form className="login-form" onSubmit={onSubmit}>
-      <label className="form-field">
-        <span>اسم الدخول</span>
-        <div className="field-control">
+    <form className="pjd-login-form" onSubmit={onSubmit}>
+      <label className="pjd-login-field">
+        <span className="pjd-login-label">اسم الدخول</span>
+        <div className="pjd-login-control">
           <svg
-            className="field-icon"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -68,11 +67,10 @@ export function LoginForm() {
         </div>
       </label>
 
-      <label className="form-field">
-        <span>كلمة المرور</span>
-        <div className="field-control">
+      <label className="pjd-login-field">
+        <span className="pjd-login-label">كلمة المرور</span>
+        <div className="pjd-login-control">
           <svg
-            className="field-icon"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -95,15 +93,16 @@ export function LoginForm() {
       </label>
 
       {error ? (
-        <p className="form-error" role="alert">
-          {error}
-        </p>
+        <div className="pjd-login-error" role="alert">
+          <span aria-hidden="true">!</span>
+          <p>{error}</p>
+        </div>
       ) : null}
 
-      <button className="login-submit" type="submit" disabled={pending}>
-        <span>{pending ? "جارٍ الدخول..." : "دخول"}</span>
+      <button className="pjd-login-submit" type="submit" disabled={pending}>
+        <span>{pending ? "جارٍ التحقق..." : "دخول إلى مركز العمليات"}</span>
         {pending ? (
-          <span className="button-loader" aria-hidden="true" />
+          <span className="pjd-login-loader" aria-hidden="true" />
         ) : (
           <svg
             viewBox="0 0 24 24"
