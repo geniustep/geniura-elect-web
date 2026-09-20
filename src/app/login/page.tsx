@@ -1,3 +1,4 @@
+import { Tajawal } from "next/font/google";
 import { redirect } from "next/navigation";
 
 import { LoginForm } from "@/components/auth/login-form";
@@ -5,6 +6,12 @@ import { BrandLogo } from "@/components/branding/brand-logo";
 import { getCurrentUser } from "@/lib/server/session";
 
 export const dynamic = "force-dynamic";
+
+const tajawal = Tajawal({
+  subsets: ["arabic"],
+  weight: ["400", "500", "700", "800"],
+  display: "swap",
+});
 
 export default async function LoginPage() {
   const user = await getCurrentUser();
@@ -14,7 +21,7 @@ export default async function LoginPage() {
   }
 
   return (
-    <main className="pjd-auth-shell">
+    <main className={`pjd-auth-shell ${tajawal.className}`}>
       <section className="pjd-auth-visual" aria-label="هوية مركز العمليات">
         <div className="pjd-auth-grid" aria-hidden="true" />
         <div className="pjd-auth-glow pjd-auth-glow--one" aria-hidden="true" />
@@ -26,14 +33,14 @@ export default async function LoginPage() {
             <BrandLogo priority />
           </span>
           <div>
-            <strong>Geniura Elect</strong>
-            <span>Election Operations</span>
+            <strong>حزب العدالة والتنمية</strong>
+            <span>مركز العمليات الانتخابية</span>
           </div>
         </header>
 
         <div className="pjd-auth-visual-content">
           <span className="pjd-auth-party-chip">
-            PJD · جهة طنجة–تطوان–الحسيمة
+            جهة طنجة–تطوان–الحسيمة
           </span>
 
           <p className="pjd-auth-kicker">مركز القيادة الميدانية</p>
@@ -69,7 +76,7 @@ export default async function LoginPage() {
 
         <footer className="pjd-auth-visual-footer">
           <span className="pjd-auth-status-dot" aria-hidden="true" />
-          <span>Geniura Elect · Operations Console</span>
+          <span>مركز العمليات الانتخابية</span>
         </footer>
       </section>
 
@@ -77,7 +84,7 @@ export default async function LoginPage() {
         <div className="pjd-auth-mobile-brand">
           <BrandLogo priority />
           <div>
-            <strong>Geniura Elect</strong>
+            <strong>حزب العدالة والتنمية</strong>
             <span>مركز العمليات الانتخابية</span>
           </div>
         </div>
@@ -112,7 +119,7 @@ export default async function LoginPage() {
         </div>
 
         <footer className="pjd-auth-panel-footer">
-          <span>Geniura Elect</span>
+          <span>مركز العمليات الانتخابية</span>
           <span>2026</span>
         </footer>
       </section>
