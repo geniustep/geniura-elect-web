@@ -391,7 +391,9 @@ export function RepresentativeImportWorkspace({
   const selectableAreas = areas.filter(
     (area): area is AreaOption & { id: number } => Boolean(area.id),
   );
-  const [areaId, setAreaId] = useState("");
+  const [areaId, setAreaId] = useState(
+    selectableAreas.length === 1 ? String(selectableAreas[0].id) : "",
+  );
   const [fileName, setFileName] = useState("");
   const [rows, setRows] = useState<ImportRow[]>([]);
   const [sourceInfo, setSourceInfo] = useState<ParsedObserverWorkbook | null>(
@@ -449,7 +451,7 @@ export function RepresentativeImportWorkspace({
 
   async function runPreview() {
     if (!areaId || !rows.length) {
-      setError("اختر النطاق وحمّل ملف XLSX أولًا.");
+      setError("اختر الجماعة / المقاطعة وحمّل ملف XLSX أولًا.");
       return;
     }
 
@@ -547,7 +549,7 @@ export function RepresentativeImportWorkspace({
           <p>
             لا تحتاج إلى إعداد Template خاص بـ Geniura أو تعديل الملف الخارجي.
             نكتشف الورقة وصف العناوين وترتيب الأعمدة تلقائيًا، ثم نربط بالدائرة
-            + النطاق + رقم مكتب التصويت، وليس برقم المكتب المركزي.
+            + الجماعة / المقاطعة + رقم مكتب التصويت، وليس برقم المكتب المركزي.
           </p>
         </div>
       </div>
@@ -557,6 +559,7 @@ export function RepresentativeImportWorkspace({
           <span>الجماعة / المقاطعة</span>
           <select
             value={areaId}
+            disabled={selectableAreas.length === 1}
             onChange={(event) => {
               setAreaId(event.target.value);
               setPreview(null);

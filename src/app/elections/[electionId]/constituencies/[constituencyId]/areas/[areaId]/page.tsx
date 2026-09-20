@@ -5,6 +5,7 @@ import { AppHeader } from "@/components/navigation/app-header";
 import { AreaOfficeObserverTable } from "@/components/operations/area-office-observer-table";
 import { AreaXlsxExportButton } from "@/components/operations/area-xlsx-export-button";
 import { AreaStructureManager } from "@/components/operations/area-structure-manager";
+import { RepresentativeImportWorkspace } from "@/components/setup/representative-import-workspace";
 import type {
   AreaManagementSnapshot,
   ConstituencyCoverageDashboard,
@@ -155,15 +156,28 @@ export default async function PollingAreaPage({
         </section>
 
         {management ? (
-          <AreaStructureManager
-            electionId={electionId}
-            initialArea={management.area}
-            initialCentralOffices={management.central_offices}
-            centers={management.centers}
-            initialOffices={management.offices}
-            canCreate={management.capabilities.create}
-            canArchive={management.capabilities.archive}
-          />
+          <>
+            <AreaStructureManager
+              electionId={electionId}
+              initialArea={management.area}
+              initialCentralOffices={management.central_offices}
+              centers={management.centers}
+              initialOffices={management.offices}
+              canCreate={management.capabilities.create}
+              canArchive={management.capabilities.archive}
+            />
+
+            <RepresentativeImportWorkspace
+              electionId={electionId}
+              constituencyId={Number(constituencyId)}
+              areas={[
+                {
+                  id: numericAreaId,
+                  name: management.area.name,
+                },
+              ]}
+            />
+          </>
         ) : null}
 
         <AreaOfficeObserverTable
