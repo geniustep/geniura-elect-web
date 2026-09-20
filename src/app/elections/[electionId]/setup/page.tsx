@@ -274,7 +274,7 @@ export default async function ElectionSetupPage({
                     <small>{item.code}</small>
                   </div>
                   <span>{item.constituency.name}</span>
-                  <span>{item.registered_voters || "—"}</span>
+                  <span>{item.registered_voters ?? "—"}</span>
                   <Link
                     className="setup-edit-link"
                     href={`/elections/${electionId}/setup/offices/${item.id}/edit`}
