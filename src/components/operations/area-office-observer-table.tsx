@@ -13,7 +13,7 @@ type Props = {
   areaId: number;
   offices: ConstituencyCoverageOffice[];
   canEdit: boolean;
-  canCreate: boolean;
+  canAssign: boolean;
   canDelete: boolean;
 };
 
@@ -71,7 +71,7 @@ export function AreaOfficeObserverTable({
   areaId,
   offices,
   canEdit,
-  canCreate,
+  canAssign,
   canDelete,
 }: Props) {
   const [items, setItems] = useState(offices);
@@ -613,7 +613,7 @@ export function AreaOfficeObserverTable({
                       </button>
                     ) : null}
                   </>
-                ) : canCreate ? (
+                ) : canAssign ? (
                   <button
                     type="button"
                     className="is-add"
