@@ -100,7 +100,7 @@ export function LoginForm() {
       ) : null}
 
       <button className="pjd-login-submit" type="submit" disabled={pending}>
-        <span>{pending ? "جارٍ التحقق..." : "دخول إلى مركز العمليات"}</span>
+        <span>{pending ? "جارٍ الدخول..." : "دخول"}</span>
         {pending ? (
           <span className="pjd-login-loader" aria-hidden="true" />
         ) : (
