@@ -27,6 +27,20 @@ type Envelope = {
   error?: { message?: string };
 };
 
+type ManualAssignmentEnvelope = {
+  success: boolean;
+  data?: {
+    representative: SetupRepresentative;
+    assignment: {
+      id: number;
+      status: string;
+      check_in_at?: string | null;
+    };
+    representative_reused: boolean;
+  };
+  error?: { message?: string };
+};
+
 const missingLabels: Record<string, string> = {
   name: "الاسم",
   phone: "الهاتف",
@@ -60,6 +74,7 @@ export function AreaOfficeObserverTable({
     "all",
   );
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [creatingOfficeId, setCreatingOfficeId] = useState<number | null>(null);
   const [draft, setDraft] = useState<Draft>({
     name: "",
     phone: "",
@@ -98,8 +113,17 @@ export function AreaOfficeObserverTable({
     });
   }, [coverage, items, query]);
 
+  function clearOfficeError(officeId: number) {
+    setErrorByOffice((current) => {
+      const next = { ...current };
+      delete next[officeId];
+      return next;
+    });
+  }
+
   function startEdit(office: ConstituencyCoverageOffice) {
     if (!office.representative) return;
+    setCreatingOfficeId(null);
     setEditingId(office.id);
     setSavedOfficeId(null);
     setDraft({
@@ -108,15 +132,95 @@ export function AreaOfficeObserverTable({
       voterNumber: office.representative.voter_number ?? "",
       rbo: office.representative.rbo ?? "",
     });
-    setErrorByOffice((current) => {
-      const next = { ...current };
-      delete next[office.id];
-      return next;
-    });
+    clearOfficeError(office.id);
   }
 
-  function cancelEdit() {
+  function startCreate(office: ConstituencyCoverageOffice) {
+    if (office.representative) return;
     setEditingId(null);
+    setCreatingOfficeId(office.id);
+    setSavedOfficeId(null);
+    setDraft({
+      name: "",
+      phone: "",
+      voterNumber: "",
+      rbo: "",
+    });
+    clearOfficeError(office.id);
+  }
+
+  function cancelForm() {
+    setEditingId(null);
+    setCreatingOfficeId(null);
+  }
+
+  async function createRepresentative(office: ConstituencyCoverageOffice) {
+    if (!draft.name.trim()) {
+      setErrorByOffice((current) => ({
+        ...current,
+        [office.id]: "أدخل اسم المراقب.",
+      }));
+      return;
+    }
+
+    setSavingId(office.id);
+    setSavedOfficeId(null);
+    try {
+      const response = await fetch(
+        `/api/operations/elections/${encodeURIComponent(electionId)}/setup/offices/${office.id}/representative`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: draft.name.trim(),
+            phone: draft.phone.trim(),
+            voter_number: draft.voterNumber.trim(),
+            rbo: draft.rbo.trim(),
+          }),
+        },
+      );
+
+      const payload = (await response
+        .json()
+        .catch(() => null)) as ManualAssignmentEnvelope | null;
+
+      if (!response.ok || !payload?.success || !payload.data) {
+        setErrorByOffice((current) => ({
+          ...current,
+          [office.id]:
+            payload?.error?.message || "تعذر إضافة المراقب إلى المكتب.",
+        }));
+        return;
+      }
+
+      const { representative, assignment } = payload.data;
+      setItems((current) =>
+        current.map((item) =>
+          item.id === office.id
+            ? {
+                ...item,
+                representative,
+                assignment: {
+                  id: assignment.id,
+                  status: assignment.status,
+                  check_in_at: assignment.check_in_at ?? null,
+                },
+                missing_fields: representative.missing_fields ?? [],
+              }
+            : item,
+        ),
+      );
+      setCreatingOfficeId(null);
+      setSavedOfficeId(office.id);
+      clearOfficeError(office.id);
+    } catch {
+      setErrorByOffice((current) => ({
+        ...current,
+        [office.id]: "تعذر الاتصال بالخدمة.",
+      }));
+    } finally {
+      setSavingId(null);
+    }
   }
 
   async function save(office: ConstituencyCoverageOffice) {
@@ -145,7 +249,7 @@ export function AreaOfficeObserverTable({
     if (nextRbo !== (representative.rbo ?? "")) body.rbo = nextRbo;
 
     if (!Object.keys(body).length) {
-      cancelEdit();
+      cancelForm();
       return;
     }
 
@@ -187,11 +291,7 @@ export function AreaOfficeObserverTable({
       );
       setEditingId(null);
       setSavedOfficeId(office.id);
-      setErrorByOffice((current) => {
-        const next = { ...current };
-        delete next[office.id];
-        return next;
-      });
+      clearOfficeError(office.id);
     } catch {
       setErrorByOffice((current) => ({
         ...current,
@@ -205,13 +305,18 @@ export function AreaOfficeObserverTable({
   function onKeyDown(
     event: KeyboardEvent<HTMLInputElement>,
     office: ConstituencyCoverageOffice,
+    isCreating: boolean,
   ) {
     if (event.key === "Escape") {
       event.preventDefault();
-      cancelEdit();
+      cancelForm();
     } else if (event.key === "Enter") {
       event.preventDefault();
-      void save(office);
+      if (isCreating) {
+        void createRepresentative(office);
+      } else {
+        void save(office);
+      }
     }
   }
 
@@ -262,6 +367,8 @@ export function AreaOfficeObserverTable({
         {visible.map((office) => {
           const representative = office.representative;
           const isEditing = editingId === office.id;
+          const isCreating = creatingOfficeId === office.id;
+          const isFormOpen = isEditing || isCreating;
           const missing = office.missing_fields.map(
             (field) => missingLabels[field] ?? field,
           );
@@ -271,7 +378,7 @@ export function AreaOfficeObserverTable({
 
           return (
             <article
-              className={`area-office-row${isEditing ? " is-editing" : ""}`}
+              className={`area-office-row${isFormOpen ? " is-editing" : ""}`}
               key={office.id}
             >
               <div className="area-office-number">
@@ -289,7 +396,7 @@ export function AreaOfficeObserverTable({
               </div>
 
               <div>
-                {isEditing ? (
+                {isFormOpen ? (
                   <input
                     value={draft.name}
                     onChange={(event) =>
@@ -298,7 +405,10 @@ export function AreaOfficeObserverTable({
                         name: event.target.value,
                       }))
                     }
-                    onKeyDown={(event) => onKeyDown(event, office)}
+                    onKeyDown={(event) =>
+                      onKeyDown(event, office, isCreating)
+                    }
+                    placeholder="اسم المراقب"
                     autoFocus
                   />
                 ) : representative ? (
@@ -314,7 +424,7 @@ export function AreaOfficeObserverTable({
               </div>
 
               <div>
-                {isEditing ? (
+                {isFormOpen ? (
                   <input
                     value={draft.phone}
                     onChange={(event) =>
@@ -323,7 +433,10 @@ export function AreaOfficeObserverTable({
                         phone: event.target.value,
                       }))
                     }
-                    onKeyDown={(event) => onKeyDown(event, office)}
+                    onKeyDown={(event) =>
+                      onKeyDown(event, office, isCreating)
+                    }
+                    placeholder="الهاتف"
                   />
                 ) : (
                   representative?.phone ??
@@ -333,7 +446,7 @@ export function AreaOfficeObserverTable({
               </div>
 
               <div>
-                {isEditing ? (
+                {isFormOpen ? (
                   <input
                     value={draft.voterNumber}
                     onChange={(event) =>
@@ -342,7 +455,10 @@ export function AreaOfficeObserverTable({
                         voterNumber: event.target.value,
                       }))
                     }
-                    onKeyDown={(event) => onKeyDown(event, office)}
+                    onKeyDown={(event) =>
+                      onKeyDown(event, office, isCreating)
+                    }
+                    placeholder="رقم الناخب"
                   />
                 ) : (
                   representative?.voter_number ??
@@ -352,7 +468,7 @@ export function AreaOfficeObserverTable({
               </div>
 
               <div>
-                {isEditing ? (
+                {isFormOpen ? (
                   <input
                     value={draft.rbo}
                     onChange={(event) =>
@@ -361,7 +477,10 @@ export function AreaOfficeObserverTable({
                         rbo: event.target.value,
                       }))
                     }
-                    onKeyDown={(event) => onKeyDown(event, office)}
+                    onKeyDown={(event) =>
+                      onKeyDown(event, office, isCreating)
+                    }
+                    placeholder="ر ب و"
                   />
                 ) : (
                   representative?.rbo ?? office.source_observer?.rbo ?? "—"
@@ -386,19 +505,27 @@ export function AreaOfficeObserverTable({
               </div>
 
               <div className="area-office-actions">
-                {isEditing ? (
+                {isFormOpen ? (
                   <>
                     <button
                       type="button"
-                      onClick={() => void save(office)}
+                      onClick={() =>
+                        isCreating
+                          ? void createRepresentative(office)
+                          : void save(office)
+                      }
                       disabled={savingId === office.id}
                     >
-                      {savingId === office.id ? "حفظ…" : "حفظ"}
+                      {savingId === office.id
+                        ? "حفظ…"
+                        : isCreating
+                          ? "إضافة وربط"
+                          : "حفظ"}
                     </button>
                     <button
                       type="button"
                       className="is-secondary"
-                      onClick={cancelEdit}
+                      onClick={cancelForm}
                       disabled={savingId === office.id}
                     >
                       إلغاء
@@ -407,6 +534,14 @@ export function AreaOfficeObserverTable({
                 ) : canEdit && representative ? (
                   <button type="button" onClick={() => startEdit(office)}>
                     تعديل
+                  </button>
+                ) : canEdit ? (
+                  <button
+                    type="button"
+                    className="is-add"
+                    onClick={() => startCreate(office)}
+                  >
+                    إضافة مراقب
                   </button>
                 ) : null}
               </div>

@@ -6243,3 +6243,9 @@ a {
     grid-template-columns: 1fr;
   }
 }
+
+
+/* Manual observer assignment */
+.area-office-actions button.is-add {
+  background: #0b765b;
+}
