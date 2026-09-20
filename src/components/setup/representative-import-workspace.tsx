@@ -76,6 +76,26 @@ type BrowserXlsxLoader = {
   load(data: ArrayBuffer): Promise<ExcelJS.Workbook>;
 };
 
+type HeaderMap = {
+  row: number;
+  officeNumber: number;
+  observerName: number;
+  phone: number | null;
+  voterNumber: number | null;
+  rbo: number | null;
+};
+
+type ParsedObserverWorkbook = {
+  rows: ImportRow[];
+  worksheetName: string;
+  headerRow: number;
+  detectedFields: {
+    phone: boolean;
+    voterNumber: boolean;
+    rbo: boolean;
+  };
+};
+
 function normalizeText(value: unknown) {
   return String(value ?? "")
     .replace(/[\u064B-\u065F\u0670]/g, "")
@@ -95,13 +115,13 @@ function positiveInteger(value: unknown) {
   return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
 }
 
-function findHeaders(worksheet: ExcelJS.Worksheet) {
-  const maxRows = Math.min(worksheet.rowCount, 25);
+function findHeaders(worksheet: ExcelJS.Worksheet): HeaderMap | null {
+  const maxRows = Math.min(worksheet.rowCount, 40);
 
   for (let rowNumber = 1; rowNumber <= maxRows; rowNumber += 1) {
     const row = worksheet.getRow(rowNumber);
     const cells = new Map<string, number>();
-    const maxColumns = Math.max(row.cellCount, 10);
+    const maxColumns = Math.max(row.cellCount, 12);
 
     for (let column = 1; column <= maxColumns; column += 1) {
       const key = normalizeText(row.getCell(column).text);
@@ -110,16 +130,21 @@ function findHeaders(worksheet: ExcelJS.Worksheet) {
 
     const entries = [...cells.entries()];
     const officeNumber = entries.find(
-      ([key]) => key.includes("رقم مكتب") && key.includes("التصويت"),
+      ([key]) =>
+        key.includes("رقم") &&
+        key.includes("مكتب") &&
+        key.includes("التصويت"),
     )?.[1];
     const observerName = entries.find(
       ([key]) =>
         key.includes("اسم المراقب") ||
         key.includes("الاسم الكامل"),
     )?.[1];
-    const phone = entries.find(([key]) => key.includes("رقم الهاتف"))?.[1];
-    const voterNumber = entries.find(([key]) =>
-      key.includes("رقم الناخب"),
+    const phone = entries.find(
+      ([key]) => key.includes("رقم الهاتف") || key === "الهاتف",
+    )?.[1];
+    const voterNumber = entries.find(
+      ([key]) => key.includes("رقم الناخب"),
     )?.[1];
     const rbo = entries.find(
       ([key]) => key.replace(/\s+/g, "") === "ربو",
@@ -137,12 +162,12 @@ function findHeaders(worksheet: ExcelJS.Worksheet) {
     }
   }
 
-  throw new Error(
-    "لم أجد عمودي «رقم مكتب التصويت» و«الاسم الكامل/اسم المراقب» في الملف.",
-  );
+  return null;
 }
 
-async function parseObserverWorkbook(file: File): Promise<ImportRow[]> {
+async function parseObserverWorkbook(
+  file: File,
+): Promise<ParsedObserverWorkbook> {
   if (!file.name.toLowerCase().endsWith(".xlsx")) {
     throw new Error("الصيغة المطلوبة هي XLSX فقط.");
   }
@@ -154,13 +179,30 @@ async function parseObserverWorkbook(file: File): Promise<ImportRow[]> {
   const browserXlsx = workbook.xlsx as unknown as BrowserXlsxLoader;
   await browserXlsx.load(await file.arrayBuffer());
 
-  const worksheet =
-    workbook.getWorksheet("معطيات المراقبين") ?? workbook.worksheets[0];
-  if (!worksheet) {
-    throw new Error("لا توجد ورقة بيانات داخل الملف.");
+  const preferred = workbook.getWorksheet("معطيات المراقبين");
+  const worksheets = [
+    ...(preferred ? [preferred] : []),
+    ...workbook.worksheets.filter((sheet) => sheet !== preferred),
+  ];
+
+  let worksheet: ExcelJS.Worksheet | null = null;
+  let header: HeaderMap | null = null;
+
+  for (const candidate of worksheets) {
+    const detected = findHeaders(candidate);
+    if (detected) {
+      worksheet = candidate;
+      header = detected;
+      break;
+    }
   }
 
-  const header = findHeaders(worksheet);
+  if (!worksheet || !header) {
+    throw new Error(
+      "لم أتعرف على تنسيق الملف: يجب أن يحتوي على «رقم مكتب التصويت» و«الإسم الكامل/اسم المراقب».",
+    );
+  }
+
   const rows: ImportRow[] = [];
 
   for (
@@ -200,7 +242,17 @@ async function parseObserverWorkbook(file: File): Promise<ImportRow[]> {
   if (!rows.length) {
     throw new Error("لم أجد صفوف مراقبين قابلة للقراءة.");
   }
-  return rows;
+
+  return {
+    rows,
+    worksheetName: worksheet.name,
+    headerRow: header.row,
+    detectedFields: {
+      phone: Boolean(header.phone),
+      voterNumber: Boolean(header.voterNumber),
+      rbo: Boolean(header.rbo),
+    },
+  };
 }
 
 export function RepresentativeImportWorkspace({
@@ -215,6 +267,9 @@ export function RepresentativeImportWorkspace({
   const [areaId, setAreaId] = useState("");
   const [fileName, setFileName] = useState("");
   const [rows, setRows] = useState<ImportRow[]>([]);
+  const [sourceInfo, setSourceInfo] = useState<ParsedObserverWorkbook | null>(
+    null,
+  );
   const [preview, setPreview] = useState<PreviewData | null>(null);
   const [commit, setCommit] = useState<CommitData | null>(null);
   const [confirmed, setConfirmed] = useState(false);
@@ -229,6 +284,7 @@ export function RepresentativeImportWorkspace({
     if (!file) {
       setFileName("");
       setRows([]);
+      setSourceInfo(null);
       return;
     }
 
@@ -236,9 +292,11 @@ export function RepresentativeImportWorkspace({
     try {
       const parsed = await parseObserverWorkbook(file);
       setFileName(file.name);
-      setRows(parsed);
+      setRows(parsed.rows);
+      setSourceInfo(parsed);
     } catch (cause) {
       setRows([]);
+      setSourceInfo(null);
       setFileName("");
       setError(
         cause instanceof Error ? cause.message : "تعذر قراءة ملف Excel.",
@@ -331,10 +389,11 @@ export function RepresentativeImportWorkspace({
       <div className="representative-import-head">
         <div>
           <span>Excel · مراقبو مكاتب التصويت</span>
-          <h2>دمج لائحة المراقبين</h2>
+          <h2>استيراد الملف المعتمد كما هو</h2>
           <p>
-            الربط يتم بالدائرة + النطاق + رقم مكتب التصويت، وليس برقم المكتب
-            المركزي.
+            لا تحتاج إلى إعداد Template خاص بـ Geniura أو تعديل الملف الخارجي.
+            نكتشف الورقة وصف العناوين وترتيب الأعمدة تلقائيًا، ثم نربط بالدائرة
+            + النطاق + رقم مكتب التصويت، وليس برقم المكتب المركزي.
           </p>
         </div>
       </div>
@@ -372,8 +431,17 @@ export function RepresentativeImportWorkspace({
           <small>
             {fileName
               ? `${fileName} · ${rows.length} صف`
-              : "اختر ملف لائحة المراقبين"}
+              : "ارفع ملف XLSX الأصلي كما استلمته دون تعديل"}
           </small>
+          {sourceInfo ? (
+            <small className="representative-import-detected">
+              تم التعرف على التنسيق: الورقة «{sourceInfo.worksheetName}» · صف
+              العناوين {sourceInfo.headerRow} · الهاتف{" "}
+              {sourceInfo.detectedFields.phone ? "✓" : "—"} · رقم الناخب{" "}
+              {sourceInfo.detectedFields.voterNumber ? "✓" : "—"} · ر ب و{" "}
+              {sourceInfo.detectedFields.rbo ? "✓" : "—"}
+            </small>
+          ) : null}
         </label>
 
         <button
