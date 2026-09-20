@@ -16,6 +16,8 @@ type Props = {
   initialCentralOffices: SetupCentralOffice[];
   centers: SetupCenter[];
   initialOffices: PollingOffice[];
+  canCreate: boolean;
+  canArchive: boolean;
 };
 
 type Envelope<T> = {
@@ -44,6 +46,8 @@ export function AreaStructureManager({
   initialCentralOffices,
   centers,
   initialOffices,
+  canCreate,
+  canArchive,
 }: Props) {
   const router = useRouter();
   const [area, setArea] = useState(initialArea);
@@ -80,12 +84,12 @@ export function AreaStructureManager({
   }
 
   async function requestItem<T>(
-    path: string,
+    routePath: string,
     method: "POST" | "PUT",
     body: Record<string, unknown>,
   ) {
     const response = await fetch(
-      `/api/operations/elections/${encodeURIComponent(electionId)}/setup/${path}`,
+      `/api/operations/elections/${encodeURIComponent(electionId)}/setup/${routePath}`,
       {
         method,
         headers: { "Content-Type": "application/json" },
@@ -110,7 +114,7 @@ export function AreaStructureManager({
     setBusy("area");
     try {
       const item = await requestItem<SetupPollingArea>(
-        `areas/${area.id}`,
+        `areas/${area.id}/management`,
         "PUT",
         { name: areaName.trim(), code: areaCode.trim() },
       );
@@ -127,6 +131,7 @@ export function AreaStructureManager({
   }
 
   async function createCentralOffice() {
+    if (!canCreate) return;
     clearFeedback();
     const number = Number(newCentralNumber);
     if (!Number.isInteger(number) || number <= 0) {
@@ -175,7 +180,7 @@ export function AreaStructureManager({
     setBusy(`central-${item.id}`);
     try {
       const saved = await requestItem<SetupCentralOffice>(
-        `central-offices/${item.id}`,
+        `areas/${area.id}/central-offices/${item.id}`,
         "PUT",
         { number, name: centralName.trim() },
       );
@@ -194,7 +199,35 @@ export function AreaStructureManager({
     }
   }
 
+  async function archiveCentralOffice(item: SetupCentralOffice) {
+    if (!canArchive) return;
+    const confirmed = window.confirm(
+      `حذف المكتب المركزي ${item.number}؟ سيتم أرشفته ولن يُحذف تاريخه. يجب ألا تكون له مكاتب تصويت نشطة.`,
+    );
+    if (!confirmed) return;
+
+    clearFeedback();
+    setBusy(`central-delete-${item.id}`);
+    try {
+      await requestItem<SetupCentralOffice>(
+        `areas/${area.id}/central-offices/${item.id}`,
+        "PUT",
+        { active: false },
+      );
+      setCentralOffices((current) =>
+        current.filter((entry) => entry.id !== item.id),
+      );
+      setMessage("تم حذف المكتب المركزي من الاستخدام مع الاحتفاظ بسجله.");
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "تعذر حذف المكتب المركزي.");
+    } finally {
+      setBusy("");
+    }
+  }
+
   function beginAddOffice(centralOffice: SetupCentralOffice) {
+    if (!canCreate) return;
     clearFeedback();
     setAddingOfficeTo(centralOffice.id);
     setEditingOfficeId(null);
@@ -205,6 +238,7 @@ export function AreaStructureManager({
   }
 
   async function createOffice(centralOffice: SetupCentralOffice) {
+    if (!canCreate) return;
     clearFeedback();
     const number = Number(officeDraft.number);
     const centerId = Number(officeDraft.centerId);
@@ -271,7 +305,7 @@ export function AreaStructureManager({
     setBusy(`office-${office.id}`);
     try {
       const item = await requestItem<PollingOffice>(
-        `offices/${office.id}`,
+        `areas/${area.id}/offices/${office.id}`,
         "PUT",
         {
           number,
@@ -293,6 +327,33 @@ export function AreaStructureManager({
     }
   }
 
+  async function archiveOffice(office: PollingOffice) {
+    if (!canArchive) return;
+    const confirmed = window.confirm(
+      `حذف مكتب التصويت ${office.number}؟ سيتم أرشفته فقط. إذا كان مرتبطًا بمراقب نشط أو محضر أو حادثة، سيمنع النظام الحذف.`,
+    );
+    if (!confirmed) return;
+
+    clearFeedback();
+    setBusy(`office-delete-${office.id}`);
+    try {
+      await requestItem<PollingOffice>(
+        `areas/${area.id}/offices/${office.id}`,
+        "PUT",
+        { active: false },
+      );
+      setOffices((current) =>
+        current.filter((entry) => entry.id !== office.id),
+      );
+      setMessage("تم حذف مكتب التصويت من الاستخدام مع الاحتفاظ بسجله.");
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "تعذر حذف مكتب التصويت.");
+    } finally {
+      setBusy("");
+    }
+  }
+
   return (
     <section className="area-structure-manager">
       <div className="area-structure-heading">
@@ -300,8 +361,8 @@ export function AreaStructureManager({
           <span>إدارة الهيكلة</span>
           <h2>تفاصيل الجماعة / المقاطعة والمكاتب المركزية</h2>
           <p>
-            هذه الأدوات للمسؤول فقط. تعديل رقم المكتب المركزي يحافظ على
-            مكاتب التصويت المرتبطة به.
+            يمكنك تعديل البيانات داخل النطاق المسموح لك فقط. الحذف هنا أرشفة
+            آمنة ولا يمحو التاريخ. إنشاء عناصر جديدة يبقى متاحًا للمدير.
           </p>
         </div>
       </div>
@@ -325,37 +386,45 @@ export function AreaStructureManager({
           <span>ملف المصدر</span>
           <strong>{area.source_filename || "غير محدد"}</strong>
         </div>
-        <button type="button" onClick={() => void saveArea()} disabled={busy === "area"}>
+        <button
+          type="button"
+          onClick={() => void saveArea()}
+          disabled={busy === "area"}
+        >
           {busy === "area" ? "جارٍ الحفظ…" : "حفظ التفاصيل"}
         </button>
       </div>
 
-      <div className="central-office-create">
-        <div>
-          <strong>إضافة مكتب مركزي</strong>
-          <small>أدخل الرقم والاسم، ثم أضف مكاتب التصويت إليه.</small>
+      {canCreate ? (
+        <div className="central-office-create">
+          <div>
+            <strong>إضافة مكتب مركزي</strong>
+            <small>أدخل الرقم والاسم، ثم أضف مكاتب التصويت إليه.</small>
+          </div>
+          <input
+            inputMode="numeric"
+            value={newCentralNumber}
+            onChange={(event) => setNewCentralNumber(event.target.value)}
+            placeholder="رقم المكتب المركزي"
+          />
+          <input
+            value={newCentralName}
+            onChange={(event) => setNewCentralName(event.target.value)}
+            placeholder="اسم المكتب المركزي (اختياري)"
+          />
+          <button
+            type="button"
+            onClick={() => void createCentralOffice()}
+            disabled={busy === "central-new"}
+          >
+            {busy === "central-new" ? "إضافة…" : "+ إضافة مكتب مركزي"}
+          </button>
         </div>
-        <input
-          inputMode="numeric"
-          value={newCentralNumber}
-          onChange={(event) => setNewCentralNumber(event.target.value)}
-          placeholder="رقم المكتب المركزي"
-        />
-        <input
-          value={newCentralName}
-          onChange={(event) => setNewCentralName(event.target.value)}
-          placeholder="اسم المكتب المركزي (اختياري)"
-        />
-        <button
-          type="button"
-          onClick={() => void createCentralOffice()}
-          disabled={busy === "central-new"}
-        >
-          {busy === "central-new" ? "إضافة…" : "+ إضافة مكتب مركزي"}
-        </button>
-      </div>
+      ) : null}
 
-      {error ? <div className="area-structure-message is-error">{error}</div> : null}
+      {error ? (
+        <div className="area-structure-message is-error">{error}</div>
+      ) : null}
       {message ? (
         <div className="area-structure-message is-success">{message}</div>
       ) : null}
@@ -414,22 +483,39 @@ export function AreaStructureManager({
                     </>
                   ) : (
                     <>
-                      <button type="button" onClick={() => beginCentralEdit(centralOffice)}>
-                        تعديل الرقم / الاسم
-                      </button>
                       <button
                         type="button"
-                        className="is-add"
-                        onClick={() => beginAddOffice(centralOffice)}
+                        onClick={() => beginCentralEdit(centralOffice)}
                       >
-                        + إضافة مكتب تصويت
+                        تعديل الرقم / الاسم
                       </button>
+                      {canCreate ? (
+                        <button
+                          type="button"
+                          className="is-add"
+                          onClick={() => beginAddOffice(centralOffice)}
+                        >
+                          + إضافة مكتب تصويت
+                        </button>
+                      ) : null}
+                      {canArchive ? (
+                        <button
+                          type="button"
+                          className="is-delete"
+                          onClick={() => void archiveCentralOffice(centralOffice)}
+                          disabled={
+                            busy === `central-delete-${centralOffice.id}`
+                          }
+                        >
+                          حذف
+                        </button>
+                      ) : null}
                     </>
                   )}
                 </div>
               </div>
 
-              {isAddingOffice ? (
+              {canCreate && isAddingOffice ? (
                 <div className="central-office-add-office">
                   <input
                     inputMode="numeric"
@@ -553,9 +639,26 @@ export function AreaStructureManager({
                                 ? `${office.registered_voters} مسجل`
                                 : "عدد المسجلين غير معروف"}
                             </span>
-                            <button type="button" onClick={() => beginOfficeEdit(office)}>
-                              تعديل
-                            </button>
+                            <div className="central-office-row-actions">
+                              <button
+                                type="button"
+                                onClick={() => beginOfficeEdit(office)}
+                              >
+                                تعديل
+                              </button>
+                              {canArchive ? (
+                                <button
+                                  type="button"
+                                  className="is-delete"
+                                  onClick={() => void archiveOffice(office)}
+                                  disabled={
+                                    busy === `office-delete-${office.id}`
+                                  }
+                                >
+                                  حذف
+                                </button>
+                              ) : null}
+                            </div>
                           </>
                         )}
                       </div>
