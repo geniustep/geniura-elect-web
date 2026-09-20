@@ -5923,3 +5923,23 @@ a {
     justify-content: flex-start;
   }
 }
+
+
+/* Constituency cards are direct navigation targets */
+.pjd-constituency-card {
+  text-decoration: none;
+}
+
+.pjd-constituency-card:focus-visible {
+  outline: 3px solid rgba(24, 71, 128, 0.22);
+  outline-offset: 3px;
+}
+
+.pjd-constituency-open {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #184780;
+  font-size: 10px;
+  font-weight: 800;
+}

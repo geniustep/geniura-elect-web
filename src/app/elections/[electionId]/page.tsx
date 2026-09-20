@@ -245,8 +245,9 @@ export default async function ElectionPage({
             {constituencies.length ? (
               <div className="pjd-constituency-grid">
                 {local.map((constituency) => (
-                  <article
+                  <Link
                     className="pjd-constituency-card"
+                    href={`/elections/${election.id}/constituencies/${constituency.id}`}
                     key={constituency.id}
                   >
                     <div className="pjd-constituency-card-top">
@@ -260,16 +261,12 @@ export default async function ElectionPage({
                           ? `${constituency.coverage.polling_office_count} مكتب`
                           : "لا مكاتب بعد"}
                       </span>
-                      <i
-                        className={
-                          constituency.coverage.polling_office_count
-                            ? "is-ready"
-                            : "is-waiting"
-                        }
-                        aria-hidden="true"
-                      />
+                      <span className="pjd-constituency-open">
+                        فتح الدائرة
+                        <span aria-hidden="true">←</span>
+                      </span>
                     </div>
-                  </article>
+                  </Link>
                 ))}
 
                 {regional.map((constituency) => (
