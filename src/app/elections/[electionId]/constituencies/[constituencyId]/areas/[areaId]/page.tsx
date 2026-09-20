@@ -185,7 +185,7 @@ export default async function PollingAreaPage({
           areaId={numericAreaId}
           offices={offices}
           canEdit={Boolean(management?.capabilities.edit)}
-          canCreate={Boolean(management?.capabilities.create)}
+          canCreate={Boolean(management?.capabilities.assign_representative)}
           canDelete={Boolean(management?.capabilities.archive)}
         />
       </section>

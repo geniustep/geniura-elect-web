@@ -307,6 +307,7 @@ export type AreaManagementSnapshot = {
     edit: boolean;
     archive: boolean;
     create: boolean;
+    assign_representative: boolean;
   };
 };
 

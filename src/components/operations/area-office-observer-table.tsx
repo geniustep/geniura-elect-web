@@ -173,7 +173,7 @@ export function AreaOfficeObserverTable({
     setSavedOfficeId(null);
     try {
       const response = await fetch(
-        `/api/operations/elections/${encodeURIComponent(electionId)}/setup/offices/${office.id}/representative`,
+        `/api/operations/elections/${encodeURIComponent(electionId)}/setup/areas/${areaId}/offices/${office.id}/representative`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
