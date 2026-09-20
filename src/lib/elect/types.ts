@@ -326,7 +326,87 @@ export type SetupRepresentative = {
   name: string;
   phone?: string | null;
   email?: string | null;
+  voter_number?: string | null;
+  rbo?: string | null;
+  missing_fields?: string[];
+  data_complete?: boolean;
   has_user_account: boolean;
+};
+
+export type ElectConstituencyScopeRef = {
+  id: number;
+  name: string;
+  code: string;
+  election_id: number;
+  election_name: string;
+  region_id: number;
+  region_name: string;
+};
+
+export type SetupScopedUser = {
+  id: number;
+  name: string;
+  login: string;
+  role: "observer" | "coordinator" | "manager";
+  active: boolean;
+  scope_mode: "all" | "constituencies";
+  constituencies: ElectConstituencyScopeRef[];
+  default_constituency?: ElectConstituencyScopeRef | null;
+};
+
+export type ConstituencyCoverageOffice = {
+  id: number;
+  number: number;
+  code: string;
+  coverage_state: string;
+  area?: { id: number; name: string; code: string } | null;
+  center: { id: number; name: string; code: string };
+  central_office?: {
+    id: number;
+    number: number;
+    name?: string | null;
+  } | null;
+  assignment?: {
+    id: number;
+    status: string;
+    check_in_at?: string | null;
+  } | null;
+  representative?: SetupRepresentative | null;
+  missing_fields: string[];
+  review_flags: string[];
+  source_observer?: {
+    name?: string | null;
+    phone?: string | null;
+    voter_number?: string | null;
+    rbo?: string | null;
+  } | null;
+};
+
+export type ConstituencyCoverageArea = {
+  id?: number | null;
+  name: string;
+  total: number;
+  covered: number;
+  uncovered: number;
+  missing_representative_info: number;
+  needs_review: number;
+  source_candidates_unassigned: number;
+};
+
+export type ConstituencyCoverageDashboard = {
+  election: ElectionSummary;
+  constituency: ConstituencySummary;
+  coverage: {
+    total_offices: number;
+    covered_offices: number;
+    uncovered_offices: number;
+    coverage_percent: number;
+    missing_representative_info: number;
+    needs_review: number;
+    source_candidates_unassigned: number;
+  };
+  areas: ConstituencyCoverageArea[];
+  offices: ConstituencyCoverageOffice[];
 };
 
 export type SetupAssignment = {

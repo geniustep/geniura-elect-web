@@ -99,6 +99,12 @@ export default async function ElectionSetupPage({
             >
               تعديل بيانات الاستحقاق
             </Link>
+            <Link
+              className="setup-edit-link"
+              href={`/elections/${electionId}/setup/users`}
+            >
+              المستخدمون والصلاحيات
+            </Link>
           </div>
         </section>
 

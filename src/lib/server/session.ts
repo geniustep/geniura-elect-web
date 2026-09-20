@@ -4,11 +4,24 @@ import { backendHttp } from "@/lib/server/backend";
 
 export const ELECT_SESSION_COOKIE = "geniura_elect_session";
 
+export type ElectConstituencyScopeRef = {
+  id: number;
+  name: string;
+  code: string;
+  election_id: number;
+  election_name: string;
+  region_id: number;
+  region_name: string;
+};
+
 export type ElectUser = {
   id: number;
   name: string;
   login: string;
   role: "observer" | "coordinator" | "manager";
+  scope_mode?: "all" | "constituencies";
+  constituencies?: ElectConstituencyScopeRef[];
+  default_constituency?: ElectConstituencyScopeRef | null;
   organization: {
     id: number;
     name: string;
