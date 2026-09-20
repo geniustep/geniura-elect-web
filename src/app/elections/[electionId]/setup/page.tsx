@@ -12,8 +12,8 @@ import {
 export const dynamic = "force-dynamic";
 
 const roleNames: Record<string, string> = {
-  primary: "موكل أساسي",
-  backup: "موكل احتياطي",
+  primary: "مراقب أساسي",
+  backup: "مراقب احتياطي",
   coordinator: "منسق مركز",
 };
 
@@ -85,7 +85,7 @@ export default async function ElectionSetupPage({
             </div>
             <h1>إعداد الاستحقاق</h1>
             <p>
-              إدارة الهيكلة الميدانية من الدوائر إلى المكاتب والموكلين، مع
+              إدارة الهيكلة الميدانية من الدوائر إلى المكاتب والمراقبين، مع
               إبقاء العمليات اليومية والمحاضر في مساراتها التشغيلية المستقلة.
             </p>
           </div>
@@ -135,7 +135,7 @@ export default async function ElectionSetupPage({
             <small>مكتب محمل</small>
           </div>
           <div>
-            <span>الموكلون</span>
+            <span>المراقبون</span>
             <strong>{setup.representatives.length}</strong>
             <small>شخص مسجل</small>
           </div>
@@ -242,7 +242,7 @@ export default async function ElectionSetupPage({
               ))}
             </div>
           ) : (
-            <div className="setup-empty">لا توجد نطاقات بعد.</div>
+            <div className="setup-empty">لا توجد جماعات / مقاطعات بعد.</div>
           )}
         </section>
 
@@ -316,7 +316,7 @@ export default async function ElectionSetupPage({
               ))}
             </div>
           ) : (
-            <div className="setup-empty">لا توجد مقار تصويت بعد.</div>
+            <div className="setup-empty">لا توجد مقار مكاتب تصويت بعد.</div>
           )}
         </section>
 
@@ -377,7 +377,7 @@ export default async function ElectionSetupPage({
           <div className="setup-section-heading">
             <div>
               <span>06 · الفريق</span>
-              <h2>الموكلون والمنسقون</h2>
+              <h2>المراقبون والمنسقون</h2>
               <p>إدارة بيانات الأشخاص الذين سيغطون البنية الميدانية.</p>
             </div>
             <Link
@@ -423,7 +423,7 @@ export default async function ElectionSetupPage({
             <div>
               <span>07 · التغطية</span>
               <h2>التعيينات الميدانية</h2>
-              <p>ربط كل موكل بالمكتب ودوره وحالة تأكيد التعيين.</p>
+              <p>ربط كل مراقب بالمكتب ودوره وحالة تأكيد التعيين.</p>
             </div>
             <Link
               className="setup-create-button"

@@ -809,7 +809,7 @@ export function PollingImportWorkspace({
                 <small>{preview.central_offices.new} جديد</small>
               </div>
               <div>
-                <span>مقار التصويت</span>
+                <span>مقار مكاتب التصويت</span>
                 <strong>{preview.centers.total}</strong>
                 <small>{preview.centers.new} جديد</small>
               </div>
@@ -897,7 +897,7 @@ export function PollingImportWorkspace({
             </div>
             <div className="setup-summary-grid">
               <div>
-                <span>نطاقات جديدة</span>
+                <span>جماعات / مقاطعات جديدة</span>
                 <strong>{result.counts.areas_created}</strong>
               </div>
               <div>

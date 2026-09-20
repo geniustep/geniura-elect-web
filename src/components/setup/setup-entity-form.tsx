@@ -208,7 +208,7 @@ function prerequisiteMessage(
     section === "centers" &&
     !snapshot.constituencies.some((item) => item.kind === "local")
   ) {
-    return "يجب إنشاء دائرة انتخابية محلية أولًا قبل إضافة مركز تصويت.";
+    return "يجب إنشاء دائرة انتخابية محلية أولًا قبل إضافة مقر مكتب تصويت.";
   }
   if (section === "offices" && snapshot.centers.length === 0) {
     return "يجب إنشاء مقر مكتب تصويت أولًا قبل إضافة مكتب.";
@@ -542,7 +542,7 @@ export function SetupEntityForm({
                   />
                 </label>
                 <label className="setup-field">
-                  <span>الدائرة المحلية</span>
+                  <span>الدائرة الانتخابية المحلية</span>
                   <select
                     required
                     value={values.local_constituency_id}
@@ -599,7 +599,7 @@ export function SetupEntityForm({
                   />
                 </label>
                 <label className="setup-field">
-                  <span>النطاق الترابي</span>
+                  <span>الجماعة / المقاطعة</span>
                   <select
                     required
                     value={values.polling_area_id}
@@ -628,7 +628,7 @@ export function SetupEntityForm({
                   />
                 </label>
                 <label className="setup-field">
-                  <span>الدائرة المحلية</span>
+                  <span>الدائرة الانتخابية المحلية</span>
                   <select
                     required
                     value={values.local_constituency_id}
@@ -646,7 +646,7 @@ export function SetupEntityForm({
                   </select>
                 </label>
                 <label className="setup-field">
-                  <span>النطاق الترابي</span>
+                  <span>الجماعة / المقاطعة</span>
                   <select
                     value={values.polling_area_id}
                     onChange={(event) =>
