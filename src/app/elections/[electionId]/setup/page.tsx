@@ -266,7 +266,7 @@ export default async function ElectionSetupPage({
                 <div className="setup-row" key={item.id}>
                   <strong>{item.number}</strong>
                   <div className="setup-row-main">
-                    <strong>{item.name}</strong>
+                    <strong>{item.name || "بدون اسم"}</strong>
                     <small>{item.office_count} مكتب تصويت</small>
                   </div>
                   <span>{item.area.name}</span>
@@ -370,7 +370,7 @@ export default async function ElectionSetupPage({
                   </div>
                   <span>
                     {item.central_office
-                      ? `${item.central_office.number} · ${item.central_office.name}`
+                      ? `${item.central_office.number} · ${item.central_office.name || "بدون اسم"}`
                       : "—"}
                   </span>
                   <span>{item.registered_voters ?? "—"}</span>
