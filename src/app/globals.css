@@ -5719,3 +5719,207 @@ a {
     flex-direction: column;
   }
 }
+
+
+/* Full scoped-user CRUD */
+.scoped-user-admin {
+  display: grid;
+  grid-template-columns: minmax(0, 1.02fr) minmax(420px, 0.98fr);
+  gap: 16px;
+  margin-top: 18px;
+}
+
+.scoped-user-editor-card {
+  padding: 22px;
+  border: 1px solid #e1e6ed;
+  border-radius: 20px;
+  background: #fff;
+}
+
+.scoped-user-secondary-button {
+  min-height: 36px;
+  padding: 7px 11px;
+  border: 1px solid #d7dee8;
+  border-radius: 10px;
+  background: #fff;
+  color: #536074;
+  font-weight: 800;
+}
+
+.scoped-user-list-toolbar {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 13px;
+}
+
+.scoped-user-list-toolbar > label {
+  display: grid;
+  gap: 5px;
+}
+
+.scoped-user-list-toolbar > label > span {
+  color: #687385;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.scoped-user-list-toolbar input {
+  min-height: 42px;
+  width: 100%;
+  padding: 9px 11px;
+  border: 1px solid #cfd7e1;
+  border-radius: 11px;
+  background: #fff;
+}
+
+.scoped-user-tabs {
+  display: flex;
+  gap: 7px;
+  padding: 4px;
+  border-radius: 12px;
+  background: #f3f6f9;
+}
+
+.scoped-user-tabs button {
+  flex: 1;
+  min-height: 36px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: #687385;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.scoped-user-tabs button.is-selected {
+  background: #fff;
+  color: #102f63;
+  box-shadow: 0 1px 5px rgba(16, 47, 99, 0.08);
+}
+
+.scoped-user-tabs strong {
+  margin-inline-start: 5px;
+}
+
+.scoped-user-management-list .scoped-user-list article {
+  grid-template-columns: minmax(130px, 1fr) auto minmax(160px, 1.15fr) auto;
+}
+
+.scoped-user-list article.is-archived {
+  background: #fafafa;
+  opacity: 0.78;
+}
+
+.scoped-user-identity {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.scoped-user-row-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.scoped-user-row-actions button {
+  min-height: 34px;
+  padding: 6px 9px;
+  border: 1px solid #d7dee8;
+  border-radius: 9px;
+  background: #fff;
+  color: #184780;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.scoped-user-row-actions button.is-delete {
+  border-color: #f1c7c2;
+  color: #b42318;
+}
+
+.scoped-user-row-actions button.is-restore {
+  border-color: #bfe0d3;
+  color: #0b765b;
+}
+
+.scoped-user-row-actions button:disabled {
+  cursor: wait;
+  opacity: 0.55;
+}
+
+.scoped-user-delete-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(4, 18, 38, 0.42);
+  backdrop-filter: blur(4px);
+}
+
+.scoped-user-delete-dialog {
+  width: min(100%, 480px);
+  padding: 24px;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 24px 70px rgba(4, 18, 38, 0.24);
+}
+
+.scoped-user-delete-dialog > span {
+  color: #b42318;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.scoped-user-delete-dialog h3 {
+  margin: 7px 0 0;
+  color: #071d43;
+  font-size: 22px;
+}
+
+.scoped-user-delete-dialog p {
+  margin: 10px 0 0;
+  color: #687385;
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+.scoped-user-delete-dialog > div {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.scoped-user-confirm-delete {
+  min-height: 36px;
+  padding: 7px 12px;
+  border: 0;
+  border-radius: 10px;
+  background: #b42318;
+  color: #fff;
+  font-weight: 800;
+}
+
+@media (max-width: 1080px) {
+  .scoped-user-admin {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .scoped-user-management-list .scoped-user-list article {
+    grid-template-columns: 1fr auto;
+  }
+
+  .scoped-user-management-list .scoped-user-scope,
+  .scoped-user-row-actions {
+    grid-column: 1 / -1;
+  }
+
+  .scoped-user-row-actions {
+    justify-content: flex-start;
+  }
+}
