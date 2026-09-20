@@ -58,7 +58,7 @@ export type PollingOffice = {
   central_office?: {
     id: number;
     number: number;
-    name: string;
+    name: string | null;
   } | null;
   center: {
     id: number;
@@ -296,7 +296,7 @@ export type SetupPollingArea = {
 export type SetupCentralOffice = {
   id: number;
   number: number;
-  name: string;
+  name: string | null;
   area: SetupPollingArea;
   office_count: number;
 };
