@@ -38,8 +38,10 @@ export default async function ScopedUsersPage({
 
   const sessionId = await readElectSessionId();
 
+  let constituencies: ConstituenciesPayload;
+  let users: UsersPayload;
   try {
-    const [constituencies, users] = await Promise.all([
+    [constituencies, users] = await Promise.all([
       backendRequest<ConstituenciesPayload>(
         `/api/v1/elections/${encodeURIComponent(electionId)}/constituencies`,
         { method: "GET", sessionId },
@@ -49,8 +51,11 @@ export default async function ScopedUsersPage({
         { method: "GET", sessionId },
       ),
     ]);
+  } catch {
+    notFound();
+  }
 
-    return (
+  return (
       <main className="dashboard-shell scoped-users-page">
         <AppHeader user={user} />
         <section className="dashboard-content scoped-users-content">
@@ -80,8 +85,5 @@ export default async function ScopedUsersPage({
           />
         </section>
       </main>
-    );
-  } catch {
-    notFound();
-  }
+  );
 }
