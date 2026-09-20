@@ -192,10 +192,6 @@ function parseImportFile(text: string): ImportRow[] {
     }
   }
 
-  if (!mappedHeaders.includes("commune")) {
-    mappedHeaders.push(null);
-  }
-
   const rows: ImportRow[] = matrix.slice(1).map((values) => {
     const item: ImportRow = {
       constituency_code: "",
