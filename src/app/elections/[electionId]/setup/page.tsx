@@ -191,12 +191,20 @@ export default async function ElectionSetupPage({
               <h2>مراكز التصويت</h2>
               <p>ربط كل مركز بدائرته المحلية وتثبيت الجماعة والعنوان.</p>
             </div>
-            <Link
-              className="setup-create-button"
-              href={`/elections/${electionId}/setup/centers/new`}
-            >
-              + إضافة مركز
-            </Link>
+            <div className="setup-hero-actions">
+              <Link
+                className="setup-edit-link"
+                href={`/elections/${electionId}/setup/polling-import`}
+              >
+                استيراد المراكز والمكاتب
+              </Link>
+              <Link
+                className="setup-create-button"
+                href={`/elections/${electionId}/setup/centers/new`}
+              >
+                + إضافة مركز
+              </Link>
+            </div>
           </div>
 
           {setup.centers.length ? (
