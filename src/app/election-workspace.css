@@ -13,7 +13,7 @@
   position: fixed;
   isolation: isolate;
   overflow: hidden;
-  z-index: 24;
+  z-index: 40;
   inset-block-start: 76px;
   inset-block-end: 0;
   inset-inline-start: 0;
@@ -52,10 +52,6 @@
     0 0 0 45px rgba(255, 255, 255, 0.02),
     0 0 0 90px rgba(255, 255, 255, 0.012);
   pointer-events: none;
-}
-
-.pjd-dashboard .election-workspace-sidebar {
-  inset-block-start: 86px;
 }
 
 .election-workspace-head {
@@ -345,7 +341,7 @@
 
 /* Reserve the branded rail inside the existing centered content container. */
 @media (min-width: 1100px) {
-  .dashboard-shell:has(.election-workspace-sidebar) .dashboard-content {
+  body.has-election-workspace .dashboard-content {
     box-sizing: border-box;
     width: min(1490px, calc(100% - 48px));
     padding-inline-start: 306px;
@@ -394,7 +390,7 @@
 
   .election-workspace-overlay {
     position: fixed;
-    z-index: 70;
+    z-index: 80;
     inset: 0;
     display: block;
     border: 0;
@@ -414,7 +410,7 @@
     position: fixed;
     isolation: isolate;
     overflow: hidden;
-    z-index: 71;
+    z-index: 81;
     inset-block: 0;
     inset-inline-start: 0;
     width: min(340px, calc(100vw - 28px));
