@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
+import { NavigationFeedback } from "@/components/navigation/navigation-feedback";
 import { Cairo } from "next/font/google";
 import "./globals.css";
 import "./redesign.css";
 import "./design-tokens.css";
 import "./election-workspace.css";
+import "./navigation-feedback.css";
 
 const cairo = Cairo({
   subsets: ["arabic"],
@@ -31,7 +33,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ar" dir="rtl">
-      <body className={`${cairo.className} ${cairo.variable}`}>{children}</body>
+      <body className={`${cairo.className} ${cairo.variable}`}>
+        <NavigationFeedback />
+        {children}
+      </body>
     </html>
   );
 }
