@@ -1,0 +1,244 @@
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
+
+type ElectRole = "observer" | "coordinator" | "manager";
+type NavIconName = "overview" | "command" | "results" | "setup" | "users" | "back";
+
+function NavIcon({ name }: { name: NavIconName }) {
+  if (name === "overview") {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <rect x="3" y="3" width="7" height="7" rx="2" />
+        <rect x="14" y="3" width="7" height="7" rx="2" />
+        <rect x="3" y="14" width="7" height="7" rx="2" />
+        <rect x="14" y="14" width="7" height="7" rx="2" />
+      </svg>
+    );
+  }
+
+  if (name === "command") {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M3 12h4l2.2-5 4.1 10 2.2-5H21" />
+      </svg>
+    );
+  }
+
+  if (name === "results") {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M5 20V11" />
+        <path d="M12 20V4" />
+        <path d="M19 20v-6" />
+      </svg>
+    );
+  }
+
+  if (name === "setup") {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M4 7h10" />
+        <path d="M18 7h2" />
+        <circle cx="16" cy="7" r="2" />
+        <path d="M4 17h2" />
+        <path d="M10 17h10" />
+        <circle cx="8" cy="17" r="2" />
+      </svg>
+    );
+  }
+
+  if (name === "users") {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="9" cy="8" r="3" />
+        <path d="M3.5 19c.6-3 2.5-5 5.5-5s4.9 2 5.5 5" />
+        <circle cx="17.5" cy="9" r="2.2" />
+        <path d="M15.5 14.5c2.8-.6 4.8.9 5.3 3.5" />
+      </svg>
+    );
+  }
+
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M5 12h14" />
+      <path d="m14 7 5 5-5 5" />
+    </svg>
+  );
+}
+
+export function ElectionWorkspaceNav({ role }: { role: ElectRole }) {
+  const pathname = usePathname();
+  const [open, setOpen] = useState(false);
+
+  const match = pathname.match(/^\/elections\/([^/]+)/);
+  const electionId = match?.[1] ?? null;
+
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!open) return;
+
+    const previousOverflow = document.documentElement.style.overflow;
+    document.documentElement.style.overflow = "hidden";
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.documentElement.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [open]);
+
+  if (!electionId || role === "observer") {
+    return null;
+  }
+
+  const base = `/elections/${electionId}`;
+  const isUsers = pathname.startsWith(`${base}/setup/users`);
+
+  const items: Array<{
+    label: string;
+    description: string;
+    href: string;
+    icon: NavIconName;
+    active: boolean;
+  }> = [
+    {
+      label: "نظرة عامة",
+      description: "الدوائر والتغطية",
+      href: base,
+      icon: "overview",
+      active:
+        pathname === base ||
+        pathname.startsWith(`${base}/constituencies/`),
+    },
+    {
+      label: "غرفة القيادة",
+      description: "المتابعة التشغيلية",
+      href: `${base}/command-center`,
+      icon: "command",
+      active: pathname.startsWith(`${base}/command-center`),
+    },
+    {
+      label: "النتائج",
+      description: "المحاضر والتجميع",
+      href: `${base}/results`,
+      icon: "results",
+      active: pathname.startsWith(`${base}/results`),
+    },
+  ];
+
+  if (role === "manager") {
+    items.push(
+      {
+        label: "الإعداد",
+        description: "الهيكلة والبيانات",
+        href: `${base}/setup`,
+        icon: "setup",
+        active: pathname.startsWith(`${base}/setup`) && !isUsers,
+      },
+      {
+        label: "المستخدمون",
+        description: "النطاق والصلاحيات",
+        href: `${base}/setup/users`,
+        icon: "users",
+        active: isUsers,
+      },
+    );
+  }
+
+  const nav = (
+    <>
+      <div className="election-workspace-head">
+        <span className="election-workspace-eyebrow">مساحة الاستحقاق</span>
+        <strong>التنقل التشغيلي</strong>
+        <small>استحقاق #{electionId}</small>
+      </div>
+
+      <nav className="election-workspace-links" aria-label="التنقل داخل الاستحقاق">
+        {items.map((item) => (
+          <Link
+            className={item.active ? "is-active" : undefined}
+            href={item.href}
+            aria-current={item.active ? "page" : undefined}
+            key={item.href}
+            onClick={() => setOpen(false)}
+          >
+            <span className="election-workspace-icon">
+              <NavIcon name={item.icon} />
+            </span>
+            <span className="election-workspace-link-copy">
+              <strong>{item.label}</strong>
+              <small>{item.description}</small>
+            </span>
+            <span className="election-workspace-arrow" aria-hidden="true">
+              ←
+            </span>
+          </Link>
+        ))}
+      </nav>
+
+      <Link
+        className="election-workspace-back"
+        href="/dashboard"
+        onClick={() => setOpen(false)}
+      >
+        <NavIcon name="back" />
+        <span>كل الاستحقاقات</span>
+      </Link>
+    </>
+  );
+
+  return (
+    <>
+      <button
+        className="election-workspace-mobile-trigger"
+        type="button"
+        aria-label="فتح قائمة الاستحقاق"
+        aria-expanded={open}
+        onClick={() => setOpen(true)}
+      >
+        <span className="election-workspace-mobile-trigger-icon" aria-hidden="true">
+          <i />
+          <i />
+          <i />
+        </span>
+        <span>القائمة</span>
+      </button>
+
+      <aside className="election-workspace-sidebar">{nav}</aside>
+
+      <button
+        className={`election-workspace-overlay${open ? " is-open" : ""}`}
+        type="button"
+        aria-label="إغلاق قائمة الاستحقاق"
+        onClick={() => setOpen(false)}
+      />
+
+      <aside
+        className={`election-workspace-drawer${open ? " is-open" : ""}`}
+        aria-hidden={!open}
+      >
+        <div className="election-workspace-drawer-top">
+          <span>مساحة الاستحقاق</span>
+          <button
+            type="button"
+            aria-label="إغلاق القائمة"
+            onClick={() => setOpen(false)}
+          >
+            ×
+          </button>
+        </div>
+        {nav}
+      </aside>
+    </>
+  );
+}
