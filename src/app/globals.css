@@ -173,7 +173,7 @@ button:disabled {
 .form-error {
   margin: 0;
   padding: 11px 13px;
-  border: 1px solid #f3b8b3;
+  border: 1px solid var(--ge-danger-border);
   border-radius: 10px;
   background: var(--danger-bg);
   color: var(--danger);
@@ -299,7 +299,7 @@ button:disabled {
 .notice.warning {
   border-color: var(--warning-border);
   background: var(--warning-bg);
-  color: #805b10;
+  color: var(--ge-warning);
 }
 
 .election-grid {
@@ -598,7 +598,7 @@ a {
 }
 
 .coverage-chip.absent {
-  border-color: #f3b8b3;
+  border-color: var(--ge-danger-border);
   background: var(--danger-bg);
   color: var(--danger);
 }
@@ -705,7 +705,7 @@ a {
 .consistency.pending {
   border-color: var(--warning-border);
   background: var(--warning-bg);
-  color: #805b10;
+  color: var(--ge-warning);
 }
 
 .count-grid {
@@ -963,7 +963,7 @@ a {
 }
 
 .danger-button {
-  border: 1px solid #f3b8b3;
+  border: 1px solid var(--ge-danger-border);
   background: var(--danger-bg);
   color: var(--danger);
 }
@@ -1344,7 +1344,7 @@ a {
 
 .incident-severity.medium {
   background: var(--warning-bg);
-  color: #805b10;
+  color: var(--ge-warning);
 }
 
 .resolution-note {
@@ -1374,7 +1374,7 @@ a {
 .presentation-dashboard {
   background:
     radial-gradient(circle at 12% 0%, rgba(15, 23, 42, 0.055), transparent 32rem),
-    linear-gradient(180deg, #f7f8fa 0%, #f3f5f7 100%);
+    linear-gradient(180deg, #f7f8fa 0%, var(--ge-surface-soft) 100%);
 }
 
 .presentation-content {
@@ -1592,7 +1592,7 @@ a {
   border: 1px solid var(--ge-border);
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.78);
-  color: #475467;
+  color: var(--ge-text-secondary);
   font-size: 10px;
   font-weight: 800;
 }
@@ -1680,7 +1680,7 @@ a {
   padding: 8px 12px;
   border-color: var(--ge-border-control);
   background: var(--ge-surface-soft);
-  color: #475467;
+  color: var(--ge-text-secondary);
 }
 
 .state-setup.presentation-state {
@@ -1690,7 +1690,7 @@ a {
 }
 
 .state-ready.presentation-state {
-  border-color: #abefc6;
+  border-color: var(--ge-success-border);
   background: var(--ge-success-bg);
   color: var(--ge-success-strong);
 }
@@ -1721,7 +1721,7 @@ a {
   padding: 17px;
   border: 1px solid var(--ge-border);
   border-radius: 17px;
-  background: #fafbfc;
+  background: var(--ge-bg-panel);
 }
 
 .presentation-metric-grid span,
@@ -1778,7 +1778,7 @@ a {
   place-items: center;
   flex: 0 0 38px;
   border-radius: 12px;
-  background: #fef0c7;
+  background: var(--ge-warning-border);
   color: var(--ge-warning-strong);
   font-size: 20px;
 }
@@ -1800,7 +1800,7 @@ a {
   flex: 0 0 auto;
   padding: 6px 9px;
   border-radius: 999px;
-  background: #fef0c7;
+  background: var(--ge-warning-border);
   color: var(--ge-warning-strong);
   font-size: 9px;
   font-weight: 800;
@@ -1808,7 +1808,7 @@ a {
 
 .presentation-coverage-strip {
   border-color: #d1fadf;
-  background: #f6fef9;
+  background: var(--ge-success-bg);
 }
 
 .presentation-coverage-strip > div {
@@ -1929,7 +1929,7 @@ a {
   padding: 20px;
   border: 1px solid var(--ge-border);
   border-radius: 18px;
-  background: #fafbfc;
+  background: var(--ge-bg-panel);
 }
 
 .readiness-heading {
@@ -2089,7 +2089,7 @@ a {
 }
 
 .constituency-card--regional {
-  background: linear-gradient(145deg, var(--ge-surface-soft), #f3f5f7);
+  background: linear-gradient(145deg, var(--ge-surface-soft), var(--ge-surface-soft));
 }
 
 .constituency-card-top,
@@ -2226,8 +2226,8 @@ a {
 }
 
 .command-readiness-card.is-ready {
-  border-color: #abefc6;
-  background: #f6fef9;
+  border-color: var(--ge-success-border);
+  background: var(--ge-success-bg);
 }
 
 .command-readiness-card.is-ready > span,
@@ -2638,7 +2638,7 @@ a {
   padding: 24px;
   border: 1px dashed var(--ge-border-control);
   border-radius: 14px;
-  background: #fafbfc;
+  background: var(--ge-bg-panel);
   color: var(--ge-text-muted);
   text-align: center;
   font-size: 10px;
@@ -3703,7 +3703,7 @@ a {
   min-height: 30px;
   padding: 6px 10px;
   border-radius: 999px;
-  background: #f1f4f8;
+  background: var(--ge-surface-strong);
   color: #657083;
   font-size: 11px;
   font-weight: 700;
@@ -3732,7 +3732,7 @@ a {
 .pjd-election-state.state-ready {
   border-color: #aee6ca;
   background: var(--ge-success-bg-soft);
-  color: #127552;
+  color: var(--ge-success);
 }
 
 .pjd-election-state.state-polling,
@@ -3787,7 +3787,7 @@ a {
 
 .pjd-dashboard-metrics small {
   align-self: end;
-  color: #9aa2ae;
+  color: var(--ge-text-subtle);
   font-size: 12px;
   font-weight: 700;
 }
@@ -3893,7 +3893,7 @@ a {
 
 .pjd-dashboard-action:hover {
   transform: translateY(-2px);
-  border-color: #c8d3e1;
+  border-color: var(--ge-border-control);
   box-shadow: 0 15px 28px rgba(7, 29, 67, 0.07);
 }
 
@@ -3959,8 +3959,8 @@ a {
   flex: 0 0 11px;
   border: 3px solid #fff;
   border-radius: 50%;
-  background: #b9c0cb;
-  box-shadow: 0 0 0 1px #b9c0cb;
+  background: var(--ge-border-control);
+  box-shadow: 0 0 0 1px var(--ge-border-control);
 }
 
 .pjd-readiness-item strong {
@@ -4367,7 +4367,7 @@ a {
 
 .pjd-election-kpis small {
   align-self: end;
-  color: #9aa2ae;
+  color: var(--ge-text-subtle);
   font-size: 12px;
   font-weight: 700;
 }
@@ -4534,7 +4534,7 @@ a {
 
 .pjd-office-card:hover {
   transform: translateY(-1px);
-  border-color: #c8d3e1;
+  border-color: var(--ge-border-control);
   box-shadow: 0 12px 25px rgba(7, 29, 67, 0.055);
 }
 
@@ -4586,7 +4586,7 @@ a {
   min-height: 27px;
   padding: 5px 9px;
   border-radius: 999px;
-  background: #f1f4f8;
+  background: var(--ge-surface-strong);
   color: #647083;
   font-size: 10px;
   font-weight: 800;
@@ -4595,7 +4595,7 @@ a {
 .pjd-office-coverage.present,
 .pjd-office-coverage.confirmed {
   background: var(--ge-success-bg-soft);
-  color: #127552;
+  color: var(--ge-success);
 }
 
 .pjd-office-coverage.absent,
