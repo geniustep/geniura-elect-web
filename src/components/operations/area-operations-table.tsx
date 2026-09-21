@@ -1207,24 +1207,88 @@ export function AreaOperationsTable({
             const groupCovered = group.offices.filter(
               (office) => office.representative && office.assignment,
             ).length;
+            const centralRecord = group.central
+              ? centralOffices.find((item) => item.id === group.central?.id) ?? null
+              : null;
+            const centralEditing =
+              centralRecord !== null && editingCentralId === centralRecord.id;
 
             return (
               <div
                 className="area-operations-group"
                 key={group.central ? group.central.id : "none"}
               >
-                <div className="area-operations-group-head">
-                  <div>
-                    <span>
-                      {group.central
-                        ? `المكتب المركزي ${group.central.number}`
-                        : "غير مرتبط بمكتب مركزي"}
-                    </span>
-                    {group.central?.name ? <strong>{group.central.name}</strong> : null}
-                  </div>
-                  <small>
-                    {group.offices.length} مكتب · {groupCovered} مغطى
-                  </small>
+                <div
+                  className={`area-operations-group-head${
+                    centralEditing ? " is-editing" : ""
+                  }`}
+                >
+                  {centralEditing && centralRecord ? (
+                    <div className="area-operations-group-edit">
+                      <label>
+                        <span>رقم المكتب المركزي</span>
+                        <input
+                          inputMode="numeric"
+                          value={centralNumber}
+                          onChange={(event) => setCentralNumber(event.target.value)}
+                        />
+                      </label>
+                      <label>
+                        <span>اسم المكتب المركزي</span>
+                        <input
+                          value={centralName}
+                          onChange={(event) => setCentralName(event.target.value)}
+                          placeholder="اسم المكتب المركزي"
+                        />
+                      </label>
+                      <div className="area-operations-group-actions">
+                        <button
+                          type="button"
+                          onClick={() => void saveCentralOffice(centralRecord)}
+                          disabled={busy === `central-${centralRecord.id}`}
+                        >
+                          {busy === `central-${centralRecord.id}`
+                            ? "حفظ…"
+                            : "حفظ"}
+                        </button>
+                        <button
+                          type="button"
+                          className="is-secondary"
+                          onClick={() => setEditingCentralId(null)}
+                        >
+                          إلغاء
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <div>
+                        <span>
+                          {group.central
+                            ? `المكتب المركزي ${group.central.number}`
+                            : "غير مرتبط بمكتب مركزي"}
+                        </span>
+                        {group.central?.name ? (
+                          <strong>{group.central.name}</strong>
+                        ) : null}
+                      </div>
+
+                      <div className="area-operations-group-meta">
+                        <small>
+                          {group.offices.length} مكتب · {groupCovered} مغطى
+                        </small>
+                        {centralRecord && canEdit ? (
+                          <button
+                            type="button"
+                            className="is-secondary"
+                            onClick={() => beginCentralEdit(centralRecord)}
+                          >
+                            تعديل
+                          </button>
+                        ) : null}
+                      </div>
+                    </>
+                  )}
                 </div>
 
                 {group.offices.map((office) => {
