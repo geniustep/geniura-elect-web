@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { LogoutButton } from "@/components/auth/logout-button";
 import { BrandLogo } from "@/components/branding/brand-logo";
+import { ElectionWorkspaceNav } from "@/components/navigation/election-workspace-nav";
 import type { ElectUser } from "@/lib/server/session";
 
 const roleNames = {
@@ -28,6 +29,7 @@ export function AppHeader({ user }: { user: ElectUser }) {
         </Link>
 
         <div className="topbar-actions presentation-topbar-actions">
+          <ElectionWorkspaceNav role={user.role} />
           <div className="presentation-org-chip">
             <small>التنظيم</small>
             <strong>{user.organization.name}</strong>
