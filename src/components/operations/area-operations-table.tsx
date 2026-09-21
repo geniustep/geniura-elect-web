@@ -279,23 +279,6 @@ export function AreaOperationsTable({
     return [...grouped.values()];
   }, [visible]);
 
-  const totals = useMemo(() => {
-    const covered = coverageItems.filter(
-      (office) => office.assignment && office.representative,
-    ).length;
-    const attention = coverageItems.filter((office) => {
-      const status = primaryStatus(office).key;
-      return status === "missing" || status === "review";
-    }).length;
-
-    return {
-      total: coverageItems.length,
-      covered,
-      uncovered: coverageItems.length - covered,
-      attention,
-    };
-  }, [coverageItems]);
-
   function clearFeedback() {
     setMessage("");
     setError("");
@@ -878,25 +861,6 @@ export function AreaOperationsTable({
 
   return (
     <section className="area-operations">
-      <div className="area-operations-summary">
-        <div>
-          <span>إجمالي المكاتب</span>
-          <strong>{totals.total}</strong>
-        </div>
-        <div className="is-success">
-          <span>مغطاة</span>
-          <strong>{totals.covered}</strong>
-        </div>
-        <div className="is-danger">
-          <span>بدون مراقب</span>
-          <strong>{totals.uncovered}</strong>
-        </div>
-        <div className="is-warning">
-          <span>تحتاج معالجة</span>
-          <strong>{totals.attention}</strong>
-        </div>
-      </div>
-
       <details className="area-operations-tools">
         <summary>
           <div>
