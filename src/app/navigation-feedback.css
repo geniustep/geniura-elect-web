@@ -1,0 +1,139 @@
+/* Immediate navigation feedback
+ * Confirms internal route clicks before server-rendered destinations arrive.
+ */
+
+.route-feedback {
+  position: fixed;
+  z-index: 120;
+  inset: 0;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.route-feedback.is-visible {
+  visibility: visible;
+}
+
+.route-feedback-bar {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline: 0;
+  height: 3px;
+  overflow: hidden;
+  background: rgba(243, 154, 46, 0.14);
+  opacity: 0;
+  transition: opacity 100ms ease;
+}
+
+.route-feedback.is-visible .route-feedback-bar {
+  opacity: 1;
+}
+
+.route-feedback-bar > span {
+  display: block;
+  width: 36%;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    var(--ge-brand-accent-strong),
+    var(--ge-brand-accent-bright)
+  );
+  box-shadow: 0 0 14px rgba(243, 154, 46, 0.42);
+  animation: ge-route-progress 980ms ease-in-out infinite;
+}
+
+.route-feedback-pill {
+  position: absolute;
+  inset-block-start: 92px;
+  inset-inline-start: 50%;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 40px;
+  padding: 8px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: var(--ge-radius-pill);
+  background: rgba(7, 29, 67, 0.94);
+  color: var(--ge-text-on-dark);
+  box-shadow: 0 14px 34px rgba(7, 29, 67, 0.22);
+  font-size: 10px;
+  font-weight: 800;
+  opacity: 0;
+  transform: translateX(50%) translateY(-6px);
+  transition:
+    opacity 120ms ease,
+    transform 120ms ease;
+  backdrop-filter: blur(12px);
+}
+
+.route-feedback.is-visible .route-feedback-pill {
+  opacity: 1;
+  transform: translateX(50%) translateY(0);
+}
+
+.route-feedback-spinner {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 14px;
+  border: 2px solid rgba(255, 255, 255, 0.26);
+  border-block-start-color: var(--ge-brand-accent);
+  border-radius: 50%;
+  animation: ge-route-spin 650ms linear infinite;
+}
+
+body.is-route-pending,
+body.is-route-pending a {
+  cursor: progress !important;
+}
+
+a.is-navigation-pending {
+  position: relative;
+  opacity: 0.76;
+  transition: opacity 80ms ease;
+}
+
+.election-workspace-links > a.is-navigation-pending,
+.pjd-constituency-card.is-navigation-pending,
+.constituency-area-card.is-navigation-pending {
+  transform: translateY(1px) scale(0.995);
+}
+
+@keyframes ge-route-progress {
+  0% {
+    transform: translateX(190%);
+  }
+
+  50% {
+    transform: translateX(65%);
+  }
+
+  100% {
+    transform: translateX(-290%);
+  }
+}
+
+@keyframes ge-route-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 720px) {
+  .route-feedback-pill {
+    inset-block-start: 76px;
+    font-size: 9px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .route-feedback-bar > span,
+  .route-feedback-spinner {
+    animation-duration: 1.8s;
+  }
+
+  .route-feedback-pill,
+  a.is-navigation-pending {
+    transition: none;
+  }
+}
