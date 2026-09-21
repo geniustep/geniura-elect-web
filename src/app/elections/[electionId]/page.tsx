@@ -152,34 +152,6 @@ export default async function ElectionPage({
 
             <h1>{election.name}</h1>
 
-            <div className="pjd-election-hero-actions">
-              {user.role === "manager" ? (
-                <Link
-                  className="pjd-election-primary-action"
-                  href={`/elections/${election.id}/setup`}
-                >
-                  الإعداد
-                  <span aria-hidden="true">←</span>
-                </Link>
-              ) : null}
-
-              {user.role !== "observer" ? (
-                <>
-                  <Link
-                    className="pjd-election-secondary-action"
-                    href={`/elections/${election.id}/command-center`}
-                  >
-                    المتابعة
-                  </Link>
-                  <Link
-                    className="pjd-election-secondary-action"
-                    href={`/elections/${election.id}/results`}
-                  >
-                    النتائج
-                  </Link>
-                </>
-              ) : null}
-            </div>
           </div>
 
           <div className="pjd-election-hero-side">
