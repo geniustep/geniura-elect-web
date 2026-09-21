@@ -1,0 +1,313 @@
+/* Election workspace navigation
+ * Contextual navigation for /elections/[electionId]/*.
+ * Desktop = fixed right rail in RTL. Mobile = header trigger + drawer.
+ */
+
+.election-workspace-mobile-trigger,
+.election-workspace-drawer,
+.election-workspace-overlay {
+  display: none;
+}
+
+.election-workspace-sidebar {
+  position: fixed;
+  z-index: 24;
+  inset-block-start: 76px;
+  inset-block-end: 0;
+  inset-inline-start: 0;
+  width: 246px;
+  display: flex;
+  flex-direction: column;
+  padding: 22px 16px 18px;
+  border-inline-end: 1px solid var(--ge-border);
+  background:
+    linear-gradient(180deg, var(--ge-surface) 0%, var(--ge-bg-panel) 100%);
+  box-shadow: -12px 0 36px rgba(7, 29, 67, 0.045);
+}
+
+.pjd-dashboard .election-workspace-sidebar {
+  inset-block-start: 86px;
+}
+
+.election-workspace-head {
+  display: grid;
+  gap: 4px;
+  padding: 4px 8px 18px;
+  border-bottom: 1px solid var(--ge-border);
+}
+
+.election-workspace-eyebrow {
+  color: var(--ge-brand-accent-strong);
+  font-size: 9px;
+  font-weight: 900;
+}
+
+.election-workspace-head > strong {
+  color: var(--ge-brand-primary-deep);
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.election-workspace-head > small {
+  color: var(--ge-text-subtle);
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.election-workspace-links {
+  display: grid;
+  gap: 5px;
+  margin-top: 16px;
+}
+
+.election-workspace-links > a {
+  position: relative;
+  min-height: 54px;
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) 18px;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 9px;
+  border: 1px solid transparent;
+  border-radius: 13px;
+  color: var(--ge-text-secondary);
+  text-decoration: none;
+  transition:
+    background 130ms ease,
+    border-color 130ms ease,
+    color 130ms ease,
+    transform 130ms ease;
+}
+
+.election-workspace-links > a:hover {
+  border-color: var(--ge-border);
+  background: var(--ge-surface);
+  color: var(--ge-brand-primary);
+  transform: translateX(-1px);
+}
+
+.election-workspace-links > a.is-active {
+  border-color: rgba(24, 71, 128, 0.09);
+  background: var(--ge-brand-primary-soft);
+  color: var(--ge-brand-primary);
+  box-shadow: inset -3px 0 0 var(--ge-brand-accent);
+}
+
+.election-workspace-icon {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: var(--ge-surface-strong);
+  color: var(--ge-text-muted);
+}
+
+.election-workspace-links > a.is-active .election-workspace-icon {
+  background: var(--ge-brand-primary);
+  color: var(--ge-text-on-dark);
+}
+
+.election-workspace-icon svg,
+.election-workspace-back svg {
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.election-workspace-link-copy {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.election-workspace-link-copy > strong {
+  overflow: hidden;
+  font-size: 11px;
+  font-weight: 900;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.election-workspace-link-copy > small {
+  overflow: hidden;
+  color: var(--ge-text-subtle);
+  font-size: 8px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.election-workspace-arrow {
+  color: var(--ge-text-subtle);
+  font-size: 13px;
+}
+
+.election-workspace-links > a.is-active .election-workspace-arrow {
+  color: var(--ge-brand-accent-strong);
+}
+
+.election-workspace-back {
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: auto;
+  padding: 8px 10px;
+  border-top: 1px solid var(--ge-border);
+  color: var(--ge-text-muted);
+  font-size: 9px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.election-workspace-back:hover {
+  color: var(--ge-brand-primary);
+}
+
+/* Reserve a contextual rail inside the existing centered content container. */
+@media (min-width: 1100px) {
+  .dashboard-shell:has(.election-workspace-sidebar) .dashboard-content {
+    box-sizing: border-box;
+    width: min(1460px, calc(100% - 48px));
+    padding-inline-start: 280px;
+  }
+}
+
+@media (max-width: 1099px) {
+  .election-workspace-sidebar {
+    display: none;
+  }
+
+  .election-workspace-mobile-trigger {
+    min-height: 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 7px 10px;
+    border: 1px solid var(--ge-border);
+    border-radius: 11px;
+    background: var(--ge-surface);
+    color: var(--ge-brand-primary);
+    font-family: inherit;
+    font-size: 10px;
+    font-weight: 900;
+    cursor: pointer;
+  }
+
+  .election-workspace-mobile-trigger-icon {
+    width: 15px;
+    display: grid;
+    gap: 3px;
+  }
+
+  .election-workspace-mobile-trigger-icon i {
+    height: 2px;
+    border-radius: 999px;
+    background: currentColor;
+  }
+
+  .election-workspace-overlay {
+    position: fixed;
+    z-index: 70;
+    inset: 0;
+    display: block;
+    border: 0;
+    background: rgba(7, 29, 67, 0.46);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 160ms ease;
+  }
+
+  .election-workspace-overlay.is-open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .election-workspace-drawer {
+    position: fixed;
+    z-index: 71;
+    inset-block: 0;
+    inset-inline-start: 0;
+    width: min(330px, calc(100vw - 34px));
+    display: flex;
+    flex-direction: column;
+    padding: 14px 16px 18px;
+    border-inline-end: 1px solid var(--ge-border);
+    background: var(--ge-surface);
+    box-shadow: -24px 0 70px rgba(7, 29, 67, 0.2);
+    transform: translateX(105%);
+    visibility: hidden;
+    transition:
+      transform 180ms ease,
+      visibility 180ms ease;
+  }
+
+  html[dir="rtl"] .election-workspace-drawer {
+    transform: translateX(105%);
+  }
+
+  .election-workspace-drawer.is-open {
+    transform: translateX(0);
+    visibility: visible;
+  }
+
+  .election-workspace-drawer-top {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin: -2px -2px 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--ge-border);
+  }
+
+  .election-workspace-drawer-top > span {
+    color: var(--ge-brand-primary-deep);
+    font-size: 11px;
+    font-weight: 900;
+  }
+
+  .election-workspace-drawer-top > button {
+    width: 34px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    border: 1px solid var(--ge-border);
+    border-radius: 10px;
+    background: var(--ge-bg-panel);
+    color: var(--ge-text-secondary);
+    font: inherit;
+    font-size: 21px;
+    cursor: pointer;
+  }
+
+  .election-workspace-drawer .election-workspace-head {
+    padding-top: 8px;
+  }
+}
+
+@media (max-width: 680px) {
+  .election-workspace-mobile-trigger > span:last-child {
+    display: none;
+  }
+
+  .election-workspace-mobile-trigger {
+    width: 38px;
+    padding-inline: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .election-workspace-links > a,
+  .election-workspace-overlay,
+  .election-workspace-drawer {
+    transition: none;
+  }
+}
