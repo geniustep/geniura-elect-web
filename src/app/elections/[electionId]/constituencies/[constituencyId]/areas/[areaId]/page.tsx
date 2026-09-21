@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 
 import { AppHeader } from "@/components/navigation/app-header";
 import { AreaOperationsTable } from "@/components/operations/area-operations-table";
+import { AreaOfficeObserverTable } from "@/components/operations/area-office-observer-table";
 import { AreaXlsxExportButton } from "@/components/operations/area-xlsx-export-button";
 import { RepresentativeImportWorkspace } from "@/components/setup/representative-import-workspace";
 import type {
@@ -217,16 +218,14 @@ export default async function PollingAreaPage({
             />
           </>
         ) : (
-          <section className="polling-area-readonly-fallback">
-            <div>
-              <span>عرض فقط</span>
-              <h2>تعذر تحميل أدوات إدارة الجماعة</h2>
-              <p>
-                بيانات التغطية متاحة، لكن أدوات التعديل تحتاج صلاحية إدارة
-                النطاق الحالي.
-              </p>
-            </div>
-          </section>
+          <AreaOfficeObserverTable
+            electionId={electionId}
+            areaId={numericAreaId}
+            offices={offices}
+            canEdit={false}
+            canAssign={false}
+            canDelete={false}
+          />
         )}
       </section>
     </main>
