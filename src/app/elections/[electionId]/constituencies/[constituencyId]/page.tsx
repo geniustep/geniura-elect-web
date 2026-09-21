@@ -238,16 +238,6 @@ export default async function ConstituencyDashboardPage({
             </div>
           </div>
 
-          {user.role === "manager" ? (
-            <div className="constituency-dashboard-actions">
-              <Link href={`/elections/${electionId}/setup/users`}>
-                المستخدمون
-              </Link>
-              <Link href={`/elections/${electionId}/setup`}>
-                الإعداد
-              </Link>
-            </div>
-          ) : null}
         </section>
 
         <section className="constituency-dashboard-kpis constituency-dashboard-kpis--compact">
