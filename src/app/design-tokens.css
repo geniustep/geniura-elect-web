@@ -10,7 +10,7 @@
   color-scheme: light;
 
   /* Typography */
-  --ge-font-ui: var(--font-tajawal), "Noto Sans Arabic", Arial, sans-serif;
+  --ge-font-ui: var(--font-cairo), "Cairo", "Noto Sans Arabic", Arial, sans-serif;
   --ge-font-weight-regular: 400;
   --ge-font-weight-medium: 500;
   --ge-font-weight-bold: 700;
