@@ -1,4 +1,3 @@
-import { Tajawal } from "next/font/google";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
@@ -7,7 +6,6 @@ import { AppHeader } from "@/components/navigation/app-header";
 import type {
   ConstituencySummary,
   ElectionSummary,
-  PollingOffice,
 } from "@/lib/elect/types";
 import { backendHttp, backendRequest } from "@/lib/server/backend";
 import {
@@ -17,14 +15,7 @@ import {
 
 export const dynamic = "force-dynamic";
 
-const tajawal = Tajawal({
-  subsets: ["arabic"],
-  weight: ["400", "500", "700", "800"],
-  display: "swap",
-});
-
 type ElectionPayload = { election: ElectionSummary };
-type OfficesPayload = { items: PollingOffice[] };
 type ConstituenciesPayload = { items: ConstituencySummary[] };
 
 const stateNames: Record<string, string> = {
@@ -36,26 +27,6 @@ const stateNames: Record<string, string> = {
   closed: "مغلق",
 };
 
-const coverageNames: Record<string, string> = {
-  uncovered: "غير مغطى",
-  planned: "مبرمج",
-  confirmed: "مؤكد",
-  present: "حاضر",
-  absent: "غائب",
-  replaced: "مستبدل",
-  cancelled: "ملغى",
-  closed: "مغلق",
-};
-
-const protocolNames: Record<string, string> = {
-  draft: "مسودة",
-  entered: "مدخل",
-  document_attached: "مرفق",
-  validated: "مصادق",
-  verified: "متحقق",
-  rejected: "مرفوض",
-};
-
 function formatElectionDate(value: string) {
   const date = new Date(`${value}T00:00:00`);
   if (Number.isNaN(date.getTime())) return value;
@@ -65,6 +36,38 @@ function formatElectionDate(value: string) {
     month: "long",
     year: "numeric",
   }).format(date);
+}
+
+function ConstituencyCard({
+  constituency,
+  electionId,
+}: {
+  constituency: ConstituencySummary;
+  electionId: number;
+}) {
+  return (
+    <Link
+      className="pjd-constituency-card"
+      href={`/elections/${electionId}/constituencies/${constituency.id}`}
+    >
+      <div className="pjd-constituency-card-top">
+        <span>محلية</span>
+        <b>{constituency.seat_count}</b>
+      </div>
+      <h3>{constituency.name}</h3>
+      <div className="pjd-constituency-card-foot">
+        <span>
+          {constituency.coverage.polling_office_count
+            ? `${constituency.coverage.polling_office_count} مكتب`
+            : "لا مكاتب بعد"}
+        </span>
+        <span className="pjd-constituency-open">
+          فتح الدائرة
+          <span aria-hidden="true">←</span>
+        </span>
+      </div>
+    </Link>
+  );
 }
 
 export default async function ElectionPage({
@@ -100,22 +103,6 @@ export default async function ElectionPage({
     throw new Error("تعذر تحميل بيانات الانتخابات من الخدمة.");
   }
 
-  const electionData = electionResult.payload.data;
-  let officesData: OfficesPayload = { items: [] };
-  let officesRequestFailed = false;
-
-  try {
-    officesData = await backendRequest<OfficesPayload>(
-      `/api/v1/elections/${electionId}/polling-offices`,
-      {
-        method: "GET",
-        sessionId,
-      },
-    );
-  } catch {
-    officesRequestFailed = true;
-  }
-
   let constituencies: ConstituencySummary[] = [];
   if (user.role !== "observer") {
     try {
@@ -132,8 +119,7 @@ export default async function ElectionPage({
     }
   }
 
-  const election = electionData.election;
-  const offices = officesData.items;
+  const election = electionResult.payload.data.election;
   const local = constituencies.filter((item) => item.kind === "local");
   const regional = constituencies.filter((item) => item.kind === "regional");
   const localSeats = local.reduce((total, item) => total + item.seat_count, 0);
@@ -141,27 +127,23 @@ export default async function ElectionPage({
     (total, item) => total + item.seat_count,
     0,
   );
+  const totalSeats = localSeats + regionalSeats;
   const regionName = constituencies[0]?.region.name;
-  const present = offices.filter(
-    (office) => office.coverage_state === "present",
-  ).length;
-  const protocols = offices.filter((office) => office.protocol).length;
-  const officesLoaded = !officesRequestFailed && offices.length > 0;
+  const quickLocal = local.slice(0, 6);
+  const remainingLocal = local.slice(6);
 
   return (
-    <main
-      className={`dashboard-shell pjd-dashboard pjd-election-page ${tajawal.className}`}
-    >
+    <main className="dashboard-shell pjd-dashboard pjd-election-page">
       <AppHeader user={user} />
 
-      <section className="dashboard-content pjd-election-content">
+      <section className="dashboard-content pjd-election-content pjd-election-content--compact">
         <nav className="pjd-election-breadcrumbs">
           <Link href="/dashboard">لوحة المتابعة</Link>
           <span>/</span>
           <strong>{election.name}</strong>
         </nav>
 
-        <section className="pjd-election-hero">
+        <section className="pjd-election-hero pjd-election-hero--compact">
           <div className="pjd-election-hero-copy">
             <div className="pjd-election-hero-meta">
               <span>{formatElectionDate(election.election_date)}</span>
@@ -212,7 +194,7 @@ export default async function ElectionPage({
           </div>
         </section>
 
-        <div className="pjd-election-kpis">
+        <div className="pjd-election-kpis pjd-election-kpis--compact">
           <div>
             <span>الدوائر المحلية</span>
             <strong>{election.constituencies.local_count}</strong>
@@ -224,33 +206,26 @@ export default async function ElectionPage({
             <small>{regional.length ? `${regionalSeats} مقاعد` : "—"}</small>
           </div>
           <div>
-            <span>مكاتب التصويت</span>
-            <strong>{officesLoaded ? offices.length : "—"}</strong>
-            <small>{officesLoaded ? `${present} حاضر` : "—"}</small>
-          </div>
-          <div>
-            <span>المحاضر</span>
-            <strong>{officesLoaded ? protocols : "—"}</strong>
-            <small>{officesLoaded ? `${offices.length} مكتب` : "—"}</small>
+            <span>إجمالي المقاعد</span>
+            <strong>{totalSeats || "—"}</strong>
+            <small>ضمن النطاق الحالي</small>
           </div>
           <div>
             <span>التغطية</span>
-            <strong>
-              {officesLoaded ? `${election.coverage.percent.toFixed(0)}%` : "—"}
-            </strong>
+            <strong>{`${election.coverage.percent.toFixed(0)}%`}</strong>
             <small>
-              {officesLoaded
-                ? `${election.coverage.covered_office_count}/${election.coverage.polling_office_count}`
-                : "—"}
+              {election.coverage.polling_office_count
+                ? `${election.coverage.covered_office_count}/${election.coverage.polling_office_count} مكتب`
+                : "لا مكاتب بعد"}
             </small>
           </div>
         </div>
 
         {user.role !== "observer" ? (
-          <section className="pjd-election-section">
+          <section className="pjd-election-section pjd-election-section--compact">
             <div className="pjd-election-section-head">
               <div>
-                <span>الهيكلة</span>
+                <span>وصول سريع</span>
                 <h2>الدوائر الانتخابية</h2>
               </div>
               <span className="pjd-election-count">
@@ -260,145 +235,52 @@ export default async function ElectionPage({
             </div>
 
             {constituencies.length ? (
-              <div className="pjd-constituency-grid">
-                {local.map((constituency) => (
-                  <Link
-                    className="pjd-constituency-card"
-                    href={`/elections/${election.id}/constituencies/${constituency.id}`}
-                    key={constituency.id}
-                  >
-                    <div className="pjd-constituency-card-top">
-                      <span>محلية</span>
-                      <b>{constituency.seat_count}</b>
-                    </div>
-                    <h3>{constituency.name}</h3>
-                    <div className="pjd-constituency-card-foot">
-                      <span>
-                        {constituency.coverage.polling_office_count
-                          ? `${constituency.coverage.polling_office_count} مكتب`
-                          : "لا مكاتب بعد"}
-                      </span>
-                      <span className="pjd-constituency-open">
-                        فتح الدائرة
-                        <span aria-hidden="true">←</span>
-                      </span>
-                    </div>
-                  </Link>
-                ))}
+              <>
+                {quickLocal.length ? (
+                  <div className="pjd-constituency-grid pjd-constituency-grid--quick">
+                    {quickLocal.map((constituency) => (
+                      <ConstituencyCard
+                        constituency={constituency}
+                        electionId={election.id}
+                        key={constituency.id}
+                      />
+                    ))}
+                  </div>
+                ) : null}
 
-                {regional.map((constituency) => (
-                  <article
-                    className="pjd-constituency-card pjd-constituency-card--regional"
-                    key={constituency.id}
-                  >
-                    <div className="pjd-constituency-card-top">
-                      <span>جهوية</span>
-                      <b>{constituency.seat_count}</b>
+                {remainingLocal.length ? (
+                  <details className="pjd-constituency-more">
+                    <summary>
+                      <span>عرض باقي الدوائر</span>
+                      <strong>{remainingLocal.length}</strong>
+                    </summary>
+                    <div className="pjd-constituency-grid">
+                      {remainingLocal.map((constituency) => (
+                        <ConstituencyCard
+                          constituency={constituency}
+                          electionId={election.id}
+                          key={constituency.id}
+                        />
+                      ))}
                     </div>
-                    <h3>{constituency.name}</h3>
-                    <div className="pjd-constituency-card-foot">
-                      <span>دائرة جهوية</span>
-                      <i className="is-ready" aria-hidden="true" />
+                  </details>
+                ) : null}
+
+                {regional.length ? (
+                  <div className="pjd-regional-strip">
+                    <div>
+                      <span>الدائرة الجهوية</span>
+                      <strong>{regional.map((item) => item.name).join(" · ")}</strong>
                     </div>
-                  </article>
-                ))}
-              </div>
+                    <span>{regionalSeats} مقاعد</span>
+                  </div>
+                ) : null}
+              </>
             ) : (
               <div className="pjd-election-empty">لا توجد دوائر.</div>
             )}
           </section>
         ) : null}
-
-        <section className="pjd-election-section">
-          <div className="pjd-election-section-head">
-            <div>
-              <span>التصويت</span>
-              <h2>مراكز ومكاتب التصويت</h2>
-            </div>
-
-            <div className="pjd-election-section-actions">
-              {user.role === "manager" ? (
-                <Link
-                  href={`/elections/${election.id}/setup/polling-import`}
-                >
-                  استيراد
-                </Link>
-              ) : null}
-              <span className="pjd-election-count">
-                {officesLoaded ? `${offices.length} مكتب` : "—"}
-              </span>
-            </div>
-          </div>
-
-          {officesRequestFailed ? (
-            <div className="pjd-polling-empty is-load-error">
-              <div className="pjd-polling-empty-icon" aria-hidden="true">
-                !
-              </div>
-              <div>
-                <h3>تعذر تحميل مكاتب التصويت الآن</h3>
-                <p>
-                  بيانات الانتخابات والدوائر ما زالت متاحة. أعد المحاولة
-                  لتحميل لائحة المكاتب.
-                </p>
-              </div>
-              <Link href={`/elections/${election.id}`}>إعادة المحاولة</Link>
-            </div>
-          ) : officesLoaded ? (
-            <div className="pjd-office-grid">
-              {offices.map((office) => (
-                <Link
-                  className="pjd-office-card"
-                  href={`/polling-offices/${office.id}`}
-                  key={office.id}
-                >
-                  <div className="pjd-office-number">{office.number}</div>
-
-                  <div className="pjd-office-main">
-                    <strong>{office.center.name}</strong>
-                    <span>
-                      {office.constituency.name}
-                      {office.center.commune
-                        ? ` · ${office.center.commune}`
-                        : ""}
-                    </span>
-                  </div>
-
-                  <div className="pjd-office-status">
-                    <span
-                      className={`pjd-office-coverage ${office.coverage_state}`}
-                    >
-                      {coverageNames[office.coverage_state] ??
-                        office.coverage_state}
-                    </span>
-                    <small>
-                      {office.protocol
-                        ? protocolNames[office.protocol.state] ??
-                          office.protocol.state
-                        : "بدون محضر"}
-                    </small>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          ) : (
-            <div className="pjd-polling-empty">
-              <div className="pjd-polling-empty-icon" aria-hidden="true">
-                ◌
-              </div>
-              <div>
-                <h3>لم تُحمّل المراكز والمكاتب بعد</h3>
-              </div>
-              {user.role === "manager" ? (
-                <Link
-                  href={`/elections/${election.id}/setup/polling-import`}
-                >
-                  استيراد
-                </Link>
-              ) : null}
-            </div>
-          )}
-        </section>
       </section>
     </main>
   );
