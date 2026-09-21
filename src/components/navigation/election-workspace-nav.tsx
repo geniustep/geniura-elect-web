@@ -104,7 +104,7 @@ export function ElectionWorkspaceNav({ role }: { role: ElectRole }) {
   const base = `/elections/${electionId}`;
   const isUsers = pathname.startsWith(`${base}/setup/users`);
 
-  const items: Array<{
+  const primaryItems: Array<{
     label: string;
     description: string;
     href: string;
@@ -136,55 +136,79 @@ export function ElectionWorkspaceNav({ role }: { role: ElectRole }) {
     },
   ];
 
-  if (role === "manager") {
-    items.push(
-      {
-        label: "الإعداد",
-        description: "الهيكلة والبيانات",
-        href: `${base}/setup`,
-        icon: "setup",
-        active: pathname.startsWith(`${base}/setup`) && !isUsers,
-      },
-      {
-        label: "المستخدمون",
-        description: "النطاق والصلاحيات",
-        href: `${base}/setup/users`,
-        icon: "users",
-        active: isUsers,
-      },
-    );
-  }
+  const adminItems =
+    role === "manager"
+      ? [
+          {
+            label: "الإعداد",
+            description: "الهيكلة والبيانات",
+            href: `${base}/setup`,
+            icon: "setup" as NavIconName,
+            active: pathname.startsWith(`${base}/setup`) && !isUsers,
+          },
+          {
+            label: "المستخدمون",
+            description: "النطاق والصلاحيات",
+            href: `${base}/setup/users`,
+            icon: "users" as NavIconName,
+            active: isUsers,
+          },
+        ]
+      : [];
+
+  const renderItems = (items: typeof primaryItems) =>
+    items.map((item) => (
+      <Link
+        className={item.active ? "is-active" : undefined}
+        href={item.href}
+        aria-current={item.active ? "page" : undefined}
+        key={item.href}
+        onClick={() => setOpen(false)}
+      >
+        <span className="election-workspace-icon">
+          <NavIcon name={item.icon} />
+        </span>
+        <span className="election-workspace-link-copy">
+          <strong>{item.label}</strong>
+          <small>{item.description}</small>
+        </span>
+        <span className="election-workspace-arrow" aria-hidden="true">
+          ←
+        </span>
+      </Link>
+    ));
 
   const nav = (
     <>
       <div className="election-workspace-head">
-        <span className="election-workspace-eyebrow">مساحة الاستحقاق</span>
-        <strong>التنقل التشغيلي</strong>
-        <small>استحقاق #{electionId}</small>
+        <div className="election-workspace-mark" aria-hidden="true">
+          <span>#{electionId}</span>
+        </div>
+        <div className="election-workspace-head-copy">
+          <span className="election-workspace-eyebrow">الاستحقاق الحالي</span>
+          <strong>مركز الاستحقاق</strong>
+          <small>تنقل سريع بين مساحات العمل</small>
+        </div>
       </div>
 
+      <div className="election-workspace-section-label">التشغيل</div>
       <nav className="election-workspace-links" aria-label="التنقل داخل الاستحقاق">
-        {items.map((item) => (
-          <Link
-            className={item.active ? "is-active" : undefined}
-            href={item.href}
-            aria-current={item.active ? "page" : undefined}
-            key={item.href}
-            onClick={() => setOpen(false)}
-          >
-            <span className="election-workspace-icon">
-              <NavIcon name={item.icon} />
-            </span>
-            <span className="election-workspace-link-copy">
-              <strong>{item.label}</strong>
-              <small>{item.description}</small>
-            </span>
-            <span className="election-workspace-arrow" aria-hidden="true">
-              ←
-            </span>
-          </Link>
-        ))}
+        {renderItems(primaryItems)}
       </nav>
+
+      {adminItems.length ? (
+        <>
+          <div className="election-workspace-section-label election-workspace-section-label--admin">
+            الإدارة
+          </div>
+          <nav
+            className="election-workspace-links election-workspace-links--admin"
+            aria-label="إدارة الاستحقاق"
+          >
+            {renderItems(adminItems)}
+          </nav>
+        </>
+      ) : null}
 
       <Link
         className="election-workspace-back"
