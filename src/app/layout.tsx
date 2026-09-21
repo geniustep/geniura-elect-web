@@ -1,15 +1,15 @@
 import type { Metadata } from "next";
-import { Tajawal } from "next/font/google";
+import { Cairo } from "next/font/google";
 import "./globals.css";
 import "./redesign.css";
 import "./design-tokens.css";
 import "./election-workspace.css";
 
-const tajawal = Tajawal({
+const cairo = Cairo({
   subsets: ["arabic"],
-  weight: ["400", "500", "700", "800"],
+  weight: ["400", "500", "600", "700", "800"],
   display: "swap",
-  variable: "--font-tajawal",
+  variable: "--font-cairo",
 });
 
 export const metadata: Metadata = {
@@ -31,7 +31,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ar" dir="rtl">
-      <body className={tajawal.variable}>{children}</body>
+      <body className={`${cairo.className} ${cairo.variable}`}>{children}</body>
     </html>
   );
 }
