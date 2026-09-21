@@ -2253,3 +2253,115 @@ textarea:focus-visible {
     font-size: 36px;
   }
 }
+
+
+/* Central office row editing inside the unified area table */
+.area-operations-group-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.area-operations-group-meta > small {
+  color: var(--ge-text-muted);
+  font-size: 8px;
+  font-weight: 700;
+}
+
+.area-operations-group-meta > button {
+  min-height: 30px;
+  padding: 5px 9px;
+  border: 1px solid var(--ge-border);
+  border-radius: 9px;
+  background: var(--ge-surface);
+  color: var(--ge-brand-primary);
+  font: inherit;
+  font-size: 8px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.area-operations-group-meta > button:hover {
+  border-color: var(--ge-focus-border);
+  background: var(--ge-brand-primary-soft);
+}
+
+.area-operations-group-head.is-editing {
+  align-items: stretch;
+  padding-block: 11px;
+  background:
+    linear-gradient(135deg, var(--ge-brand-accent-soft), var(--ge-surface));
+  box-shadow: inset 3px 0 0 var(--ge-brand-accent);
+}
+
+.area-operations-group-edit {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 150px minmax(220px, 1fr) auto;
+  align-items: end;
+  gap: 9px;
+}
+
+.area-operations-group-edit label {
+  display: grid;
+  gap: 5px;
+}
+
+.area-operations-group-edit label > span {
+  color: var(--ge-text-muted);
+  font-size: 8px;
+  font-weight: 800;
+}
+
+.area-operations-group-edit input {
+  min-height: 36px;
+  width: 100%;
+  padding: 7px 9px;
+  border: 1px solid var(--ge-border-control);
+  border-radius: 9px;
+  background: var(--ge-surface);
+  color: var(--ge-text-primary);
+  font: inherit;
+  font-size: 9px;
+}
+
+.area-operations-group-edit input:focus {
+  border-color: var(--ge-focus-border);
+  outline: 0;
+  box-shadow: 0 0 0 4px var(--ge-focus-ring);
+}
+
+.area-operations-group-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.area-operations-group-actions > button {
+  min-height: 36px;
+  padding: 7px 10px;
+  border: 0;
+  border-radius: 9px;
+  background: var(--ge-brand-primary);
+  color: var(--ge-text-on-dark);
+  font: inherit;
+  font-size: 8px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.area-operations-group-actions > button.is-secondary {
+  border: 1px solid var(--ge-border);
+  background: var(--ge-surface);
+  color: var(--ge-text-secondary);
+}
+
+@media (max-width: 760px) {
+  .area-operations-group-edit {
+    grid-template-columns: 1fr;
+  }
+
+  .area-operations-group-meta {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
