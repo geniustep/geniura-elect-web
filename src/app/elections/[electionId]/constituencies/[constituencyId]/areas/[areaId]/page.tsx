@@ -2,9 +2,8 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
 import { AppHeader } from "@/components/navigation/app-header";
-import { AreaOfficeObserverTable } from "@/components/operations/area-office-observer-table";
+import { AreaOperationsTable } from "@/components/operations/area-operations-table";
 import { AreaXlsxExportButton } from "@/components/operations/area-xlsx-export-button";
-import { AreaStructureManager } from "@/components/operations/area-structure-manager";
 import { RepresentativeImportWorkspace } from "@/components/setup/representative-import-workspace";
 import type {
   AreaManagementSnapshot,
@@ -92,13 +91,15 @@ export default async function PollingAreaPage({
     .sort((a, b) => a.number - b.number);
 
   const percentage = area.total ? (100 * area.covered) / area.total : 0;
+  const needsAttention =
+    area.missing_representative_info + area.needs_review;
 
   return (
     <main className="dashboard-shell polling-area-page">
       <AppHeader user={user} />
 
-      <section className="dashboard-content polling-area-content">
-        <nav className="breadcrumbs presentation-breadcrumbs">
+      <section className="dashboard-content polling-area-content polling-area-content--unified">
+        <nav className="pjd-election-breadcrumbs">
           <Link href="/dashboard">لوحة المتابعة</Link>
           <span>/</span>
           <Link href={`/elections/${electionId}`}>
@@ -114,83 +115,119 @@ export default async function PollingAreaPage({
           <strong>{area.name}</strong>
         </nav>
 
-        <section className="polling-area-hero">
-          <div>
+        <section className="polling-area-hero polling-area-hero--unified">
+          <div className="polling-area-hero-copy">
             <span>الجماعة / المقاطعة</span>
             <h1>{area.name}</h1>
-            <p>
-              لائحة مكاتب التصويت والمراقبين داخل هذه الجماعة أو المقاطعة.
-              المستخدم المقيّد بهذه الجماعة يستطيع تعديل وأرشفة البيانات
-              الواقعة داخل نطاقه فقط.
-            </p>
-            {management ? (
-              <div className="polling-area-export-wrap">
-                <AreaXlsxExportButton
-                  areaName={management.area.name}
-                  sourceFilename={management.area.source_filename}
-                  electionDate={dashboard.election.election_date}
-                  coverageOffices={offices}
-                  structuralOffices={management.offices}
+            <div className="polling-area-hero-meta">
+              <span>{dashboard.constituency.name}</span>
+              <span>{area.total} مكتب تصويت</span>
+              {management?.area.source_filename ? (
+                <span>{management.area.source_filename}</span>
+              ) : null}
+            </div>
+          </div>
+
+          <div className="polling-area-hero-side">
+            <div className="polling-area-hero-coverage">
+              <span>التغطية</span>
+              <strong>{percentage.toFixed(0)}%</strong>
+              <div aria-hidden="true">
+                <span
+                  style={{
+                    width: `${Math.min(100, Math.max(0, percentage))}%`,
+                  }}
                 />
               </div>
+              <small>
+                {area.covered} من {area.total} مكتب
+              </small>
+            </div>
+
+            {management ? (
+              <AreaXlsxExportButton
+                areaName={management.area.name}
+                sourceFilename={management.area.source_filename}
+                electionDate={dashboard.election.election_date}
+                coverageOffices={offices}
+                structuralOffices={management.offices}
+              />
             ) : null}
-          </div>
-          <div className="polling-area-hero-stats">
-            <div>
-              <strong>{area.total}</strong>
-              <span>مكتب تصويت</span>
-            </div>
-            <div>
-              <strong>{area.covered}</strong>
-              <span>لديه مراقب</span>
-            </div>
-            <div>
-              <strong>{area.uncovered}</strong>
-              <span>بدون مراقب</span>
-            </div>
-            <div>
-              <strong>{percentage.toFixed(0)}%</strong>
-              <span>تغطية</span>
-            </div>
           </div>
         </section>
 
+        <div className="polling-area-quick-kpis">
+          <div>
+            <span>إجمالي المكاتب</span>
+            <strong>{area.total}</strong>
+          </div>
+          <div className="is-success">
+            <span>لديها مراقب</span>
+            <strong>{area.covered}</strong>
+          </div>
+          <div className="is-danger">
+            <span>بدون مراقب</span>
+            <strong>{area.uncovered}</strong>
+          </div>
+          <div className="is-warning">
+            <span>تحتاج معالجة</span>
+            <strong>{needsAttention}</strong>
+          </div>
+        </div>
+
         {management ? (
           <>
-            <AreaStructureManager
+            <details className="polling-area-import-drawer">
+              <summary>
+                <div>
+                  <span>أداة عند الحاجة</span>
+                  <strong>استيراد ومطابقة المراقبين من Excel</strong>
+                </div>
+                <span aria-hidden="true">⌄</span>
+              </summary>
+              <div className="polling-area-import-body">
+                <RepresentativeImportWorkspace
+                  electionId={electionId}
+                  constituencyId={Number(constituencyId)}
+                  areas={[
+                    {
+                      id: numericAreaId,
+                      name: management.area.name,
+                    },
+                  ]}
+                />
+              </div>
+            </details>
+
+            <AreaOperationsTable
               electionId={electionId}
+              areaId={numericAreaId}
               initialArea={management.area}
               initialCentralOffices={management.central_offices}
               centers={management.centers}
-              initialOffices={management.offices}
-              canCreate={management.capabilities.create}
-              canArchive={management.capabilities.archive}
-            />
-
-            <RepresentativeImportWorkspace
-              electionId={electionId}
-              constituencyId={Number(constituencyId)}
-              areas={[
-                {
-                  id: numericAreaId,
-                  name: management.area.name,
-                },
-              ]}
+              structuralOffices={management.offices}
+              coverageOffices={offices}
+              canEdit={Boolean(management.capabilities.edit)}
+              canAssign={Boolean(
+                management.capabilities.assign_representative ||
+                  management.capabilities.edit,
+              )}
+              canCreate={Boolean(management.capabilities.create)}
+              canArchive={Boolean(management.capabilities.archive)}
             />
           </>
-        ) : null}
-
-        <AreaOfficeObserverTable
-          electionId={electionId}
-          areaId={numericAreaId}
-          offices={offices}
-          canEdit={Boolean(management?.capabilities.edit)}
-          canAssign={Boolean(
-            management?.capabilities.assign_representative ||
-              management?.capabilities.edit,
-          )}
-          canDelete={Boolean(management?.capabilities.archive)}
-        />
+        ) : (
+          <section className="polling-area-readonly-fallback">
+            <div>
+              <span>عرض فقط</span>
+              <h2>تعذر تحميل أدوات إدارة الجماعة</h2>
+              <p>
+                بيانات التغطية متاحة، لكن أدوات التعديل تحتاج صلاحية إدارة
+                النطاق الحالي.
+              </p>
+            </div>
+          </section>
+        )}
       </section>
     </main>
   );
