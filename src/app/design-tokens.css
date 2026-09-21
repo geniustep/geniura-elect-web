@@ -24,6 +24,8 @@
   --ge-brand-accent-strong: #dd7c18;
   --ge-brand-accent-bright: #f7a23c;
   --ge-brand-accent-soft: #fff1df;
+  --ge-brand-accent-bg: #fff8ee;
+  --ge-brand-accent-border: #d89a58;
   --ge-brand-primary-soft: #eef4fb;
 
   /* Surfaces */
@@ -77,6 +79,7 @@
   --ge-info: #175cd3;
   --ge-info-bg: #eff8ff;
   --ge-info-border: #b2ddff;
+  --ge-info-border-strong: #7a9cc5;
 
   --ge-review: #65469d;
   --ge-review-bg: #f3effa;
@@ -94,6 +97,14 @@
   --ge-shadow-sm: 0 8px 24px rgba(7, 29, 67, 0.06);
   --ge-shadow-md: 0 18px 44px rgba(7, 29, 67, 0.11);
   --ge-shadow-action: 0 14px 28px rgba(221, 124, 24, 0.2);
+  --ge-overlay: rgba(7, 29, 67, 0.42);
+  --ge-hero-gradient: linear-gradient(
+    140deg,
+    rgba(7, 29, 67, 0.99),
+    rgba(16, 47, 99, 0.97) 58%,
+    rgba(24, 71, 128, 0.95)
+  );
+  --ge-hero-shadow: 0 28px 72px rgba(7, 29, 67, 0.18);
 
   /*
    * Compatibility aliases.
