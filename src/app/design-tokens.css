@@ -1028,3 +1028,314 @@ textarea:focus-visible {
     padding-inline: 16px;
   }
 }
+
+
+/* -------------------------------------------------------------------------- */
+/* Constituency dashboard — compact priority-first overview                   */
+/* -------------------------------------------------------------------------- */
+
+.constituency-dashboard-content--compact {
+  width: min(1180px, calc(100% - 48px));
+  padding-bottom: 68px;
+}
+
+.constituency-dashboard-hero--compact {
+  align-items: center;
+  min-height: 184px;
+  padding: 26px 28px;
+  border-color: var(--ge-border);
+  border-radius: 22px;
+  background:
+    linear-gradient(145deg, var(--ge-brand-primary-soft), var(--ge-surface) 72%);
+  box-shadow: var(--ge-shadow-sm);
+}
+
+.constituency-dashboard-hero--compact h1 {
+  font-size: clamp(34px, 4.6vw, 48px);
+}
+
+.constituency-dashboard-hero--compact .constituency-dashboard-actions {
+  margin-top: 0;
+}
+
+.constituency-dashboard-kpis--compact {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.constituency-dashboard-kpis--compact article {
+  min-height: 108px;
+  padding: 16px;
+  border-color: var(--ge-border);
+  background: var(--ge-surface);
+  box-shadow: var(--ge-shadow-sm);
+}
+
+.constituency-dashboard-kpis--compact article.is-success {
+  border-top-color: var(--ge-success);
+}
+
+.constituency-dashboard-kpis--compact article.is-danger {
+  border-top-color: var(--ge-danger);
+}
+
+.constituency-dashboard-kpis--compact article.is-warning {
+  border-top-color: var(--ge-brand-accent);
+}
+
+.constituency-dashboard-section--compact {
+  margin-top: 26px;
+}
+
+.constituency-area-grid--priority {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.constituency-area-card--compact {
+  min-height: 0;
+  padding: 16px;
+}
+
+.constituency-area-card--compact .constituency-area-progress {
+  margin: 11px 0;
+}
+
+.constituency-area-compact-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.constituency-area-compact-stats > span {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+  padding: 7px;
+  border-radius: 9px;
+  background: var(--ge-bg-panel);
+  color: var(--ge-text-muted);
+  font-size: 8px;
+}
+
+.constituency-area-compact-stats > span > b {
+  color: var(--ge-text-primary);
+  font-size: 14px;
+}
+
+.constituency-area-compact-stats > span.is-danger {
+  background: var(--ge-danger-bg);
+  color: var(--ge-danger);
+}
+
+.constituency-area-compact-stats > span.is-danger > b {
+  color: var(--ge-danger);
+}
+
+.constituency-dashboard-more {
+  margin-top: 10px;
+  border: 1px solid var(--ge-border);
+  border-radius: 16px;
+  background: var(--ge-surface);
+  box-shadow: var(--ge-shadow-sm);
+}
+
+.constituency-dashboard-more > summary {
+  min-height: 54px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 15px;
+  color: var(--ge-brand-primary);
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+  list-style: none;
+}
+
+.constituency-dashboard-more > summary::-webkit-details-marker {
+  display: none;
+}
+
+.constituency-dashboard-more > summary::after {
+  content: "⌄";
+  margin-inline-start: auto;
+  color: var(--ge-brand-secondary);
+  font-size: 18px;
+  transition: transform 140ms ease;
+}
+
+.constituency-dashboard-more[open] > summary::after {
+  transform: rotate(180deg);
+}
+
+.constituency-dashboard-more > summary > strong {
+  min-width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--ge-radius-pill);
+  background: var(--ge-brand-primary-soft);
+  color: var(--ge-brand-primary);
+  font-size: 10px;
+}
+
+.constituency-dashboard-more > .constituency-area-grid,
+.constituency-dashboard-more > .constituency-attention-list {
+  padding: 0 12px 12px;
+}
+
+.constituency-tool-drawer {
+  margin-top: 20px;
+  border: 1px solid var(--ge-border);
+  border-radius: 18px;
+  background:
+    linear-gradient(145deg, var(--ge-brand-primary-soft), var(--ge-surface));
+  box-shadow: var(--ge-shadow-sm);
+}
+
+.constituency-tool-drawer > summary {
+  min-height: 66px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 13px 17px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.constituency-tool-drawer > summary::-webkit-details-marker {
+  display: none;
+}
+
+.constituency-tool-drawer > summary > div {
+  display: grid;
+  gap: 3px;
+}
+
+.constituency-tool-drawer > summary > div > span {
+  color: var(--ge-brand-accent-strong);
+  font-size: 9px;
+  font-weight: 900;
+}
+
+.constituency-tool-drawer > summary > div > strong {
+  color: var(--ge-brand-primary-deep);
+  font-size: 14px;
+}
+
+.constituency-tool-drawer > summary > span {
+  margin-inline-start: auto;
+  color: var(--ge-brand-secondary);
+  font-size: 20px;
+  transition: transform 140ms ease;
+}
+
+.constituency-tool-drawer[open] > summary > span {
+  transform: rotate(180deg);
+}
+
+.constituency-tool-drawer-body {
+  padding: 0 16px 16px;
+}
+
+.constituency-tool-drawer .representative-import-card {
+  margin-top: 0;
+  border-color: var(--ge-border);
+  background: var(--ge-surface);
+  box-shadow: none;
+}
+
+.constituency-attention-row--compact {
+  min-height: 68px;
+  grid-template-columns: 44px minmax(0, 1fr) minmax(180px, auto);
+  padding: 10px 12px;
+}
+
+.constituency-attention-row--compact .constituency-attention-number {
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+}
+
+.constituency-attention-row--compact .constituency-attention-main small {
+  max-width: 520px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.constituency-source-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 9px 12px;
+  border: 1px solid var(--ge-warning-border);
+  border-radius: 11px;
+  background: var(--ge-warning-bg);
+  color: var(--ge-warning);
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.constituency-source-note > span {
+  min-width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--ge-radius-pill);
+  background: var(--ge-brand-accent);
+  color: var(--ge-text-on-dark);
+  font-weight: 900;
+}
+
+@media (max-width: 980px) {
+  .constituency-dashboard-kpis--compact {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .constituency-area-grid--priority {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .constituency-dashboard-content--compact {
+    width: min(100% - 28px, 1180px);
+  }
+
+  .constituency-dashboard-hero--compact {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .constituency-dashboard-hero--compact .constituency-dashboard-actions {
+    margin-top: 10px;
+  }
+
+  .constituency-attention-row--compact {
+    grid-template-columns: 42px minmax(0, 1fr);
+  }
+
+  .constituency-attention-row--compact .constituency-attention-flags {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 560px) {
+  .constituency-dashboard-kpis--compact,
+  .constituency-area-grid--priority {
+    grid-template-columns: 1fr;
+  }
+
+  .constituency-area-compact-stats {
+    grid-template-columns: repeat(3, minmax(72px, 1fr));
+    overflow-x: auto;
+  }
+
+  .constituency-tool-drawer-body {
+    padding-inline: 10px;
+  }
+}
