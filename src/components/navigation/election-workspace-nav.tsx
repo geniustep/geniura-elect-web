@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 
 type ElectRole = "observer" | "coordinator" | "manager";
 type NavIconName = "overview" | "command" | "results" | "setup" | "users" | "back";
@@ -72,13 +73,28 @@ function NavIcon({ name }: { name: NavIconName }) {
 export function ElectionWorkspaceNav({ role }: { role: ElectRole }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   const match = pathname.match(/^\/elections\/([^/]+)/);
   const electionId = match?.[1] ?? null;
+  const workspaceEnabled = Boolean(electionId) && role !== "observer";
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     setOpen(false);
   }, [pathname]);
+
+  useEffect(() => {
+    if (!workspaceEnabled) return;
+
+    document.body.classList.add("has-election-workspace");
+    return () => {
+      document.body.classList.remove("has-election-workspace");
+    };
+  }, [workspaceEnabled]);
 
   useEffect(() => {
     if (!open) return;
@@ -97,7 +113,7 @@ export function ElectionWorkspaceNav({ role }: { role: ElectRole }) {
     };
   }, [open]);
 
-  if (!electionId || role === "observer") {
+  if (!workspaceEnabled || !electionId) {
     return null;
   }
 
@@ -178,7 +194,7 @@ export function ElectionWorkspaceNav({ role }: { role: ElectRole }) {
       </Link>
     ));
 
-  const nav = (
+  const renderNav = () => (
     <>
       <div className="election-workspace-head">
         <div className="election-workspace-mark" aria-hidden="true">
@@ -221,6 +237,39 @@ export function ElectionWorkspaceNav({ role }: { role: ElectRole }) {
     </>
   );
 
+  const workspaceLayer =
+    mounted &&
+    createPortal(
+      <>
+        <aside className="election-workspace-sidebar">{renderNav()}</aside>
+
+        <button
+          className={`election-workspace-overlay${open ? " is-open" : ""}`}
+          type="button"
+          aria-label="إغلاق قائمة الاستحقاق"
+          onClick={() => setOpen(false)}
+        />
+
+        <aside
+          className={`election-workspace-drawer${open ? " is-open" : ""}`}
+          aria-hidden={!open}
+        >
+          <div className="election-workspace-drawer-top">
+            <span>مساحة الاستحقاق</span>
+            <button
+              type="button"
+              aria-label="إغلاق القائمة"
+              onClick={() => setOpen(false)}
+            >
+              ×
+            </button>
+          </div>
+          {renderNav()}
+        </aside>
+      </>,
+      document.body,
+    );
+
   return (
     <>
       <button
@@ -237,32 +286,7 @@ export function ElectionWorkspaceNav({ role }: { role: ElectRole }) {
         </span>
         <span>القائمة</span>
       </button>
-
-      <aside className="election-workspace-sidebar">{nav}</aside>
-
-      <button
-        className={`election-workspace-overlay${open ? " is-open" : ""}`}
-        type="button"
-        aria-label="إغلاق قائمة الاستحقاق"
-        onClick={() => setOpen(false)}
-      />
-
-      <aside
-        className={`election-workspace-drawer${open ? " is-open" : ""}`}
-        aria-hidden={!open}
-      >
-        <div className="election-workspace-drawer-top">
-          <span>مساحة الاستحقاق</span>
-          <button
-            type="button"
-            aria-label="إغلاق القائمة"
-            onClick={() => setOpen(false)}
-          >
-            ×
-          </button>
-        </div>
-        {nav}
-      </aside>
+      {workspaceLayer}
     </>
   );
 }
