@@ -1281,7 +1281,7 @@ export function AreaOperationsTable({
                     >
                       <div className="area-operations-office-number">
                         <strong>{office.number}</strong>
-                        <small>{office.code}</small>
+                        <small>{structure?.code ?? "—"}</small>
                       </div>
 
                       <div className="area-operations-center">
