@@ -3,6 +3,7 @@ import { Tajawal } from "next/font/google";
 import "./globals.css";
 import "./redesign.css";
 import "./design-tokens.css";
+import "./election-workspace.css";
 
 const tajawal = Tajawal({
   subsets: ["arabic"],
