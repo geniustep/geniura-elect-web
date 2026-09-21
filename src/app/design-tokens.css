@@ -56,14 +56,33 @@
      Success/warning remain semantic rather than brand colors.
      Danger follows the login error treatment. */
   --ge-success: #0b765b;
+  --ge-success-strong: #067647;
+  --ge-success-bright: #12b76a;
   --ge-success-bg: #edf7f3;
+  --ge-success-bg-soft: #effbf5;
   --ge-success-border: #bfe0d3;
+
   --ge-warning: #8a631d;
+  --ge-warning-strong: #b54708;
+  --ge-warning-bright: #f79009;
   --ge-warning-bg: #fff8e7;
+  --ge-warning-bg-soft: #fffaeb;
   --ge-warning-border: #ead5a4;
+  --ge-warning-border-strong: #fedf89;
+
   --ge-danger: #9f2d18;
   --ge-danger-bg: #fff5f2;
   --ge-danger-border: #f1c1b5;
+
+  --ge-info: #175cd3;
+  --ge-info-bg: #eff8ff;
+  --ge-info-border: #b2ddff;
+
+  --ge-review: #65469d;
+  --ge-review-bg: #f3effa;
+
+  --ge-accent-text: #995814;
+  --ge-accent-pale: #ffd29a;
 
   /* Shape */
   --ge-radius-control: 16px;
