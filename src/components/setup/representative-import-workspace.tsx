@@ -238,6 +238,75 @@ function normalizeText(value: unknown) {
     .trim();
 }
 
+function excelCellValueText(value: unknown): string {
+  if (value === null || value === undefined) return "";
+
+  if (
+    typeof value === "string" ||
+    typeof value === "number" ||
+    typeof value === "boolean" ||
+    typeof value === "bigint"
+  ) {
+    return String(value);
+  }
+
+  if (value instanceof Date) {
+    return value.toISOString();
+  }
+
+  if (typeof value !== "object") return "";
+
+  const complex = value as {
+    text?: unknown;
+    richText?: Array<{ text?: unknown } | null>;
+    result?: unknown;
+    formula?: unknown;
+    sharedFormula?: unknown;
+  };
+
+  if (Array.isArray(complex.richText)) {
+    return complex.richText
+      .map((part) => excelCellValueText(part?.text))
+      .join("");
+  }
+
+  if (complex.text !== null && complex.text !== undefined) {
+    return excelCellValueText(complex.text);
+  }
+
+  if (complex.result !== null && complex.result !== undefined) {
+    return excelCellValueText(complex.result);
+  }
+
+  if (complex.formula !== null && complex.formula !== undefined) {
+    return excelCellValueText(complex.formula);
+  }
+
+  if (
+    complex.sharedFormula !== null &&
+    complex.sharedFormula !== undefined
+  ) {
+    return excelCellValueText(complex.sharedFormula);
+  }
+
+  return "";
+}
+
+function safeCellText(cell: ExcelJS.Cell) {
+  try {
+    return excelCellValueText(cell.value);
+  } catch {
+    return "";
+  }
+}
+
+function workbookReadErrorMessage(cause: unknown) {
+  const message = cause instanceof Error ? cause.message : "";
+  return message && /[\u0600-\u06FF]/.test(message)
+    ? message
+    : "تعذر قراءة بعض خلايا ملف Excel بسبب تنسيق داخلي غير معتاد. لا تعدّل الملف؛ أعد اختياره بعد تحديث الصفحة، وإذا استمر الخطأ فأرسل الملف نفسه للفحص.";
+}
+
 function normalizeDigits(value: string) {
   return value
     .replace(/[٠-٩]/g, (digit) => String("٠١٢٣٤٥٦٧٨٩".indexOf(digit)))
@@ -258,7 +327,7 @@ function findHeaders(worksheet: ExcelJS.Worksheet): HeaderMap | null {
     const maxColumns = Math.max(row.cellCount, 12);
 
     for (let column = 1; column <= maxColumns; column += 1) {
-      const key = normalizeText(row.getCell(column).text);
+      const key = normalizeText(safeCellText(row.getCell(column)));
       if (key) cells.set(key, column);
     }
 
@@ -346,10 +415,10 @@ async function parseObserverWorkbook(
   ) {
     const row = worksheet.getRow(rowNumber);
     const officeNumber = positiveInteger(
-      row.getCell(header.officeNumber).text,
+      safeCellText(row.getCell(header.officeNumber)),
     );
     const observerName = normalizeText(
-      row.getCell(header.observerName).text,
+      safeCellText(row.getCell(header.observerName)),
     );
 
     if (!officeNumber && !observerName) continue;
@@ -362,13 +431,13 @@ async function parseObserverWorkbook(
       office_number: officeNumber,
       observer_name: observerName,
       phone: header.phone
-        ? normalizeText(row.getCell(header.phone).text)
+        ? normalizeText(safeCellText(row.getCell(header.phone)))
         : "",
       voter_number: header.voterNumber
-        ? normalizeText(row.getCell(header.voterNumber).text)
+        ? normalizeText(safeCellText(row.getCell(header.voterNumber)))
         : "",
       rbo: header.rbo
-        ? normalizeText(row.getCell(header.rbo).text)
+        ? normalizeText(safeCellText(row.getCell(header.rbo)))
         : "",
     });
   }
@@ -450,9 +519,7 @@ export function RepresentativeImportWorkspace({
       setRows([]);
       setSourceInfo(null);
       setFileName("");
-      setError(
-        cause instanceof Error ? cause.message : "تعذر قراءة ملف Excel.",
-      );
+      setError(workbookReadErrorMessage(cause));
     } finally {
       setBusy(false);
     }
