@@ -50,6 +50,8 @@ export function NavigationFeedback() {
   );
 
   useEffect(() => {
+    // Route completion intentionally clears navigation feedback after pathname changes.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     stopPending();
   }, [pathname, stopPending]);
 

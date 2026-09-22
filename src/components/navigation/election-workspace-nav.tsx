@@ -80,10 +80,14 @@ export function ElectionWorkspaceNav({ role }: { role: ElectRole }) {
   const workspaceEnabled = Boolean(electionId) && role !== "observer";
 
   useEffect(() => {
+    // Mount detection is intentionally driven by an effect to avoid SSR-only rendering.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
   }, []);
 
   useEffect(() => {
+    // Closing the mobile workspace after route changes is intentional UI synchronization.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setOpen(false);
   }, [pathname]);
 
