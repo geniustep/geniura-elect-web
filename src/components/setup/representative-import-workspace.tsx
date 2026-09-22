@@ -318,6 +318,14 @@ function positiveInteger(value: unknown) {
   return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
 }
 
+function normalizeImportedPhone(value: unknown) {
+  const text = normalizeDigits(normalizeText(value));
+  if (/^[67]\d{8}$/.test(text)) {
+    return `0${text}`;
+  }
+  return text;
+}
+
 function findHeaders(worksheet: ExcelJS.Worksheet): HeaderMap | null {
   const maxRows = Math.min(worksheet.rowCount, 40);
 
@@ -332,17 +340,28 @@ function findHeaders(worksheet: ExcelJS.Worksheet): HeaderMap | null {
     }
 
     const entries = [...cells.entries()];
-    const officeNumber = entries.find(
-      ([key]) =>
-        key.includes("رقم") &&
-        key.includes("مكتب") &&
-        key.includes("التصويت"),
-    )?.[1];
     const observerName = entries.find(
       ([key]) =>
         key.includes("اسم المراقب") ||
         key.includes("الاسم الكامل"),
     )?.[1];
+    const hasPollingOfficeContext = entries.some(
+      ([key]) =>
+        key.includes("المكتب الفرعي") ||
+        key.includes("مكتب التصويت"),
+    );
+    const officeNumber =
+      entries.find(
+        ([key]) =>
+          key.includes("رقم") &&
+          key.includes("مكتب") &&
+          key.includes("التصويت"),
+      )?.[1] ??
+      (observerName && hasPollingOfficeContext
+        ? entries.find(
+            ([key]) => key === "الرقم" || key === "رقم",
+          )?.[1]
+        : undefined);
     const phone = entries.find(
       ([key]) => key.includes("رقم الهاتف") || key === "الهاتف",
     )?.[1];
@@ -350,7 +369,12 @@ function findHeaders(worksheet: ExcelJS.Worksheet): HeaderMap | null {
       ([key]) => key.includes("رقم الناخب"),
     )?.[1];
     const rbo = entries.find(
-      ([key]) => key.replace(/\s+/g, "") === "ربو",
+      ([key]) =>
+        key.replace(/\s+/g, "") === "ربو" ||
+        key.includes("رقم البطاقة الوطنية") ||
+        key.includes("رقم البطاقه الوطنيه") ||
+        key === "البطاقة الوطنية" ||
+        key === "البطاقه الوطنيه",
     )?.[1];
 
     if (officeNumber && observerName) {
@@ -402,7 +426,7 @@ async function parseObserverWorkbook(
 
   if (!worksheet || !header) {
     throw new Error(
-      "لم أتعرف على تنسيق الملف: يجب أن يحتوي على «رقم مكتب التصويت» و«الإسم الكامل/اسم المراقب».",
+      "لم أتعرف على تنسيق الملف: يجب أن يحتوي على عمود لرقم المكتب مثل «رقم مكتب التصويت/الرقم» وعمود «الإسم الكامل/اسم المراقب».",
     );
   }
 
@@ -431,7 +455,7 @@ async function parseObserverWorkbook(
       office_number: officeNumber,
       observer_name: observerName,
       phone: header.phone
-        ? normalizeText(safeCellText(row.getCell(header.phone)))
+        ? normalizeImportedPhone(safeCellText(row.getCell(header.phone)))
         : "",
       voter_number: header.voterNumber
         ? normalizeText(safeCellText(row.getCell(header.voterNumber)))

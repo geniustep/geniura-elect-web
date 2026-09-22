@@ -58,19 +58,8 @@ export default async function PollingAreaPage({
   const area = dashboard.areas.find((item) => item.id === numericAreaId);
   if (!area) notFound();
 
-  const isAreaScopedCoordinator =
-    user.role === "coordinator" &&
-    user.scope_mode === "polling_areas" &&
-    Boolean(
-      user.polling_areas?.some(
-        (item) =>
-          item.id === numericAreaId &&
-          item.election_id === Number(electionId),
-      ),
-    );
-
   const canRequestManagement =
-    user.role === "manager" || isAreaScopedCoordinator;
+    user.role === "manager" || user.role === "coordinator";
 
   let management: AreaManagementSnapshot | null = null;
   if (canRequestManagement) {
