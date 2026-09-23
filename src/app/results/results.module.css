@@ -3942,3 +3942,222 @@
     gap: 2px;
   }
 }
+
+
+/* Roomier public results cards */
+.simpleResultsShell {
+  width: min(1760px, 100%);
+  padding-inline: 18px;
+}
+
+.simpleResultsPanel {
+  padding: 10px 12px 12px;
+}
+
+.simpleResultsHead {
+  grid-template-columns: 1fr;
+  min-height: 38px;
+}
+
+.simpleResultsHead .simpleColumnLabels {
+  display: none;
+}
+
+.simpleResultsColumns {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.simpleResultsColumnsSingle {
+  grid-template-columns: 1fr;
+}
+
+.simpleResultsColumn {
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 5px;
+  padding: 8px;
+  border: 1px solid #e5eaf0;
+  border-radius: 14px;
+  background: #fbfcfe;
+}
+
+.simpleColumnHeader {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 108px 72px 58px;
+  gap: 10px;
+  padding: 0 12px 4px;
+  color: #8a96a5;
+  font-size: 7px;
+  font-weight: 750;
+}
+
+.simpleResultsList {
+  gap: 6px;
+}
+
+.simplePartyRow {
+  min-height: 48px;
+  grid-template-columns: minmax(0, 1fr) 108px 72px 58px;
+  gap: 10px;
+  padding: 7px 12px;
+  border: 1px solid #e6ebf0;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 3px 10px rgba(0, 45, 98, 0.035);
+}
+
+.simplePartyRow:last-child {
+  border-bottom: 1px solid #e6ebf0;
+}
+
+.simplePartyRow:nth-child(even) {
+  background: #fff;
+}
+
+.simplePartyIdentity {
+  grid-template-columns: 32px 42px minmax(0, 1fr);
+  gap: 9px;
+}
+
+.simpleBallotNumber {
+  width: 31px;
+  height: 31px;
+  border-radius: 8px;
+  font-size: 10px;
+}
+
+.simplePartyLogo,
+.simplePartyLogoFallback {
+  width: 42px;
+  height: 42px;
+  border-radius: 9px;
+}
+
+.simplePartyIdentity strong {
+  font-size: clamp(10px, 0.86vw, 13px);
+}
+
+.simplePartyIdentity small {
+  font-size: 8px;
+}
+
+.simpleVotes {
+  font-size: clamp(11px, 0.95vw, 15px);
+}
+
+.simplePercentage,
+.simpleSeats {
+  font-size: clamp(10px, 0.86vw, 13px);
+}
+
+.simpleResultsDense .simplePartyRow {
+  padding-block: 7px;
+}
+
+.simpleResultsDense .simplePartyLogo,
+.simpleResultsDense .simplePartyLogoFallback {
+  width: 42px;
+  height: 42px;
+}
+
+.simpleResultsDense .simplePartyIdentity {
+  grid-template-columns: 32px 42px minmax(0, 1fr);
+  gap: 9px;
+}
+
+.simpleResultsDense .simpleBallotNumber {
+  width: 31px;
+  height: 31px;
+  font-size: 10px;
+}
+
+@media (max-height: 760px) and (min-width: 721px) {
+  .simpleResultsColumns {
+    gap: 8px;
+  }
+
+  .simpleResultsColumn {
+    gap: 3px;
+    padding: 6px;
+  }
+
+  .simpleResultsList {
+    gap: 3px;
+  }
+
+  .simplePartyRow {
+    min-height: 42px;
+    padding: 4px 9px;
+  }
+
+  .simplePartyLogo,
+  .simplePartyLogoFallback {
+    width: 34px;
+    height: 34px;
+  }
+
+  .simplePartyIdentity {
+    grid-template-columns: 28px 34px minmax(0, 1fr);
+    gap: 7px;
+  }
+
+  .simpleBallotNumber {
+    width: 27px;
+    height: 27px;
+  }
+}
+
+@media (max-width: 960px) {
+  .simpleResultsColumns {
+    grid-template-columns: 1fr;
+  }
+
+  .simpleResultsColumn {
+    overflow: visible;
+  }
+
+  .simpleResultsList {
+    grid-auto-rows: auto;
+    overflow: visible;
+  }
+}
+
+@media (max-width: 720px) {
+  .simpleResultsShell {
+    padding-inline: 6px;
+  }
+
+  .simpleResultsColumn {
+    padding: 5px;
+  }
+
+  .simpleColumnHeader {
+    grid-template-columns: minmax(0, 1fr) 72px 56px;
+  }
+
+  .simpleColumnHeader span:last-child {
+    display: none;
+  }
+
+  .simplePartyRow {
+    min-height: 62px;
+    grid-template-columns: minmax(0, 1fr) 72px 56px;
+    padding: 8px;
+  }
+
+  .simplePartyLogo,
+  .simplePartyLogoFallback {
+    width: 36px;
+    height: 36px;
+  }
+
+  .simplePartyIdentity {
+    grid-template-columns: 27px 36px minmax(0, 1fr);
+    gap: 7px;
+  }
+}
