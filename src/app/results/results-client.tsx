@@ -383,8 +383,10 @@ function ResultsSummary({
 
 export function PublicResultsClient({
   displayMode,
+  constituencyCode,
 }: {
   displayMode: "default" | "tv";
+  constituencyCode: string | null;
 }) {
   const [snapshot, setSnapshot] = useState<PublicResultsPayload | null>(null);
   const [loadState, setLoadState] = useState<LoadState>("loading");
@@ -398,7 +400,10 @@ export function PublicResultsClient({
     if (!initial) setRefreshing(true);
 
     try {
-      const response = await fetch("/api/public/results", {
+      const resultsUrl = constituencyCode
+        ? `/api/public/results?code=${encodeURIComponent(constituencyCode)}`
+        : "/api/public/results";
+      const response = await fetch(resultsUrl, {
         method: "GET",
         headers: {
           Accept: "application/json",
@@ -426,7 +431,7 @@ export function PublicResultsClient({
     } finally {
       if (mountedRef.current) setRefreshing(false);
     }
-  }, []);
+  }, [constituencyCode]);
 
   useEffect(() => {
     mountedRef.current = true;
