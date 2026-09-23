@@ -10,6 +10,23 @@ import type {
 } from "@/lib/elect/types";
 
 type EditableSection = ProtocolSection;
+type SharedCounts = {
+  registered_voters: number;
+  voters: number;
+  ballots_cast: number;
+};
+
+const sectionNames = {
+  local: "النتيجة المحلية",
+  regional: "النتيجة الجهوية",
+} as const;
+
+const legacyFields = [
+  ["valid_votes", "الأصوات الصحيحة"],
+  ["invalid_votes", "غير الصحيحة (تصنيف مؤقت)"],
+  ["blank_votes", "بدون اختيار (تصنيف مؤقت)"],
+  ["other_nonvalid_votes", "أخرى غير صحيحة (تصنيف مؤقت)"],
+] as const;
 
 function initialSections(
   protocol: ProtocolRecord | null,
@@ -18,10 +35,14 @@ function initialSections(
   return structuredClone(protocol?.sections ?? template.sections);
 }
 
-const sectionNames = {
-  local: "النتيجة المحلية",
-  regional: "النتيجة الجهوية",
-} as const;
+function initialSharedCounts(sections: EditableSection[]): SharedCounts {
+  const source = sections[0];
+  return {
+    registered_voters: Number(source?.registered_voters ?? 0),
+    voters: Number(source?.voters ?? 0),
+    ballots_cast: Number(source?.ballots_cast ?? 0),
+  };
+}
 
 export function ProtocolEntryForm({
   officeId,
@@ -36,10 +57,16 @@ export function ProtocolEntryForm({
   const [sections, setSections] = useState<EditableSection[]>(() =>
     initialSections(protocol, template),
   );
+  const [shared, setShared] = useState<SharedCounts>(() =>
+    initialSharedCounts(initialSections(protocol, template)),
+  );
   const [pending, setPending] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const locked =
     protocol?.state === "validated" || protocol?.state === "verified";
+
+  const candidacyReady =
+    sections.length > 0 && sections.every((section) => section.results.length > 0);
 
   const localChecks = useMemo(
     () =>
@@ -59,24 +86,29 @@ export function ProtocolEntryForm({
           listTotal,
           accounted,
           listMatches: listTotal === Number(section.valid_votes || 0),
-          ballotsMatch: accounted === Number(section.ballots_cast || 0),
+          ballotsMatch: accounted === Number(shared.ballots_cast || 0),
         };
       }),
-    [sections],
+    [sections, shared.ballots_cast],
   );
 
-  function updateCount(
+  const voterBallotGap = shared.voters - shared.ballots_cast;
+
+  function updateShared(
+    field: "voters" | "ballots_cast",
+    value: string,
+  ) {
+    const number = Math.max(0, Number.parseInt(value || "0", 10) || 0);
+    setShared((current) => ({ ...current, [field]: number }));
+  }
+
+  function updateSectionCount(
     sectionIndex: number,
-    field: keyof Pick<
-      ProtocolSection,
-      | "registered_voters"
-      | "voters"
-      | "ballots_cast"
+    field:
       | "valid_votes"
       | "invalid_votes"
       | "blank_votes"
-      | "other_nonvalid_votes"
-    >,
+      | "other_nonvalid_votes",
     value: string,
   ) {
     const number = Math.max(0, Number.parseInt(value || "0", 10) || 0);
@@ -107,21 +139,35 @@ export function ProtocolEntryForm({
     );
   }
 
+  function updateObservations(sectionIndex: number, value: string) {
+    setSections((current) =>
+      current.map((section, index) =>
+        index === sectionIndex ? { ...section, observations: value } : section,
+      ),
+    );
+  }
+
   async function save(event: FormEvent) {
     event.preventDefault();
+    if (!candidacyReady) {
+      setMessage("لا يمكن حفظ النتائج قبل تحميل لوائح الترشيح الرسمية.");
+      return;
+    }
+
     setPending(true);
     setMessage(null);
 
     const payload = {
       sections: sections.map((section) => ({
         kind: section.kind,
-        registered_voters: section.registered_voters,
-        voters: section.voters,
-        ballots_cast: section.ballots_cast,
+        registered_voters: shared.registered_voters,
+        voters: shared.voters,
+        ballots_cast: shared.ballots_cast,
         valid_votes: section.valid_votes,
         invalid_votes: section.invalid_votes,
         blank_votes: section.blank_votes,
         other_nonvalid_votes: section.other_nonvalid_votes,
+        observations: section.observations ?? "",
         results: section.results.map((result) => ({
           candidate_list_id: result.candidate_list.id,
           votes: result.votes,
@@ -141,7 +187,11 @@ export function ProtocolEntryForm({
       const result = await response.json();
 
       if (!response.ok || !result.success) {
-        setMessage(result?.error?.message ?? "تعذر حفظ المحضر.");
+        const fallback =
+          response.status === 422
+            ? "تعذر حفظ المحضر بسبب عدم تطابق بعض البيانات. راجع الحقول والتنبيهات."
+            : "تعذر حفظ المحضر.";
+        setMessage(result?.error?.message ?? fallback);
         return;
       }
 
@@ -156,8 +206,92 @@ export function ProtocolEntryForm({
 
   return (
     <form className="protocol-form" onSubmit={save}>
+      <section className="protocol-section shared-counts-card">
+        <div className="section-heading">
+          <div>
+            <p className="eyebrow">POLLING OFFICE COUNTS</p>
+            <h2>المعطيات المشتركة للمكتب</h2>
+            <p>تُستعمل القيم نفسها في النتيجتين المحلية والجهوية.</p>
+          </div>
+        </div>
+
+        <div className="shared-count-grid">
+          <label>
+            <span>المسجلون</span>
+            <input
+              type="number"
+              inputMode="numeric"
+              readOnly
+              aria-readonly="true"
+              value={shared.registered_voters}
+            />
+            <small>قيمة النظام الرسمية للمكتب</small>
+          </label>
+          <label>
+            <span>المصوتون</span>
+            <input
+              type="number"
+              inputMode="numeric"
+              min={0}
+              disabled={locked || pending}
+              value={shared.voters}
+              onChange={(event) => updateShared("voters", event.target.value)}
+            />
+          </label>
+          <label>
+            <span>الأوراق الموجودة بالصندوق</span>
+            <input
+              type="number"
+              inputMode="numeric"
+              min={0}
+              disabled={locked || pending}
+              value={shared.ballots_cast}
+              onChange={(event) =>
+                updateShared("ballots_cast", event.target.value)
+              }
+            />
+          </label>
+        </div>
+
+        {voterBallotGap !== 0 ? (
+          <div className="protocol-alert protocol-alert-warning" role="status">
+            <strong>تنبيه غير مانع</strong>
+            <span>
+              يوجد فرق بين عدد المصوتين وعدد الأوراق الموجودة بالصندوق
+              (الفرق: {Math.abs(voterBallotGap)}).
+            </span>
+          </div>
+        ) : null}
+
+        {protocol?.warnings?.has_warnings ? (
+          <div className="protocol-alert protocol-alert-warning" role="status">
+            <strong>تنبيه الخادم</strong>
+            <span>{protocol.warnings.message}</span>
+          </div>
+        ) : null}
+
+        {protocol?.consistency.state === "inconsistent" ? (
+          <div className="protocol-alert protocol-alert-error" role="alert">
+            <strong>خطأ يمنع التحقق</strong>
+            <span>{protocol.consistency.message}</span>
+          </div>
+        ) : null}
+      </section>
+
+      {!candidacyReady ? (
+        <section className="protocol-section candidacy-blocker" role="alert">
+          <p className="eyebrow">CANDIDACY DATA REQUIRED</p>
+          <h2>لوائح الترشيح غير محمّلة</h2>
+          <p>
+            لم تُحمّل لوائح الترشيح لهذه الدائرة بعد. لا يمكن إدخال أصوات
+            اللوائح أو حفظ نتيجة فعلية إلى أن تُعتمد البيانات الرسمية.
+          </p>
+        </section>
+      ) : null}
+
       {sections.map((section, sectionIndex) => {
         const check = localChecks[sectionIndex];
+        const hardMismatch = !check.listMatches || !check.ballotsMatch;
         return (
           <section className="protocol-section" key={section.kind}>
             <div className="section-heading">
@@ -169,43 +303,47 @@ export function ProtocolEntryForm({
               <div className="consistency-stack">
                 <span
                   className={
-                    check.listMatches && check.ballotsMatch
-                      ? "consistency ok"
-                      : "consistency pending"
+                    hardMismatch ? "consistency pending" : "consistency ok"
                   }
                 >
-                  {check.listMatches && check.ballotsMatch
-                    ? "الأرقام متوازنة"
-                    : "راجع التوازن"}
+                  {hardMismatch ? "راجع التوازن" : "الأرقام متوازنة"}
                 </span>
               </div>
             </div>
 
-            <div className="count-grid">
-              {[
-                ["registered_voters", "المسجلون"],
-                ["voters", "المصوتون"],
-                ["ballots_cast", "الأوراق المحتسبة"],
-                ["valid_votes", "الأصوات الصحيحة"],
-                ["invalid_votes", "الأصوات الملغاة"],
-                ["blank_votes", "الأوراق البيضاء"],
-                ["other_nonvalid_votes", "غير صحيحة أخرى"],
-              ].map(([field, label]) => (
+            {section.warnings?.has_warnings ? (
+              <div className="protocol-alert protocol-alert-warning" role="status">
+                <strong>تنبيه</strong>
+                <span>{section.warnings.message}</span>
+              </div>
+            ) : null}
+
+            {section.consistency?.state === "inconsistent" ? (
+              <div className="protocol-alert protocol-alert-error" role="alert">
+                <strong>عدم اتساق</strong>
+                <span>{section.consistency.message}</span>
+              </div>
+            ) : null}
+
+            <div className="provisional-note">
+              تصنيف بعض فئات الأوراق أدناه مؤقت إلى حين اعتماد نموذج
+              المحضر الرسمي لسنة 2026.
+            </div>
+
+            <div className="count-grid section-count-grid">
+              {legacyFields.map(([field, label]) => (
                 <label key={field}>
                   <span>{label}</span>
                   <input
                     type="number"
+                    inputMode="numeric"
                     min={0}
                     disabled={locked || pending}
-                    value={String(
-                      section[
-                        field as keyof ProtocolSection
-                      ] as number,
-                    )}
+                    value={String(section[field])}
                     onChange={(event) =>
-                      updateCount(
+                      updateSectionCount(
                         sectionIndex,
-                        field as Parameters<typeof updateCount>[1],
+                        field,
                         event.target.value,
                       )
                     }
@@ -221,62 +359,84 @@ export function ProtocolEntryForm({
               <span>
                 مجموع الأوراق المصنفة: <strong>{check.accounted}</strong>
               </span>
+              <span>
+                الأوراق بالصندوق: <strong>{shared.ballots_cast}</strong>
+              </span>
             </div>
 
-            <div className="results-table">
-              <div className="results-head">
-                <span>اللائحة</span>
-                <span>الأصوات</span>
-              </div>
-              {section.results.map((result, resultIndex) => (
-                <label
-                  className="result-row"
-                  key={result.candidate_list.id}
-                >
-                  <span>
-                    <b>{result.candidate_list.ballot_number ?? "—"}</b>
+            {section.results.length ? (
+              <div className="results-table">
+                <div className="results-head">
+                  <span>اللائحة</span>
+                  <span>الأصوات</span>
+                </div>
+                {section.results.map((result, resultIndex) => (
+                  <label
+                    className="result-row"
+                    key={result.candidate_list.id}
+                  >
                     <span>
-                      {result.candidate_list.name}
-                      {result.candidate_list.party?.short_name
-                        ? ` · ${result.candidate_list.party.short_name}`
-                        : ""}
+                      <b>{result.candidate_list.ballot_number ?? "—"}</b>
+                      <span>
+                        {result.candidate_list.name}
+                        {result.candidate_list.party?.short_name
+                          ? ` · ${result.candidate_list.party.short_name}`
+                          : result.candidate_list.party?.name
+                            ? ` · ${result.candidate_list.party.name}`
+                            : ""}
+                      </span>
                     </span>
-                  </span>
-                  <input
-                    type="number"
-                    min={0}
-                    disabled={locked || pending}
-                    value={result.votes}
-                    onChange={(event) =>
-                      updateVotes(
-                        sectionIndex,
-                        resultIndex,
-                        event.target.value,
-                      )
-                    }
-                  />
-                </label>
-              ))}
-            </div>
+                    <input
+                      type="number"
+                      inputMode="numeric"
+                      min={0}
+                      aria-label={`أصوات ${result.candidate_list.name}`}
+                      disabled={locked || pending}
+                      value={result.votes}
+                      onChange={(event) =>
+                        updateVotes(
+                          sectionIndex,
+                          resultIndex,
+                          event.target.value,
+                        )
+                      }
+                    />
+                  </label>
+                ))}
+              </div>
+            ) : null}
+
+            <label className="observation-field">
+              <span>ملاحظات المحضر</span>
+              <textarea
+                rows={3}
+                disabled={locked || pending}
+                value={section.observations ?? ""}
+                onChange={(event) =>
+                  updateObservations(sectionIndex, event.target.value)
+                }
+                placeholder="اكتب فقط الملاحظات المثبتة في المحضر أو اللازمة للمراجعة."
+              />
+            </label>
           </section>
         );
       })}
 
-      <div className="form-footer">
+      <div className="form-footer protocol-save-bar">
         <div>
           {message ? <p className="inline-message">{message}</p> : null}
           {locked ? (
             <p className="inline-message">
-              هذا المحضر مقفل لأنه وصل إلى حالة {protocol?.state}.
+              المحضر مقفل بعد التحقق/الاعتماد ولا يمكن تعديل بياناته مباشرة.
             </p>
           ) : null}
         </div>
         <button
           className="primary-button"
           type="submit"
-          disabled={pending || locked}
+          disabled={pending || locked || !candidacyReady}
         >
-          {pending ? "جارٍ الحفظ..." : "حفظ المحضر"}
+          {pending ? "جارٍ الحفظ..." : "حفظ بيانات المحضر"}
         </button>
       </div>
     </form>

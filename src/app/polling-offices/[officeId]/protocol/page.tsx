@@ -5,6 +5,7 @@ import { AppHeader } from "@/components/navigation/app-header";
 import { ProtocolEntryForm } from "@/components/protocol/protocol-entry-form";
 import { ProtocolWorkflow } from "@/components/protocol/protocol-workflow";
 import type {
+  PollingOffice,
   ProtocolRecord,
   ProtocolTemplate,
 } from "@/lib/elect/types";
@@ -21,6 +22,10 @@ type ProtocolPayload = {
   template: ProtocolTemplate;
 };
 
+type OfficePayload = {
+  polling_office: PollingOffice;
+};
+
 export default async function ProtocolPage({
   params,
 }: {
@@ -33,11 +38,20 @@ export default async function ProtocolPage({
   const sessionId = await readElectSessionId();
 
   let data: ProtocolPayload;
+  let office: PollingOffice;
   try {
-    data = await backendRequest<ProtocolPayload>(
-      `/api/v1/polling-offices/${officeId}/protocol`,
-      { method: "GET", sessionId },
-    );
+    const [protocolData, officeData] = await Promise.all([
+      backendRequest<ProtocolPayload>(
+        `/api/v1/polling-offices/${officeId}/protocol`,
+        { method: "GET", sessionId },
+      ),
+      backendRequest<OfficePayload>(
+        `/api/v1/polling-offices/${officeId}`,
+        { method: "GET", sessionId },
+      ),
+    ]);
+    data = protocolData;
+    office = officeData.polling_office;
   } catch {
     notFound();
   }
@@ -59,14 +73,44 @@ export default async function ProtocolPage({
             <p className="eyebrow">PROTOCOL / PV</p>
             <h1>إدخال محضر مكتب التصويت</h1>
             <p>
-              أدخل الأرقام كما وردت في المحضر. لن يعتبر النظام النتيجة
-              رسمية، وسيبقى التحقق والاعتماد مرحلتين منفصلتين.
+              أدخل البيانات كما وردت في المحضر، وارفع الوثيقتين المحلية
+              والجهوية. التحقق والاعتماد مرحلتان منفصلتان.
             </p>
           </div>
           <span className="state-pill">
             {data.protocol?.state ?? "جديد"}
           </span>
         </div>
+
+        <article className="protocol-office-card" aria-label="هوية مكتب التصويت">
+          <div>
+            <p className="eyebrow">OFFICE CONFIRMATION</p>
+            <h2>مكتب التصويت رقم {office.number}</h2>
+            <p>{office.center.name}</p>
+          </div>
+          <dl className="protocol-office-grid">
+            <div>
+              <dt>الجماعة / المقاطعة</dt>
+              <dd>{office.area?.name || office.center.commune || "—"}</dd>
+            </div>
+            <div>
+              <dt>العنوان</dt>
+              <dd>{office.center.address || "—"}</dd>
+            </div>
+            <div>
+              <dt>المكتب المركزي</dt>
+              <dd>
+                {office.central_office
+                  ? `${office.central_office.number} · ${office.central_office.name || "—"}`
+                  : "—"}
+              </dd>
+            </div>
+            <div>
+              <dt>الدائرة</dt>
+              <dd>{office.constituency.name}</dd>
+            </div>
+          </dl>
+        </article>
 
         <div className="protocol-layout">
           <ProtocolEntryForm

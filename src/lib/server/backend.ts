@@ -49,10 +49,10 @@ function backendTimeout(): number {
   return Number.isFinite(configured) && configured > 0 ? configured : 10000;
 }
 
-export async function backendHttp<T>(
+export async function backendRawRequest(
   path: string,
   options: BackendRequestOptions = {},
-): Promise<BackendHttpResult<T>> {
+): Promise<Response> {
   if (!path.startsWith("/")) {
     throw new Error("Backend paths must start with '/'.");
   }
@@ -62,7 +62,9 @@ export async function backendHttp<T>(
 
   try {
     const headers = new Headers(options.headers);
-    headers.set("Accept", "application/json");
+    if (!headers.has("Accept")) {
+      headers.set("Accept", "application/json");
+    }
     headers.set("X-Geniura-BFF-Key", backendGatewaySecret());
 
     if (options.body !== undefined) {
@@ -73,7 +75,7 @@ export async function backendHttp<T>(
       headers.set("Cookie", `session_id=${options.sessionId}`);
     }
 
-    const response = await fetch(`${backendBaseUrl()}${path}`, {
+    return await fetch(`${backendBaseUrl()}${path}`, {
       ...options,
       body:
         options.body === undefined ? undefined : JSON.stringify(options.body),
@@ -81,18 +83,24 @@ export async function backendHttp<T>(
       cache: "no-store",
       signal: controller.signal,
     });
-
-    const payload = (await response
-      .json()
-      .catch(() => null)) as BackendEnvelope<T> | null;
-
-    return {
-      response,
-      payload,
-    };
   } finally {
     clearTimeout(timeout);
   }
+}
+
+export async function backendHttp<T>(
+  path: string,
+  options: BackendRequestOptions = {},
+): Promise<BackendHttpResult<T>> {
+  const response = await backendRawRequest(path, options);
+  const payload = (await response
+    .json()
+    .catch(() => null)) as BackendEnvelope<T> | null;
+
+  return {
+    response,
+    payload,
+  };
 }
 
 export async function backendRequest<T>(
