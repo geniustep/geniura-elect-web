@@ -28,6 +28,12 @@ type ApiResponse =
 
 type LoadState = "loading" | "ready" | "error";
 
+function isComingSoon(
+  payload: PublicResultsPayload,
+): payload is PublicResultsComingSoon {
+  return payload.publication.visible === false;
+}
+
 const POLL_INTERVAL_MS = 15_000;
 
 function formatInteger(value: number) {
@@ -452,7 +458,7 @@ export function PublicResultsClient({
 
   if (!snapshot) return null;
 
-  if (!snapshot.publication.visible) {
+  if (isComingSoon(snapshot)) {
     return (
       <ComingSoon
         snapshot={snapshot}
