@@ -7019,7 +7019,7 @@ a {
 }
 
 .shared-count-grid {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   margin-top: 18px;
 }
 
@@ -8291,5 +8291,64 @@ a {
 
   .polling-office-index-actions {
     flex-direction: column;
+  }
+}
+
+
+/* PV compact top counts */
+.shared-counts-card {
+  padding: 20px 22px;
+}
+
+.shared-counts-card .section-heading h2 {
+  font-size: 22px;
+}
+
+.shared-count-grid > label {
+  min-height: 112px;
+  align-content: start;
+  padding: 14px;
+  border: 1px solid var(--border);
+  background: #fff;
+}
+
+.shared-count-grid label > span {
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1.5;
+}
+
+.shared-count-grid input {
+  min-height: 54px;
+  margin-top: 3px;
+  font-size: 25px;
+  font-weight: 950;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.shared-count-grid input[readonly] {
+  color: var(--text);
+  background: var(--surface-soft);
+}
+
+.balance-row {
+  margin-top: 14px;
+}
+
+@media (max-width: 980px) {
+  .shared-count-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .shared-count-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .shared-count-grid > label {
+    min-height: 0;
   }
 }

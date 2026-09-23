@@ -51,13 +51,6 @@ const sectionNames = {
   regional: "النتيجة الجهوية",
 } as const;
 
-const legacyFields = [
-  ["valid_votes", "الأصوات الصحيحة"],
-  ["invalid_votes", "غير الصحيحة (تصنيف مؤقت)"],
-  ["blank_votes", "بدون اختيار (تصنيف مؤقت)"],
-  ["other_nonvalid_votes", "أخرى غير صحيحة (تصنيف مؤقت)"],
-] as const;
-
 function initialSections(
   protocol: ProtocolRecord | null,
   template: ProtocolTemplate,
@@ -85,7 +78,7 @@ function initialVoteInputs(
     source.flatMap((section) =>
       section.results.map((result) => [
         result.candidate_list.id,
-        savedProtocol ? String(result.votes) : "",
+        savedProtocol ? String(result.votes) : "0",
       ]),
     ),
   );
@@ -171,6 +164,12 @@ export function ProtocolEntryForm({
         (result) => voteInputs[result.candidate_list.id] !== "",
       ),
     );
+
+  const activeSectionIndex = sections.findIndex(
+    (section) => section.kind === activeKind,
+  );
+  const activeSection =
+    activeSectionIndex >= 0 ? sections[activeSectionIndex] : sections[0];
 
   /* eslint-disable react-hooks/set-state-in-effect -- browser-only draft hydration intentionally restores client state after mount. */
   useEffect(() => {
@@ -296,7 +295,11 @@ export function ProtocolEntryForm({
     value: string,
   ) {
     const number = Math.max(0, Number.parseInt(value || "0", 10) || 0);
-    setShared((current) => ({ ...current, [field]: number }));
+    setShared((current) =>
+      field === "voters"
+        ? { ...current, voters: number, ballots_cast: number }
+        : { ...current, [field]: number },
+    );
   }
 
   function updateSectionCount(
@@ -536,15 +539,15 @@ export function ProtocolEntryForm({
       <section className="protocol-section shared-counts-card">
         <div className="section-heading">
           <div>
-            <p className="eyebrow">POLLING OFFICE COUNTS</p>
-            <h2>المعطيات المشتركة للمكتب</h2>
-            <p>تُستعمل القيم نفسها في النتيجتين المحلية والجهوية.</p>
+            <p className="eyebrow">PROTOCOL COUNTS</p>
+            <h2>بيانات المحضر</h2>
+            <p>أدخل الأرقام الأساسية أولًا، ثم أصوات الأحزاب أسفلها.</p>
           </div>
         </div>
 
         <div className="shared-count-grid">
           <label>
-            <span>المسجلون</span>
+            <span>عدد الناخبين والناخبات</span>
             <input
               type="number"
               inputMode="numeric"
@@ -552,10 +555,11 @@ export function ProtocolEntryForm({
               aria-readonly="true"
               value={shared.registered_voters}
             />
-            <small>قيمة النظام الرسمية للمكتب</small>
+            <small>القيمة المسجلة للمكتب</small>
           </label>
+
           <label>
-            <span>المصوتون</span>
+            <span>عدد المصوتين</span>
             <input
               type="number"
               inputMode="numeric"
@@ -565,30 +569,43 @@ export function ProtocolEntryForm({
               onChange={(event) => updateShared("voters", event.target.value)}
             />
           </label>
+
           <label>
-            <span>الأوراق الموجودة بالصندوق</span>
+            <span>عدد الأوراق الملغاة</span>
             <input
               type="number"
               inputMode="numeric"
               min={0}
-              disabled={locked || pending}
-              value={shared.ballots_cast}
+              disabled={locked || pending || activeSectionIndex < 0}
+              value={activeSection ? String(activeSection.invalid_votes) : "0"}
               onChange={(event) =>
-                updateShared("ballots_cast", event.target.value)
+                updateSectionCount(
+                  activeSectionIndex,
+                  "invalid_votes",
+                  event.target.value,
+                )
+              }
+            />
+          </label>
+
+          <label>
+            <span>عدد الأصوات المعبر عنها</span>
+            <input
+              type="number"
+              inputMode="numeric"
+              min={0}
+              disabled={locked || pending || activeSectionIndex < 0}
+              value={activeSection ? String(activeSection.valid_votes) : "0"}
+              onChange={(event) =>
+                updateSectionCount(
+                  activeSectionIndex,
+                  "valid_votes",
+                  event.target.value,
+                )
               }
             />
           </label>
         </div>
-
-        {voterBallotGap !== 0 ? (
-          <div className="protocol-alert protocol-alert-warning" role="status">
-            <strong>تنبيه غير مانع</strong>
-            <span>
-              يوجد فرق بين عدد المصوتين وعدد الأوراق الموجودة بالصندوق
-              (الفرق: {Math.abs(voterBallotGap)}).
-            </span>
-          </div>
-        ) : null}
 
         {protocol?.warnings?.has_warnings ? (
           <div className="protocol-alert protocol-alert-warning" role="status">
@@ -665,67 +682,17 @@ export function ProtocolEntryForm({
               </div>
             ) : null}
 
-            <div className="provisional-note">
-              تصنيف بعض فئات الأوراق أدناه مؤقت إلى حين اعتماد نموذج
-              المحضر الرسمي لسنة 2026.
-            </div>
-
-            <div className="count-grid section-count-grid">
-              {legacyFields.map(([field, label]) => (
-                <label key={field}>
-                  <span>{label}</span>
-                  <input
-                    type="number"
-                    inputMode="numeric"
-                    min={0}
-                    disabled={locked || pending}
-                    value={String(section[field])}
-                    onChange={(event) =>
-                      updateSectionCount(
-                        sectionIndex,
-                        field,
-                        event.target.value,
-                      )
-                    }
-                  />
-                </label>
-              ))}
-            </div>
-
             <div className="balance-row">
               <span>
-                مجموع أصوات اللوائح: <strong>{check.listTotal}</strong>
+                مجموع أصوات الأحزاب: <strong>{check.listTotal}</strong>
               </span>
               <span>
-                مجموع الأوراق المصنفة: <strong>{check.accounted}</strong>
+                الأصوات المعبر عنها: <strong>{section.valid_votes}</strong>
               </span>
               <span>
-                الأوراق بالصندوق: <strong>{shared.ballots_cast}</strong>
+                الأوراق الملغاة: <strong>{section.invalid_votes}</strong>
               </span>
             </div>
-
-            {section.results.length ? (
-              <div className="section-entry-progress">
-                <div>
-                  <span>تقدم إدخال أصوات اللوائح</span>
-                  <strong>
-                    {progress.entered} من {progress.total}
-                  </strong>
-                </div>
-                <progress
-                  max={Math.max(progress.total, 1)}
-                  value={progress.entered}
-                />
-                <button
-                  type="button"
-                  className="quick-zero-button"
-                  disabled={locked || pending || progress.entered === progress.total}
-                  onClick={() => fillRemainingWithZero(sectionIndex)}
-                >
-                  تعيين الخانات المتبقية إلى 0
-                </button>
-              </div>
-            ) : null}
 
             {section.results.length && entryMode === "table" ? (
               <div className="quick-party-stack">
@@ -778,7 +745,7 @@ export function ProtocolEntryForm({
                         placeholder="0"
                         aria-label={`أصوات ${result.candidate_list.name}`}
                         disabled={locked || pending}
-                        value={voteInputs[result.candidate_list.id] ?? ""}
+                        value={voteInputs[result.candidate_list.id] ?? "0"}
                         onChange={(event) =>
                           updateVotes(
                             sectionIndex,
@@ -935,7 +902,7 @@ export function ProtocolEntryForm({
           {pending
             ? "جارٍ الحفظ..."
             : candidacyReady && allVotesEntered
-              ? "حفظ بيانات المحضر"
+              ? "حفظ المحضر"
               : "أكمل الإدخال للحفظ"}
         </button>
       </div>
