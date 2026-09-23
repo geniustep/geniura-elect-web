@@ -57,6 +57,7 @@ function initialValues(
       name: item?.name ?? "",
       short_name: item?.short_name ?? "",
       code: item?.code ?? "",
+      symbol_name: item?.symbol_name ?? "",
     };
   }
 
@@ -148,6 +149,7 @@ export function CandidacySetupForm({
         name: values.name,
         short_name: values.short_name,
         code: values.code,
+        symbol_name: values.symbol_name,
       };
     } else if (section === "candidates") {
       payload = {
@@ -259,6 +261,16 @@ export function CandidacySetupForm({
                     onChange={(event) =>
                       update("short_name", event.target.value)
                     }
+                  />
+                </label>
+                <label className="setup-field">
+                  <span>الرمز الانتخابي</span>
+                  <input
+                    value={values.symbol_name}
+                    onChange={(event) =>
+                      update("symbol_name", event.target.value)
+                    }
+                    placeholder="مثال: الحمامة"
                   />
                 </label>
                 <label className="setup-field">

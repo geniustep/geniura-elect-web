@@ -375,15 +375,26 @@ export function ProtocolEntryForm({
                     className="result-row"
                     key={result.candidate_list.id}
                   >
-                    <span>
+                    <span className="candidate-list-identity">
                       <b>{result.candidate_list.ballot_number ?? "—"}</b>
-                      <span>
-                        {result.candidate_list.name}
-                        {result.candidate_list.party?.short_name
-                          ? ` · ${result.candidate_list.party.short_name}`
-                          : result.candidate_list.party?.name
-                            ? ` · ${result.candidate_list.party.name}`
+                      {result.candidate_list.party?.has_logo ? (
+                        <img
+                          className="candidate-party-logo"
+                          src={`/api/operations/parties/${result.candidate_list.party.id}/logo`}
+                          alt={`شعار ${result.candidate_list.party.name}`}
+                          loading="lazy"
+                        />
+                      ) : null}
+                      <span className="candidate-list-copy">
+                        <strong>{result.candidate_list.name}</strong>
+                        <small>
+                          {result.candidate_list.party?.short_name ||
+                            result.candidate_list.party?.name ||
+                            "بدون هيئة محددة"}
+                          {result.candidate_list.party?.symbol_name
+                            ? ` · الرمز: ${result.candidate_list.party.symbol_name}`
                             : ""}
+                        </small>
                       </span>
                     </span>
                     <input

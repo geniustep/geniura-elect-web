@@ -113,17 +113,30 @@ export default async function ElectionCandidacySetupPage({
               </div>
               {setup.candidate_lists.map((item) => (
                 <div className="setup-row" key={item.id}>
-                  <div className="setup-row-main">
-                    <strong>{item.name}</strong>
-                    <small>
-                      {item.party?.short_name ||
-                        item.party?.name ||
-                        "بدون هيئة محددة"}
-                      {item.ballot_number !== null &&
-                      item.ballot_number !== undefined
-                        ? ` · رقم ${item.ballot_number}`
-                        : ""}
-                    </small>
+                  <div className="setup-row-main setup-party-identity">
+                    {item.party?.has_logo ? (
+                      <img
+                        className="setup-party-logo"
+                        src={`/api/operations/parties/${item.party.id}/logo`}
+                        alt={`شعار ${item.party.name}`}
+                        loading="lazy"
+                      />
+                    ) : null}
+                    <span>
+                      <strong>{item.name}</strong>
+                      <small>
+                        {item.party?.short_name ||
+                          item.party?.name ||
+                          "بدون هيئة محددة"}
+                        {item.party?.symbol_name
+                          ? ` · ${item.party.symbol_name}`
+                          : ""}
+                        {item.ballot_number !== null &&
+                        item.ballot_number !== undefined
+                          ? ` · رقم ${item.ballot_number}`
+                          : ""}
+                      </small>
+                    </span>
                   </div>
                   <div className="setup-row-main">
                     <strong>{item.constituency.name}</strong>
@@ -261,14 +274,27 @@ export default async function ElectionCandidacySetupPage({
               <div className="setup-row setup-row--header">
                 <span>الاسم</span>
                 <span>الاختصار</span>
-                <span>الرمز</span>
+                <span>الرمز الانتخابي</span>
                 <span />
               </div>
               {setup.parties.map((item) => (
                 <div className="setup-row" key={item.id}>
-                  <strong>{item.name}</strong>
+                  <div className="setup-party-identity">
+                    {item.has_logo ? (
+                      <img
+                        className="setup-party-logo"
+                        src={`/api/operations/parties/${item.id}/logo`}
+                        alt={`شعار ${item.name}`}
+                        loading="lazy"
+                      />
+                    ) : null}
+                    <span>
+                      <strong>{item.name}</strong>
+                      <small>{item.code}</small>
+                    </span>
+                  </div>
                   <span>{item.short_name || "—"}</span>
-                  <span>{item.code}</span>
+                  <span>{item.symbol_name || "—"}</span>
                   <Link
                     className="setup-edit-link"
                     href={`/elections/${electionId}/setup/candidacy/parties/${item.id}/edit`}

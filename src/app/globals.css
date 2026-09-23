@@ -7280,3 +7280,85 @@ a {
     min-height: 48px;
   }
 }
+
+
+/* Party logos and ballot symbols */
+.candidate-list-identity {
+  min-width: 0;
+  display: grid !important;
+  grid-template-columns: auto 44px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+}
+
+.candidate-party-logo,
+.setup-party-logo {
+  display: block;
+  object-fit: contain;
+  border: 1px solid var(--ge-border);
+  background: #fff;
+}
+
+.candidate-party-logo {
+  width: 44px;
+  height: 44px;
+  padding: 3px;
+  border-radius: 10px;
+}
+
+.candidate-list-copy {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.candidate-list-copy strong {
+  overflow: hidden;
+  color: var(--text);
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.candidate-list-copy small {
+  color: var(--muted);
+  font-size: 9px;
+  line-height: 1.45;
+}
+
+.setup-party-identity {
+  min-width: 0;
+  display: flex !important;
+  align-items: center;
+  gap: 9px;
+}
+
+.setup-party-identity > span {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.setup-party-logo {
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+  padding: 3px;
+  border-radius: 9px;
+}
+
+@media (max-width: 580px) {
+  .candidate-list-identity {
+    grid-template-columns: auto 38px minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  .candidate-party-logo {
+    width: 38px;
+    height: 38px;
+  }
+
+  .candidate-list-copy strong {
+    white-space: normal;
+  }
+}

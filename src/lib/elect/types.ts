@@ -5,6 +5,8 @@ export type PartyRef = {
   name: string;
   short_name?: string | null;
   code: string;
+  symbol_name?: string | null;
+  has_logo: boolean;
 };
 
 export type CandidateListRef = {
@@ -478,6 +480,8 @@ export type SetupParty = {
   name: string;
   short_name?: string | null;
   code: string;
+  symbol_name?: string | null;
+  has_logo: boolean;
 };
 
 export type SetupCandidate = {
