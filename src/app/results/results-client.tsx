@@ -126,78 +126,47 @@ function listLogoUrl(item: PublicResultList) {
 function LiveResultCard({
   item,
   noResults,
-  rank,
 }: {
   item: PublicResultList;
   noResults: boolean;
-  rank: number;
 }) {
   const partyLabel = item.party_name || item.name;
-  const width =
-    item.percentage === null
-      ? 0
-      : Math.min(100, Math.max(0, item.percentage));
 
   return (
-    <article className={styles.livePartyCard}>
-      <span className={styles.liveRank} aria-label={`الترتيب ${rank}`}>
-        {rank}
-      </span>
-
-      <div className={styles.livePartyIdentity}>
-        <span className={styles.liveBallotNumber}>
+    <article className={styles.simplePartyRow}>
+      <div className={styles.simplePartyIdentity}>
+        <span className={styles.simpleBallotNumber}>
           {item.ballot_number ?? "—"}
         </span>
         {listLogoUrl(item) ? (
           <img
-            className={styles.livePartyLogo}
+            className={styles.simplePartyLogo}
             src={listLogoUrl(item) ?? undefined}
             alt={`شعار ${partyLabel}`}
             loading="lazy"
           />
         ) : (
-          <span className={styles.livePartyLogoFallback} aria-hidden="true" />
+          <span className={styles.simplePartyLogoFallback} aria-hidden="true" />
         )}
-        <div className={styles.livePartyName}>
+        <div>
           <strong>{partyLabel}</strong>
           {item.symbol_name ? <small>{item.symbol_name}</small> : null}
         </div>
       </div>
 
-      <div className={styles.livePartyNumbers}>
-        <div>
-          <small>الأصوات</small>
-          <strong>{noResults ? "—" : formatInteger(item.votes)}</strong>
-        </div>
-        <div>
-          <small>النسبة</small>
-          <span>{noResults ? "—" : formatPercent(item.percentage)}</span>
-        </div>
-        <div>
-          <small>المقاعد</small>
-          <em>
-            {item.seats_available && item.seats !== null
-              ? formatInteger(item.seats)
-              : "—"}
-          </em>
-        </div>
-      </div>
+      <strong className={styles.simpleVotes}>
+        {noResults ? "—" : formatInteger(item.votes)}
+      </strong>
 
-      <div
-        className={styles.livePartyTrack}
-        role="progressbar"
-        aria-label={`نسبة الأصوات الصحيحة المحتسبة لـ ${partyLabel}`}
-        aria-valuemin={0}
-        aria-valuemax={100}
-        aria-valuenow={item.percentage ?? 0}
-        aria-valuetext={
-          item.percentage === null
-            ? "غير متوفرة"
-            : formatPercent(item.percentage)
-        }
-      >
-        <span style={{ width: `${width}%` }} />
-      </div>
+      <span className={styles.simplePercentage}>
+        {noResults ? "—" : formatPercent(item.percentage)}
+      </span>
+
+      <span className={styles.simpleSeats}>
+        {item.seats_available && item.seats !== null
+          ? formatInteger(item.seats)
+          : "—"}
+      </span>
     </article>
   );
 }
@@ -404,17 +373,6 @@ export function PublicResultsClient({
     snapshot.totals.turnout_percent === null
       ? "—"
       : formatPercent(snapshot.totals.turnout_percent);
-  const registered =
-    snapshot.totals.registered_voters_known &&
-    snapshot.totals.registered_voters !== null
-      ? formatInteger(snapshot.totals.registered_voters)
-      : "—";
-  const allocatedSeats = lists.reduce(
-    (total, item) =>
-      total + (item.seats_available && item.seats !== null ? item.seats : 0),
-    0,
-  );
-  const seatsAvailable = lists.some((item) => item.seats_available);
   const completionPercent = Math.min(
     100,
     Math.max(0, snapshot.completion.percent),
@@ -422,169 +380,106 @@ export function PublicResultsClient({
 
   return (
     <main
-      className={`${styles.page} ${styles.livePage} ${isTv ? styles.liveTvMode : ""}`}
+      className={`${styles.page} ${styles.livePage} ${styles.simpleResultsPage} ${isTv ? styles.liveTvMode : ""}`}
     >
-      <section className={styles.liveShell}>
-        <header className={styles.liveHeader}>
-          <div className={styles.liveBrand}>
-            <div className={styles.liveBrandLogo}>
-              <BrandLogo priority />
-            </div>
+      <section className={styles.simpleResultsShell}>
+        <header className={styles.simpleHeader}>
+          <div className={styles.simpleHeaderBrand}>
+            <BrandLogo priority />
             <div>
-              <span>متابعة النتائج</span>
               <strong>{snapshot.constituency.name}</strong>
+              <span>{snapshot.election.name}</span>
             </div>
           </div>
 
-          <div className={styles.liveElectionTitle}>
-            <strong>{snapshot.election.name}</strong>
-            <small>{formatElectionDate(snapshot.election.date)}</small>
-          </div>
-
-          <div className={styles.liveUpdate} aria-live="polite">
-            <span className={styles.liveUpdateDot} aria-hidden="true" />
-            <div>
-              <small>{refreshing ? "جارٍ التحديث" : "آخر تحديث"}</small>
-              <strong>{formatTime(snapshot.metadata.data_as_of)}</strong>
-            </div>
+          <div className={styles.simpleHeaderUpdate} aria-live="polite">
+            <small>{refreshing ? "جارٍ التحديث" : "آخر تحديث"}</small>
+            <strong>{formatTime(snapshot.metadata.data_as_of)}</strong>
           </div>
         </header>
 
-        <div className={styles.liveBoard}>
-          <section
-            className={styles.liveRankingPanel}
-            aria-labelledby="live-results-title"
+        <section className={styles.simpleSummary} aria-label="ملخص النتائج">
+          <div className={styles.simpleCompletion}>
+            <div>
+              <span>المكاتب المحتسبة</span>
+              <strong>
+                {formatInteger(snapshot.completion.counted_offices)}
+                <small> / {formatInteger(snapshot.completion.total_offices)}</small>
+              </strong>
+            </div>
+            <div className={styles.simpleCompletionTrack} aria-hidden="true">
+              <span style={{ width: `${completionPercent}%` }} />
+            </div>
+            <strong className={styles.simpleCompletionPercent}>
+              {formatPercent(snapshot.completion.percent)}
+            </strong>
+          </div>
+
+          <div>
+            <span>الأصوات الصحيحة</span>
+            <strong>{formatInteger(snapshot.totals.valid_votes)}</strong>
+          </div>
+
+          <div>
+            <span>
+              {snapshot.totals.turnout_basis === "counted_offices"
+                ? "المشاركة المحتسبة"
+                : "نسبة المشاركة"}
+            </span>
+            <strong>{turnout}</strong>
+          </div>
+        </section>
+
+        <section className={styles.simpleResultsPanel} aria-labelledby="simple-results-title">
+          <div className={styles.simpleResultsHead}>
+            <div>
+              <h1 id="simple-results-title">النتائج</h1>
+              <span>{formatInteger(lists.length)} لائحة</span>
+            </div>
+            <div className={styles.simpleColumnLabels} aria-hidden="true">
+              <span>الأصوات</span>
+              <span>النسبة</span>
+              <span>المقاعد</span>
+            </div>
+          </div>
+
+          <div
+            className={`${styles.simpleResultsList} ${
+              lists.length > 20 ? styles.simpleResultsDense : ""
+            }`}
           >
-            <div className={styles.liveRankingHeader}>
-              <div>
-                <span>جميع اللوائح · ترتيب حسب الأصوات المحتسبة</span>
-                <h1 id="live-results-title">النتائج</h1>
+            {lists.length ? (
+              lists.map((item) => (
+                <LiveResultCard
+                  item={item}
+                  noResults={noResults}
+                  key={`${item.ballot_number ?? "x"}-${item.name}`}
+                />
+              ))
+            ) : (
+              <div className={styles.liveEmpty}>
+                لا توجد لوائح متاحة للعرض.
               </div>
-              <strong>{formatInteger(lists.length)} لائحة</strong>
-            </div>
+            )}
+          </div>
+        </section>
 
-            <div
-              className={`${styles.liveRankingList} ${
-                lists.length > 20 ? styles.liveRankingDense : ""
-              }`}
-            >
-              {lists.length ? (
-                lists.map((item, index) => (
-                  <LiveResultCard
-                    item={item}
-                    noResults={noResults}
-                    rank={index + 1}
-                    key={`${item.ballot_number ?? "x"}-${item.name}`}
-                  />
-                ))
-              ) : (
-                <div className={styles.liveEmpty}>
-                  لا توجد لوائح متاحة للعرض.
-                </div>
-              )}
-            </div>
-          </section>
-
-          <aside className={styles.liveSidebar} aria-label="ملخص النتائج">
-            <section className={styles.liveCompletionCard}>
-              <div
-                className={styles.liveCompletionDial}
-                style={{
-                  background: `conic-gradient(var(--public-brand) ${completionPercent}%, #e7edf4 0)`,
-                }}
-                aria-hidden="true"
-              >
-                <div>
-                  <strong>{formatPercent(snapshot.completion.percent)}</strong>
-                  <small>محتسب</small>
-                </div>
-              </div>
-
-              <div className={styles.liveCompletionCopy}>
-                <span>تقدم احتساب المحاضر</span>
-                <strong>
-                  {formatInteger(snapshot.completion.counted_offices)}
-                  <small>
-                    {" "}
-                    / {formatInteger(snapshot.completion.total_offices)} مكتب
-                  </small>
-                </strong>
-                <div className={styles.liveCompletionBar} aria-hidden="true">
-                  <span style={{ width: `${completionPercent}%` }} />
-                </div>
-              </div>
-            </section>
-
-            <section className={styles.liveSideStats}>
-              <div>
-                <span>الأصوات الصحيحة</span>
-                <strong>{formatInteger(snapshot.totals.valid_votes)}</strong>
-              </div>
-              <div>
-                <span>
-                  {snapshot.totals.turnout_basis === "counted_offices"
-                    ? "المشاركة المحتسبة"
-                    : "نسبة المشاركة"}
-                </span>
-                <strong>{turnout}</strong>
-              </div>
-              <div>
-                <span>المسجلون</span>
-                <strong>{registered}</strong>
-              </div>
-              <div>
-                <span>عدد المقاعد</span>
-                <strong>{formatInteger(snapshot.allocation.seats_total)}</strong>
-              </div>
-            </section>
-
-            <section className={styles.liveSeatSummary}>
-              <div>
-                <span>المقاعد المحسوبة</span>
-                <strong>{seatsAvailable ? formatInteger(allocatedSeats) : "—"}</strong>
-              </div>
-              <small>
-                {seatsAvailable
-                  ? "وفق المعطيات المتاحة حاليًا"
-                  : "سيظهر التوزيع عند توفر المعطيات الكافية"}
-              </small>
-            </section>
-
-            <section
-              className={`${styles.liveNotice} ${styles[`status_${status.tone}`]}`}
-              role="status"
-            >
-              <div className={styles.liveNoticeStatus}>
-                <span className={styles.liveNoticeDot} aria-hidden="true" />
-                <strong>{status.label}</strong>
-              </div>
-              <p>
-                {snapshot.status.official
-                  ? "المعطيات المعروضة موسومة كمصدر رسمي."
-                  : noResults
-                    ? "ستظهر الأرقام فور اعتماد أول محضر موثق."
-                    : "هذه أرقام تجميعية مبنية على المحاضر المحتسبة حتى الآن، ولا تمثل إعلانًا رسميًا للنتيجة."}
-              </p>
-              {connectionInterrupted ? (
-                <small>يتم عرض آخر بيانات متوفرة مؤقتًا.</small>
-              ) : (
-                <small>
-                  آخر بيانات: {formatTime(snapshot.metadata.data_as_of)}
-                </small>
-              )}
-            </section>
-          </aside>
-        </div>
-
-        <footer className={styles.liveFooter}>
-          <span>
-            {snapshot.status.official
-              ? "النتيجة الرسمية"
-              : "تتحدث الصفحة تلقائيًا مع ورود واعتماد المحاضر."}
-          </span>
-          <small>
-            {snapshot.constituency.name} · {formatElectionDate(snapshot.election.date)}
-          </small>
+        <footer className={styles.simpleFooter}>
+          <div>
+            <strong>{status.label}</strong>
+            <span>
+              {snapshot.status.official
+                ? "المعطيات موسومة كمصدر رسمي."
+                : noResults
+                  ? "ستظهر الأرقام عند اعتماد أول محضر."
+                  : "أرقام تجميعية مبنية على المحاضر المحتسبة حتى الآن."}
+            </span>
+          </div>
+          {connectionInterrupted ? (
+            <small>يتم عرض آخر بيانات متوفرة مؤقتًا.</small>
+          ) : (
+            <small>{formatElectionDate(snapshot.election.date)}</small>
+          )}
         </footer>
       </section>
     </main>

@@ -3416,3 +3416,529 @@
     gap: 2px;
   }
 }
+
+
+/* Simple public-facing results board */
+.simpleResultsPage {
+  height: 100svh;
+  min-height: 0;
+  overflow: hidden;
+  background: #f6f8fb;
+}
+
+.simpleResultsShell {
+  width: min(1500px, 100%);
+  height: 100svh;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  gap: 8px;
+  margin: 0 auto;
+  padding: 10px 14px 8px;
+}
+
+.simpleHeader {
+  min-height: 68px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 8px 12px;
+  border-bottom: 1px solid #e4e9ef;
+  background: #fff;
+}
+
+.simpleHeaderBrand {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.simpleHeaderBrand :global(.brand-logo) {
+  width: 46px;
+  height: 46px;
+  margin: 0;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+}
+
+.simpleHeaderBrand > div {
+  min-width: 0;
+  display: grid;
+  gap: 1px;
+}
+
+.simpleHeaderBrand strong {
+  overflow: hidden;
+  color: var(--public-brand);
+  font-size: 18px;
+  font-weight: 900;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.simpleHeaderBrand span {
+  overflow: hidden;
+  color: #7e8998;
+  font-size: 10px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.simpleHeaderUpdate {
+  flex: 0 0 auto;
+  display: grid;
+  gap: 1px;
+  text-align: end;
+}
+
+.simpleHeaderUpdate small {
+  color: #8c98a7;
+  font-size: 8px;
+  font-weight: 700;
+}
+
+.simpleHeaderUpdate strong {
+  color: var(--public-brand);
+  font-size: 12px;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
+
+.simpleSummary {
+  display: grid;
+  grid-template-columns: minmax(310px, 1.5fr) minmax(140px, 0.75fr) minmax(140px, 0.75fr);
+  gap: 8px;
+}
+
+.simpleSummary > div {
+  min-width: 0;
+  min-height: 52px;
+  display: grid;
+  align-content: center;
+  gap: 2px;
+  padding: 8px 12px;
+  border: 1px solid #e4e9ef;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.simpleSummary > div > span,
+.simpleCompletion span {
+  color: #7d8998;
+  font-size: 8px;
+  font-weight: 700;
+}
+
+.simpleSummary > div > strong,
+.simpleCompletion strong {
+  color: var(--public-brand);
+  font-size: 17px;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
+
+.simpleCompletion {
+  grid-template-columns: auto minmax(90px, 1fr) auto;
+  align-items: center;
+  gap: 10px !important;
+}
+
+.simpleCompletion > div:first-child {
+  display: grid;
+  gap: 1px;
+}
+
+.simpleCompletion small {
+  color: #8e99a6;
+  font-size: 8px;
+  font-weight: 700;
+}
+
+.simpleCompletionTrack {
+  height: 5px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #edf1f5;
+}
+
+.simpleCompletionTrack > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--public-brand);
+}
+
+.simpleCompletionPercent {
+  font-size: 13px !important;
+}
+
+.simpleResultsPanel {
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 5px;
+  padding: 8px 10px 9px;
+  border: 1px solid #e3e8ee;
+  border-radius: 14px;
+  background: #fff;
+}
+
+.simpleResultsHead {
+  min-height: 34px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 285px;
+  align-items: center;
+  gap: 10px;
+  padding: 0 8px;
+  border-bottom: 1px solid #edf0f4;
+}
+
+.simpleResultsHead > div:first-child {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.simpleResultsHead h1 {
+  margin: 0;
+  color: var(--public-brand);
+  font-size: 17px;
+  font-weight: 900;
+}
+
+.simpleResultsHead > div:first-child > span {
+  color: #8a96a4;
+  font-size: 8px;
+  font-weight: 750;
+}
+
+.simpleColumnLabels {
+  display: grid;
+  grid-template-columns: 1.25fr 0.85fr 0.7fr;
+  gap: 8px;
+  color: #929dab;
+  font-size: 7px;
+  font-weight: 750;
+}
+
+.simpleResultsList {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-auto-rows: minmax(0, 1fr);
+  overflow: hidden;
+}
+
+.simplePartyRow {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 115px 80px 65px;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 8px;
+  border-bottom: 1px solid #eef1f4;
+}
+
+.simplePartyRow:last-child {
+  border-bottom: 0;
+}
+
+.simplePartyRow:nth-child(even) {
+  background: #fbfcfd;
+}
+
+.simplePartyIdentity {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 28px 34px minmax(0, 1fr);
+  align-items: center;
+  gap: 7px;
+}
+
+.simpleBallotNumber {
+  width: 27px;
+  height: 27px;
+  display: grid;
+  place-items: center;
+  border-radius: 7px;
+  background: #f0f4f8;
+  color: #4c6684;
+  font-size: 9px;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
+
+.simplePartyLogo,
+.simplePartyLogoFallback {
+  width: 34px;
+  height: 34px;
+  display: block;
+  border-radius: 7px;
+}
+
+.simplePartyLogo {
+  object-fit: contain;
+  padding: 2px;
+  border: 1px solid #e3e8ee;
+  background: #fff;
+}
+
+.simplePartyLogoFallback {
+  border: 1px dashed #dce2e9;
+  background: #f7f9fb;
+}
+
+.simplePartyIdentity > div {
+  min-width: 0;
+  display: grid;
+  gap: 1px;
+}
+
+.simplePartyIdentity strong {
+  overflow: hidden;
+  color: #1c2b3e;
+  font-size: clamp(9px, 0.82vw, 12px);
+  font-weight: 850;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.simplePartyIdentity small {
+  overflow: hidden;
+  color: #8d98a6;
+  font-size: 7px;
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.simpleVotes,
+.simplePercentage,
+.simpleSeats {
+  color: var(--public-brand);
+  font-variant-numeric: tabular-nums;
+  text-align: start;
+}
+
+.simpleVotes {
+  font-size: clamp(10px, 0.9vw, 14px);
+  font-weight: 900;
+}
+
+.simplePercentage {
+  font-size: clamp(9px, 0.82vw, 12px);
+  font-weight: 850;
+}
+
+.simpleSeats {
+  font-size: clamp(9px, 0.78vw, 11px);
+  font-weight: 800;
+}
+
+.simpleResultsDense .simplePartyRow {
+  padding-block: 1px;
+}
+
+.simpleResultsDense .simplePartyLogo,
+.simpleResultsDense .simplePartyLogoFallback {
+  width: 29px;
+  height: 29px;
+}
+
+.simpleResultsDense .simplePartyIdentity {
+  grid-template-columns: 25px 29px minmax(0, 1fr);
+  gap: 5px;
+}
+
+.simpleResultsDense .simpleBallotNumber {
+  width: 24px;
+  height: 24px;
+  font-size: 8px;
+}
+
+.simpleFooter {
+  min-height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 3px 5px;
+  color: #7b8796;
+}
+
+.simpleFooter > div {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.simpleFooter strong {
+  flex: 0 0 auto;
+  color: var(--public-brand);
+  font-size: 8px;
+  font-weight: 900;
+}
+
+.simpleFooter span,
+.simpleFooter small {
+  overflow: hidden;
+  font-size: 7px;
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-height: 760px) and (min-width: 721px) {
+  .simpleResultsShell {
+    gap: 5px;
+    padding-block: 6px 4px;
+  }
+
+  .simpleHeader {
+    min-height: 54px;
+    padding-block: 4px;
+  }
+
+  .simpleHeaderBrand :global(.brand-logo) {
+    width: 38px;
+    height: 38px;
+  }
+
+  .simpleSummary > div {
+    min-height: 42px;
+    padding-block: 5px;
+  }
+
+  .simpleResultsPanel {
+    padding-block: 5px;
+  }
+
+  .simpleResultsHead {
+    min-height: 28px;
+  }
+
+  .simplePartyLogo,
+  .simplePartyLogoFallback {
+    width: 27px;
+    height: 27px;
+  }
+
+  .simplePartyIdentity {
+    grid-template-columns: 24px 27px minmax(0, 1fr);
+    gap: 5px;
+  }
+
+  .simpleBallotNumber {
+    width: 23px;
+    height: 23px;
+  }
+
+  .simplePartyIdentity small {
+    display: none;
+  }
+
+  .simpleFooter {
+    min-height: 18px;
+  }
+}
+
+@media (max-width: 720px) {
+  .simpleResultsPage {
+    height: auto;
+    min-height: 100svh;
+    overflow: visible;
+  }
+
+  .simpleResultsShell {
+    height: auto;
+    min-height: 100svh;
+    padding: 6px;
+  }
+
+  .simpleHeader {
+    min-height: 58px;
+    border-radius: 10px;
+  }
+
+  .simpleHeaderBrand :global(.brand-logo) {
+    width: 40px;
+    height: 40px;
+  }
+
+  .simpleHeaderBrand strong {
+    font-size: 14px;
+  }
+
+  .simpleHeaderBrand span {
+    font-size: 8px;
+  }
+
+  .simpleSummary {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .simpleCompletion {
+    grid-column: 1 / -1;
+  }
+
+  .simpleResultsPanel {
+    overflow: visible;
+  }
+
+  .simpleResultsHead {
+    grid-template-columns: 1fr;
+  }
+
+  .simpleColumnLabels {
+    display: none;
+  }
+
+  .simpleResultsList {
+    grid-auto-rows: auto;
+    overflow: visible;
+  }
+
+  .simplePartyRow {
+    min-height: 58px;
+    grid-template-columns: minmax(0, 1fr) 72px 56px;
+    gap: 5px;
+  }
+
+  .simpleSeats {
+    display: none;
+  }
+
+  .simplePartyIdentity {
+    grid-template-columns: 24px 30px minmax(0, 1fr);
+    gap: 5px;
+  }
+
+  .simpleBallotNumber {
+    width: 23px;
+    height: 23px;
+  }
+
+  .simplePartyLogo,
+  .simplePartyLogoFallback {
+    width: 30px;
+    height: 30px;
+  }
+
+  .simplePartyIdentity strong {
+    font-size: 9px;
+  }
+
+  .simpleFooter {
+    align-items: start;
+  }
+
+  .simpleFooter > div {
+    display: grid;
+    gap: 2px;
+  }
+}
