@@ -271,6 +271,7 @@ export function PublicResultsClient({
   const [connectionInterrupted, setConnectionInterrupted] = useState(false);
   const [summaryOpen, setSummaryOpen] = useState(false);
   const mountedRef = useRef(true);
+  const snapshotRef = useRef<PublicResultsSnapshot | null>(null);
 
   const fetchSnapshot = useCallback(async (initial = false) => {
     if (!initial) setRefreshing(true);
@@ -290,12 +291,13 @@ export function PublicResultsClient({
       }
 
       if (!mountedRef.current) return;
+      snapshotRef.current = payload.data;
       setSnapshot(payload.data);
       setLoadState("ready");
       setConnectionInterrupted(false);
     } catch {
       if (!mountedRef.current) return;
-      if (initial && !snapshot) {
+      if (initial && !snapshotRef.current) {
         setLoadState("error");
       } else {
         setConnectionInterrupted(true);
@@ -303,11 +305,13 @@ export function PublicResultsClient({
     } finally {
       if (mountedRef.current) setRefreshing(false);
     }
-  }, [snapshot]);
+  }, []);
 
   useEffect(() => {
     mountedRef.current = true;
-    void fetchSnapshot(true);
+    const initialFetchId = window.setTimeout(() => {
+      void fetchSnapshot(true);
+    }, 0);
 
     const intervalId = window.setInterval(() => {
       void fetchSnapshot(false);
@@ -315,6 +319,7 @@ export function PublicResultsClient({
 
     return () => {
       mountedRef.current = false;
+      window.clearTimeout(initialFetchId);
       window.clearInterval(intervalId);
     };
   }, [fetchSnapshot]);
