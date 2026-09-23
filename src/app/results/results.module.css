@@ -2117,3 +2117,711 @@
     flex-basis: 32px;
   }
 }
+
+
+/* Full-screen public results board */
+.livePage {
+  height: 100svh;
+  min-height: 0;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% -12%, rgba(236, 137, 29, 0.10), transparent 28rem),
+    linear-gradient(180deg, #f9fbfe 0%, #eef4fa 100%);
+}
+
+.liveShell {
+  width: min(1920px, 100%);
+  height: 100svh;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto auto auto minmax(0, 1fr) auto;
+  gap: 8px;
+  margin: 0 auto;
+  padding: 10px 14px 8px;
+}
+
+.liveHeader {
+  min-height: 76px;
+  display: grid;
+  grid-template-columns: minmax(250px, 1fr) minmax(360px, 1.55fr) minmax(180px, 0.75fr);
+  align-items: center;
+  gap: 16px;
+  padding: 8px 14px;
+  border: 1px solid rgba(0, 45, 98, 0.09);
+  border-radius: 20px;
+  background:
+    linear-gradient(105deg, rgba(255, 255, 255, 0.98), rgba(248, 251, 255, 0.96));
+  box-shadow: 0 10px 28px rgba(0, 45, 98, 0.06);
+}
+
+.liveBrand {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.liveBrandLogo,
+.liveBrandLogo :global(.brand-logo) {
+  width: 52px;
+  height: 52px;
+  flex: 0 0 52px;
+  margin: 0;
+  border: 0;
+  border-radius: 14px;
+  background: transparent;
+}
+
+.liveBrand > div:last-child {
+  min-width: 0;
+  display: grid;
+  gap: 1px;
+}
+
+.liveBrand span,
+.liveUpdate small,
+.liveMetrics span,
+.liveResultsHeading span {
+  color: #748399;
+  font-size: 9px;
+  font-weight: 750;
+}
+
+.liveBrand strong {
+  overflow: hidden;
+  color: var(--public-brand);
+  font-size: clamp(16px, 1.25vw, 22px);
+  font-weight: 850;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.liveElectionTitle {
+  min-width: 0;
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  padding-inline: 18px;
+  border-inline: 1px solid rgba(0, 45, 98, 0.10);
+  text-align: center;
+}
+
+.liveElectionTitle strong {
+  overflow: hidden;
+  max-width: 100%;
+  color: var(--public-brand);
+  font-size: clamp(18px, 1.7vw, 27px);
+  font-weight: 900;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.liveElectionTitle small {
+  color: #7e8da1;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.liveUpdate {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 9px;
+}
+
+.liveUpdateDot {
+  width: 9px;
+  height: 9px;
+  flex: 0 0 9px;
+  border-radius: 50%;
+  background: #1f8d61;
+  box-shadow: 0 0 0 6px rgba(31, 141, 97, 0.10);
+}
+
+.liveUpdate > div {
+  display: grid;
+  gap: 1px;
+  text-align: end;
+}
+
+.liveUpdate strong {
+  color: var(--public-brand);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.liveMetrics {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.liveMetrics > div {
+  min-width: 0;
+  min-height: 59px;
+  display: grid;
+  align-content: center;
+  gap: 2px;
+  padding: 8px 12px;
+  border: 1px solid rgba(0, 45, 98, 0.08);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 5px 18px rgba(0, 45, 98, 0.035);
+}
+
+.liveMetrics span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.liveMetrics strong {
+  color: var(--public-brand);
+  font-size: clamp(16px, 1.3vw, 22px);
+  font-weight: 900;
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+}
+
+.liveMetrics strong small {
+  color: #8a98aa;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.liveStatus {
+  min-height: 29px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 5px 10px;
+  border: 1px solid rgba(0, 45, 98, 0.08);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.82);
+}
+
+.liveStatus strong {
+  flex: 0 0 auto;
+  color: var(--public-brand);
+  font-size: 9px;
+  font-weight: 900;
+}
+
+.liveStatus span {
+  overflow: hidden;
+  color: #6e7d90;
+  font-size: 8px;
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.liveStatus em {
+  margin-inline-start: auto;
+  color: #a45d0c;
+  font-size: 8px;
+  font-style: normal;
+  font-weight: 850;
+}
+
+.liveResultsRegion {
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 6px;
+}
+
+.liveResultsHeading {
+  min-height: 32px;
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 12px;
+  padding-inline: 2px;
+}
+
+.liveResultsHeading > div {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.liveResultsHeading h1 {
+  margin: 0;
+  color: var(--public-brand);
+  font-size: 18px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.liveResultsHeading > strong {
+  color: #75859a;
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.liveResultsGrid {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-auto-rows: minmax(0, 1fr);
+  gap: 6px 8px;
+  overflow: hidden;
+}
+
+.livePartyCard {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: minmax(0, 1fr) 4px;
+  align-items: center;
+  gap: 3px 8px;
+  padding: 6px 8px 5px;
+  border: 1px solid rgba(0, 45, 98, 0.085);
+  border-radius: 12px;
+  background:
+    linear-gradient(125deg, rgba(255, 255, 255, 0.98), rgba(249, 251, 254, 0.94));
+  box-shadow: 0 4px 14px rgba(0, 45, 98, 0.035);
+}
+
+.livePartyIdentity {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 27px 34px minmax(0, 1fr);
+  align-items: center;
+  gap: 6px;
+}
+
+.liveBallotNumber {
+  width: 27px;
+  height: 27px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  background: #eef4fa;
+  color: var(--public-brand);
+  font-size: 10px;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
+
+.livePartyLogo,
+.livePartyLogoFallback {
+  width: 34px;
+  height: 34px;
+  display: block;
+  border-radius: 9px;
+}
+
+.livePartyLogo {
+  object-fit: contain;
+  padding: 2px;
+  border: 1px solid #e3e9f0;
+  background: #fff;
+}
+
+.livePartyLogoFallback {
+  border: 1px dashed #d8e0e9;
+  background:
+    radial-gradient(circle at 50% 50%, #eef3f8 0 34%, transparent 35%),
+    #fafcfe;
+}
+
+.livePartyName {
+  min-width: 0;
+  display: grid;
+  gap: 1px;
+}
+
+.livePartyName strong {
+  overflow: hidden;
+  color: #172a42;
+  font-size: clamp(9px, 0.73vw, 11px);
+  font-weight: 850;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.livePartyName small {
+  overflow: hidden;
+  color: #8a97a8;
+  font-size: 7px;
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.livePartyNumbers {
+  display: grid;
+  grid-template-columns: auto auto auto;
+  align-items: center;
+  gap: 7px;
+  text-align: end;
+  white-space: nowrap;
+}
+
+.livePartyNumbers strong {
+  color: var(--public-brand);
+  font-size: clamp(10px, 0.86vw, 13px);
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
+
+.livePartyNumbers span {
+  color: #3e6389;
+  font-size: 9px;
+  font-weight: 850;
+  font-variant-numeric: tabular-nums;
+}
+
+.livePartyNumbers em {
+  min-width: 45px;
+  padding: 3px 5px;
+  border-radius: 7px;
+  background: #eef4fa;
+  color: #617288;
+  font-size: 7px;
+  font-style: normal;
+  font-weight: 850;
+  text-align: center;
+}
+
+.livePartyTrack {
+  grid-column: 1 / -1;
+  height: 4px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #edf2f7;
+}
+
+.livePartyTrack > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--public-brand), #5682ae);
+}
+
+.liveFooter {
+  min-height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 3px 6px;
+  color: #7c8999;
+}
+
+.liveFooter span {
+  overflow: hidden;
+  font-size: 8px;
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.liveFooter small {
+  flex: 0 0 auto;
+  font-size: 8px;
+  font-weight: 750;
+}
+
+.liveEmpty {
+  grid-column: 1 / -1;
+  display: grid;
+  place-items: center;
+  color: #758399;
+  font-size: 11px;
+  font-weight: 750;
+}
+
+.liveTvMode .liveShell {
+  padding: 14px 22px 10px;
+  gap: 10px;
+}
+
+.liveTvMode .livePartyCard {
+  border-radius: 14px;
+}
+
+@media (max-width: 900px) {
+  .liveHeader {
+    min-height: 66px;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 10px;
+  }
+
+  .liveElectionTitle {
+    display: none;
+  }
+
+  .liveMetrics {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .liveMetrics > div {
+    min-height: 46px;
+    padding: 5px 8px;
+  }
+
+  .liveResultsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 4px 5px;
+  }
+
+  .livePartyCard {
+    padding: 4px 5px 4px;
+    border-radius: 9px;
+  }
+
+  .livePartyIdentity {
+    grid-template-columns: 23px 28px minmax(0, 1fr);
+    gap: 4px;
+  }
+
+  .liveBallotNumber {
+    width: 23px;
+    height: 23px;
+    border-radius: 6px;
+    font-size: 8px;
+  }
+
+  .livePartyLogo,
+  .livePartyLogoFallback {
+    width: 28px;
+    height: 28px;
+    border-radius: 7px;
+  }
+
+  .livePartyName strong {
+    font-size: 9px;
+  }
+
+  .livePartyName small {
+    display: none;
+  }
+
+  .livePartyNumbers {
+    gap: 4px;
+  }
+
+  .livePartyNumbers em {
+    min-width: 34px;
+    padding: 2px 3px;
+    font-size: 6px;
+  }
+}
+
+@media (max-width: 560px) {
+  .liveShell {
+    gap: 4px;
+    padding: 5px;
+  }
+
+  .liveHeader {
+    min-height: 52px;
+    padding: 4px 7px;
+    border-radius: 12px;
+  }
+
+  .liveBrandLogo,
+  .liveBrandLogo :global(.brand-logo) {
+    width: 38px;
+    height: 38px;
+    flex-basis: 38px;
+    border-radius: 10px;
+  }
+
+  .liveBrand span {
+    display: none;
+  }
+
+  .liveBrand strong {
+    font-size: 13px;
+  }
+
+  .liveUpdateDot {
+    display: none;
+  }
+
+  .liveUpdate small {
+    font-size: 7px;
+  }
+
+  .liveUpdate strong {
+    font-size: 10px;
+  }
+
+  .liveMetrics {
+    gap: 3px;
+  }
+
+  .liveMetrics > div {
+    min-height: 38px;
+    padding: 4px 5px;
+    border-radius: 8px;
+  }
+
+  .liveMetrics > div:nth-child(5),
+  .liveMetrics > div:nth-child(6) {
+    display: none;
+  }
+
+  .liveMetrics {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .liveMetrics span {
+    font-size: 6px;
+  }
+
+  .liveMetrics strong {
+    font-size: 12px;
+  }
+
+  .liveStatus {
+    min-height: 22px;
+    padding: 3px 6px;
+  }
+
+  .liveStatus strong {
+    font-size: 7px;
+  }
+
+  .liveStatus span {
+    font-size: 6px;
+  }
+
+  .liveStatus em {
+    display: none;
+  }
+
+  .liveResultsHeading {
+    min-height: 24px;
+  }
+
+  .liveResultsHeading span {
+    display: none;
+  }
+
+  .liveResultsHeading h1 {
+    font-size: 14px;
+  }
+
+  .liveResultsGrid {
+    gap: 3px;
+  }
+
+  .livePartyCard {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 2px 4px;
+    padding: 3px 4px;
+    border-radius: 7px;
+  }
+
+  .livePartyIdentity {
+    grid-template-columns: 20px 24px minmax(0, 1fr);
+    gap: 3px;
+  }
+
+  .liveBallotNumber {
+    width: 20px;
+    height: 20px;
+    font-size: 7px;
+  }
+
+  .livePartyLogo,
+  .livePartyLogoFallback {
+    width: 24px;
+    height: 24px;
+  }
+
+  .livePartyName strong {
+    font-size: 7px;
+  }
+
+  .livePartyNumbers {
+    grid-template-columns: auto auto;
+    gap: 3px;
+  }
+
+  .livePartyNumbers strong {
+    font-size: 8px;
+  }
+
+  .livePartyNumbers span {
+    font-size: 7px;
+  }
+
+  .livePartyNumbers em {
+    display: none;
+  }
+
+  .livePartyTrack {
+    height: 2px;
+  }
+
+  .liveFooter {
+    min-height: 16px;
+    padding: 1px 3px;
+  }
+
+  .liveFooter span,
+  .liveFooter small {
+    font-size: 6px;
+  }
+}
+
+@media (max-height: 760px) and (min-width: 561px) {
+  .liveShell {
+    gap: 5px;
+    padding-top: 6px;
+    padding-bottom: 5px;
+  }
+
+  .liveHeader {
+    min-height: 58px;
+    padding-block: 4px;
+  }
+
+  .liveBrandLogo,
+  .liveBrandLogo :global(.brand-logo) {
+    width: 42px;
+    height: 42px;
+    flex-basis: 42px;
+  }
+
+  .liveMetrics > div {
+    min-height: 44px;
+    padding-block: 4px;
+  }
+
+  .liveStatus {
+    min-height: 24px;
+  }
+
+  .liveResultsHeading {
+    min-height: 26px;
+  }
+
+  .livePartyCard {
+    padding-top: 3px;
+    padding-bottom: 3px;
+  }
+
+  .livePartyLogo,
+  .livePartyLogoFallback {
+    width: 28px;
+    height: 28px;
+  }
+
+  .livePartyTrack {
+    height: 3px;
+  }
+
+  .liveFooter {
+    min-height: 18px;
+  }
+}
