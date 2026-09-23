@@ -7,7 +7,6 @@ import type {
   PublicResultList,
   PublicResultsComingSoon,
   PublicResultsPayload,
-  PublicResultsSnapshot,
   PublicResultsState,
 } from "@/lib/elect/public-results";
 
@@ -269,10 +268,8 @@ function ComingSoon({
 
 export function PublicResultsClient({
   displayMode,
-  constituencyCode,
 }: {
   displayMode: "default" | "tv";
-  constituencyCode: string | null;
 }) {
   const [snapshot, setSnapshot] = useState<PublicResultsPayload | null>(null);
   const [loadState, setLoadState] = useState<LoadState>("loading");
@@ -285,10 +282,7 @@ export function PublicResultsClient({
     if (!initial) setRefreshing(true);
 
     try {
-      const resultsUrl = constituencyCode
-        ? `/api/public/results?code=${encodeURIComponent(constituencyCode)}`
-        : "/api/public/results";
-      const response = await fetch(resultsUrl, {
+      const response = await fetch("/api/public/results", {
         method: "GET",
         headers: {
           Accept: "application/json",
@@ -316,7 +310,7 @@ export function PublicResultsClient({
     } finally {
       if (mountedRef.current) setRefreshing(false);
     }
-  }, [constituencyCode]);
+  }, []);
 
   useEffect(() => {
     mountedRef.current = true;
