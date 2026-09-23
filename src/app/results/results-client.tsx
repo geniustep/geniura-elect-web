@@ -7,7 +7,6 @@ import type {
   PublicResultList,
   PublicResultsComingSoon,
   PublicResultsPayload,
-  PublicResultsSnapshot,
   PublicResultsState,
 } from "@/lib/elect/public-results";
 
