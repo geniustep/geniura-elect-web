@@ -6,7 +6,7 @@ import type {
   ElectionDashboard,
   PollingOffice,
 } from "@/lib/elect/types";
-import { backendRequest } from "@/lib/server/backend";
+import { backendHttp } from "@/lib/server/backend";
 import {
   getCurrentUser,
   readElectSessionId,
@@ -52,30 +52,94 @@ export default async function CommandCenterPage({
 
   const sessionId = await readElectSessionId();
 
-  let dashboard: ElectionDashboard;
-  let offices: PollingOffice[];
+  let dashboardResult;
+  try {
+    dashboardResult = await backendHttp<ElectionDashboard>(
+      `/api/v1/elections/${electionId}/dashboard`,
+      {
+        method: "GET",
+        sessionId,
+      },
+    );
+  } catch {
+    return (
+      <main className="dashboard-shell presentation-dashboard">
+        <AppHeader user={user} />
+        <section className="dashboard-content presentation-content">
+          <nav className="breadcrumbs presentation-breadcrumbs">
+            <Link href="/dashboard">مركز العمليات</Link>
+            <span>/</span>
+            <Link href={`/elections/${electionId}`}>الاستحقاق</Link>
+            <span>/</span>
+            <strong>غرفة القيادة</strong>
+          </nav>
+          <div className="empty-state">
+            تعذر الاتصال بخدمة الانتخابات لتحميل غرفة القيادة. أعد المحاولة بعد
+            قليل.
+          </div>
+        </section>
+      </main>
+    );
+  }
+
+  if (dashboardResult.response.status === 401) {
+    redirect("/login");
+  }
+  if (dashboardResult.response.status === 404) {
+    notFound();
+  }
+  if (
+    !dashboardResult.response.ok ||
+    !dashboardResult.payload ||
+    !dashboardResult.payload.success
+  ) {
+    return (
+      <main className="dashboard-shell presentation-dashboard">
+        <AppHeader user={user} />
+        <section className="dashboard-content presentation-content">
+          <nav className="breadcrumbs presentation-breadcrumbs">
+            <Link href="/dashboard">مركز العمليات</Link>
+            <span>/</span>
+            <Link href={`/elections/${electionId}`}>الاستحقاق</Link>
+            <span>/</span>
+            <strong>غرفة القيادة</strong>
+          </nav>
+          <div className="empty-state">
+            تعذر تحميل بيانات غرفة القيادة من الخدمة حاليًا.
+          </div>
+        </section>
+      </main>
+    );
+  }
+
+  const dashboard = dashboardResult.payload.data;
+  let offices: PollingOffice[] = [];
+  let officesAvailable = true;
 
   try {
-    const [dashboardData, officeData] = await Promise.all([
-      backendRequest<ElectionDashboard>(
-        `/api/v1/elections/${electionId}/dashboard`,
-        {
-          method: "GET",
-          sessionId,
-        },
-      ),
-      backendRequest<OfficesPayload>(
-        `/api/v1/elections/${electionId}/polling-offices`,
-        {
-          method: "GET",
-          sessionId,
-        },
-      ),
-    ]);
-    dashboard = dashboardData;
-    offices = officeData.items;
+    const officeResult = await backendHttp<OfficesPayload>(
+      `/api/v1/elections/${electionId}/polling-offices`,
+      {
+        method: "GET",
+        sessionId,
+      },
+    );
+
+    if (officeResult.response.status === 401) {
+      redirect("/login");
+    }
+
+    if (
+      !officeResult.response.ok ||
+      !officeResult.payload ||
+      !officeResult.payload.success
+    ) {
+      officesAvailable = false;
+    } else {
+      offices = officeResult.payload.data.items;
+    }
   } catch {
-    notFound();
+    officesAvailable = false;
   }
 
   const attention = offices
@@ -236,10 +300,17 @@ export default async function CommandCenterPage({
                   <span>المتابعة الفورية</span>
                   <h2>تحتاج متابعة</h2>
                 </div>
-                <small>{attention.length} مكتب</small>
+                <small>
+                  {officesAvailable ? `${attention.length} مكتب` : "التفاصيل غير متاحة"}
+                </small>
               </div>
 
-              {attention.length ? (
+              {!officesAvailable ? (
+                <div className="empty-state">
+                  تعذر تحميل تفاصيل المكاتب مؤقتًا. مؤشرات غرفة القيادة أعلاه
+                  ما زالت متاحة.
+                </div>
+              ) : attention.length ? (
                 <div className="attention-list">
                   {attention.map(({ office, reason }) => (
                     <Link
