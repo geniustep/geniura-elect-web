@@ -377,6 +377,13 @@ export function PublicResultsClient({
     100,
     Math.max(0, snapshot.completion.percent),
   );
+  const resultColumns =
+    lists.length > 12
+      ? [
+          lists.slice(0, Math.ceil(lists.length / 2)),
+          lists.slice(Math.ceil(lists.length / 2)),
+        ]
+      : [lists];
 
   return (
     <main
@@ -443,25 +450,42 @@ export function PublicResultsClient({
             </div>
           </div>
 
-          <div
-            className={`${styles.simpleResultsList} ${
-              lists.length > 20 ? styles.simpleResultsDense : ""
-            }`}
-          >
-            {lists.length ? (
-              lists.map((item) => (
-                <LiveResultCard
-                  item={item}
-                  noResults={noResults}
-                  key={`${item.ballot_number ?? "x"}-${item.name}`}
-                />
-              ))
-            ) : (
-              <div className={styles.liveEmpty}>
-                لا توجد لوائح متاحة للعرض.
-              </div>
-            )}
-          </div>
+          {lists.length ? (
+            <div
+              className={`${styles.simpleResultsColumns} ${
+                resultColumns.length === 1
+                  ? styles.simpleResultsColumnsSingle
+                  : ""
+              }`}
+            >
+              {resultColumns.map((column, columnIndex) => (
+                <div
+                  className={styles.simpleResultsColumn}
+                  key={`results-column-${columnIndex}`}
+                >
+                  <div className={styles.simpleColumnHeader} aria-hidden="true">
+                    <span>اللائحة</span>
+                    <span>الأصوات</span>
+                    <span>النسبة</span>
+                    <span>المقاعد</span>
+                  </div>
+                  <div className={styles.simpleResultsList}>
+                    {column.map((item) => (
+                      <LiveResultCard
+                        item={item}
+                        noResults={noResults}
+                        key={`${item.ballot_number ?? "x"}-${item.name}`}
+                      />
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className={styles.liveEmpty}>
+              لا توجد لوائح متاحة للعرض.
+            </div>
+          )}
         </section>
 
         <footer className={styles.simpleFooter}>
