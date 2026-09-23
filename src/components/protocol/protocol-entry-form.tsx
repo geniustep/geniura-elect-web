@@ -728,60 +728,69 @@ export function ProtocolEntryForm({
             ) : null}
 
             {section.results.length && entryMode === "table" ? (
-              <div className="results-table quick-results-table">
-                <div className="results-head">
-                  <span>اللائحة</span>
-                  <span>الأصوات</span>
-                </div>
+              <div className="quick-party-stack">
                 {section.results.map((result, resultIndex) => (
                   <label
-                    className="result-row"
+                    className="quick-party-card"
                     key={result.candidate_list.id}
                   >
-                    <span className="candidate-list-identity">
-                      <b>{result.candidate_list.ballot_number ?? "—"}</b>
+                    <span className="candidate-list-identity quick-party-identity">
+                      <b
+                        className="quick-ballot-number"
+                        aria-label={`رقم اللائحة ${result.candidate_list.ballot_number ?? "غير متوفر"}`}
+                      >
+                        {result.candidate_list.ballot_number ?? "—"}
+                      </b>
                       {result.candidate_list.party?.has_logo ? (
                         <img
-                          className="candidate-party-logo"
+                          className="candidate-party-logo quick-party-logo"
                           src={`/api/operations/parties/${result.candidate_list.party.id}/logo`}
                           alt={`شعار ${result.candidate_list.party.name}`}
                           loading="lazy"
                         />
-                      ) : null}
-                      <span className="candidate-list-copy">
+                      ) : (
+                        <span
+                          className="quick-party-logo quick-party-logo-fallback"
+                          aria-hidden="true"
+                        />
+                      )}
+                      <span className="candidate-list-copy quick-party-copy">
                         <strong>{result.candidate_list.name}</strong>
                         <small>
-                          {result.candidate_list.party?.short_name ||
-                            result.candidate_list.party?.name ||
-                            "بدون هيئة محددة"}
                           {result.candidate_list.party?.symbol_name
-                            ? ` · الرمز: ${result.candidate_list.party.symbol_name}`
-                            : ""}
+                            ? `الرمز الانتخابي: ${result.candidate_list.party.symbol_name}`
+                            : result.candidate_list.party?.short_name ||
+                              result.candidate_list.party?.name ||
+                              "بدون هيئة محددة"}
                         </small>
                       </span>
                     </span>
-                    <input
-                      ref={(element) => {
-                        voteInputRefs.current[result.candidate_list.id] = element;
-                      }}
-                      type="number"
-                      inputMode="numeric"
-                      min={0}
-                      placeholder="—"
-                      aria-label={`أصوات ${result.candidate_list.name}`}
-                      disabled={locked || pending}
-                      value={voteInputs[result.candidate_list.id] ?? ""}
-                      onChange={(event) =>
-                        updateVotes(
-                          sectionIndex,
-                          resultIndex,
-                          event.target.value,
-                        )
-                      }
-                      onKeyDown={(event) =>
-                        handleVoteKeyDown(event, section, resultIndex)
-                      }
-                    />
+
+                    <span className="quick-vote-entry">
+                      <small>الأصوات</small>
+                      <input
+                        ref={(element) => {
+                          voteInputRefs.current[result.candidate_list.id] = element;
+                        }}
+                        type="number"
+                        inputMode="numeric"
+                        min={0}
+                        placeholder="0"
+                        aria-label={`أصوات ${result.candidate_list.name}`}
+                        disabled={locked || pending}
+                        value={voteInputs[result.candidate_list.id] ?? ""}
+                        onChange={(event) =>
+                          updateVotes(
+                            sectionIndex,
+                            resultIndex,
+                            event.target.value,
+                          )
+                        }
+                        onKeyDown={(event) =>
+                          handleVoteKeyDown(event, section, resultIndex)
+                        }
+                      />
+                    </span>
                   </label>
                 ))}
               </div>
