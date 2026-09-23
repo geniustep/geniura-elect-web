@@ -291,7 +291,7 @@ export function ProtocolEntryForm({
   const voterBallotGap = shared.voters - shared.ballots_cast;
 
   function updateShared(
-    field: "voters" | "ballots_cast",
+    field: "registered_voters" | "voters" | "ballots_cast",
     value: string,
   ) {
     const number = Math.max(0, Number.parseInt(value || "0", 10) || 0);
@@ -551,11 +551,14 @@ export function ProtocolEntryForm({
             <input
               type="number"
               inputMode="numeric"
-              readOnly
-              aria-readonly="true"
+              min={0}
+              disabled={locked || pending}
               value={shared.registered_voters}
+              onChange={(event) =>
+                updateShared("registered_voters", event.target.value)
+              }
             />
-            <small>القيمة المسجلة للمكتب</small>
+            <small>قابل للتعديل حسب المحضر</small>
           </label>
 
           <label>
