@@ -85,19 +85,6 @@ export default async function DashboardPage() {
     user.default_constituency ??
     (user.constituencies?.length === 1 ? user.constituencies[0] : null);
 
-  if (
-    backendAvailable &&
-    user.role !== "observer" &&
-    preferredConstituency &&
-    elections.some(
-      (election) => election.id === preferredConstituency.election_id,
-    )
-  ) {
-    redirect(
-      `/elections/${preferredConstituency.election_id}/constituencies/${preferredConstituency.id}`,
-    );
-  }
-
   if (backendAvailable && user.role !== "observer") {
     await Promise.all(
       elections.map(async (election) => {
@@ -115,6 +102,24 @@ export default async function DashboardPage() {
         }
       }),
     );
+  }
+
+  if (
+    backendAvailable &&
+    user.role !== "observer" &&
+    preferredConstituency
+  ) {
+    const accessibleConstituencies =
+      structureByElection.get(preferredConstituency.election_id) ?? [];
+    const preferredIsAccessible = accessibleConstituencies.some(
+      (item) => item.id === preferredConstituency.id,
+    );
+
+    if (preferredIsAccessible) {
+      redirect(
+        `/elections/${preferredConstituency.election_id}/constituencies/${preferredConstituency.id}`,
+      );
+    }
   }
 
   const firstStructure = elections[0]
