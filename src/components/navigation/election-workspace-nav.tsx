@@ -97,7 +97,7 @@ export function ElectionWorkspaceNav({ role }: { role: ElectRole }) {
   const electionId = match?.[1] ?? null;
   const isPollingOffices = pathname.startsWith("/polling-offices");
   const workspaceEnabled =
-    role !== "observer" && (Boolean(electionId) || isPollingOffices);
+    isPollingOffices || (Boolean(electionId) && role !== "observer");
 
   useEffect(() => {
     // Mount detection is intentionally driven by an effect to avoid SSR-only rendering.
