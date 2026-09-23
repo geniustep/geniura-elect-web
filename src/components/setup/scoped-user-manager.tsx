@@ -170,11 +170,11 @@ export function ScopedUserManager({
     if (form.scopeLevel === "polling_area" && !form.pollingAreaId) {
       return "اختر الجماعة / المقاطعة المسموح بها.";
     }
-    if (!editingId && form.password.length < 8) {
-      return "كلمة المرور المؤقتة يجب أن تتكون من 8 أحرف على الأقل.";
+    if (!editingId && form.password.length < 6) {
+      return "كلمة المرور المؤقتة يجب أن تتكون من 6 أحرف على الأقل.";
     }
-    if (editingId && form.password && form.password.length < 8) {
-      return "كلمة المرور الجديدة يجب أن تتكون من 8 أحرف على الأقل.";
+    if (editingId && form.password && form.password.length < 6) {
+      return "كلمة المرور الجديدة يجب أن تتكون من 6 أحرف على الأقل.";
     }
     return "";
   }
@@ -348,7 +348,7 @@ export function ScopedUserManager({
               <input
                 required={!editingId}
                 type="password"
-                minLength={editingId ? undefined : 8}
+                minLength={editingId ? undefined : 6}
                 value={form.password}
                 onChange={(event) => updateForm("password", event.target.value)}
                 autoComplete="new-password"
