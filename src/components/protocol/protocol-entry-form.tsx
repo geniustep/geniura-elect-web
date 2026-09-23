@@ -157,8 +157,12 @@ export function ProtocolEntryForm({
     [sections, voteInputs],
   );
 
+  const hasAnyCandidateResults = sections.some(
+    (section) => section.results.length > 0,
+  );
+
   const allVotesEntered =
-    candidacyReady &&
+    hasAnyCandidateResults &&
     sections.every((section) =>
       section.results.every(
         (result) => voteInputs[result.candidate_list.id] !== "",
@@ -393,13 +397,6 @@ export function ProtocolEntryForm({
 
   async function save(event: FormEvent) {
     event.preventDefault();
-    if (!candidacyReady) {
-      setMessage(
-        "يمكنك متابعة الإدخال كمسودة على هذا الجهاز، لكن الحفظ في النظام ينتظر اكتمال لوائح الترشيح.",
-      );
-      return;
-    }
-
     if (!allVotesEntered) {
       setMessage(
         "بعض خانات الأصوات ما زالت فارغة. أدخلها أو استخدم «تعيين المتبقي إلى 0».",
@@ -631,8 +628,7 @@ export function ProtocolEntryForm({
           <h2>لوائح الترشيح غير محمّلة</h2>
           <p>
             إحدى نتيجتي المحلي/الجهوي لا تحتوي لوائح بعد. يمكنك إدخال القسم
-            المتاح الآن وسيُحفظ تلقائيًا كمسودة على هذا الجهاز، لكن الحفظ في
-            النظام سيبقى معطّلًا حتى تكتمل اللوائح المطلوبة.
+            المتاح وحفظ المحضر الآن، ثم استكمال القسم الآخر عند تحميل لوائحه.
           </p>
         </section>
       ) : null}
@@ -900,11 +896,11 @@ export function ProtocolEntryForm({
         <button
           className="primary-button"
           type="submit"
-          disabled={pending || locked || !candidacyReady || !allVotesEntered}
+          disabled={pending || locked || !allVotesEntered}
         >
           {pending
             ? "جارٍ الحفظ..."
-            : candidacyReady && allVotesEntered
+            : allVotesEntered
               ? "حفظ المحضر"
               : "أكمل الإدخال للحفظ"}
         </button>
