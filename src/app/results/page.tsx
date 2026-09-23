@@ -15,10 +15,16 @@ export const metadata: Metadata = {
 export default async function PublicResultsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ display?: string }>;
+  searchParams: Promise<{ display?: string; code?: string }>;
 }) {
   const params = await searchParams;
   const displayMode = params.display === "tv" ? "tv" : "default";
+  const constituencyCode = params.code?.trim() || null;
 
-  return <PublicResultsClient displayMode={displayMode} />;
+  return (
+    <PublicResultsClient
+      displayMode={displayMode}
+      constituencyCode={constituencyCode}
+    />
+  );
 }
