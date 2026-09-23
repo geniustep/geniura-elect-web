@@ -2825,3 +2825,594 @@
     min-height: 18px;
   }
 }
+
+
+/* Vertical ranking results board */
+.liveShell {
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 8px;
+}
+
+.liveBoard {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 2.25fr) minmax(285px, 0.75fr);
+  gap: 10px;
+}
+
+.liveRankingPanel,
+.liveSidebar {
+  min-height: 0;
+}
+
+.liveRankingPanel {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 7px;
+  padding: 10px;
+  border: 1px solid rgba(0, 45, 98, 0.08);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 12px 36px rgba(0, 45, 98, 0.055);
+}
+
+.liveRankingHeader {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-inline: 3px;
+}
+
+.liveRankingHeader > div {
+  display: grid;
+  gap: 1px;
+}
+
+.liveRankingHeader span {
+  color: #8290a2;
+  font-size: 8px;
+  font-weight: 750;
+}
+
+.liveRankingHeader h1 {
+  margin: 0;
+  color: var(--public-brand);
+  font-size: 21px;
+  font-weight: 900;
+  line-height: 1.05;
+}
+
+.liveRankingHeader > strong {
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: #eef4fa;
+  color: var(--public-brand);
+  font-size: 8px;
+  font-weight: 900;
+}
+
+.liveRankingList {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-auto-rows: minmax(0, 1fr);
+  gap: 4px;
+  overflow: hidden;
+}
+
+.livePartyCard {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 31px minmax(0, 1fr) minmax(225px, 0.66fr);
+  grid-template-rows: minmax(0, 1fr) 3px;
+  align-items: center;
+  gap: 3px 8px;
+  padding: 4px 8px;
+  border: 1px solid rgba(0, 45, 98, 0.075);
+  border-radius: 11px;
+  background: linear-gradient(90deg, #ffffff, #fbfdff);
+  box-shadow: none;
+}
+
+.liveRank {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #dfe7f0;
+  border-radius: 9px;
+  background: #f5f8fb;
+  color: #536b86;
+  font-size: 9px;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
+
+.livePartyIdentity {
+  grid-template-columns: 28px 34px minmax(0, 1fr);
+  gap: 7px;
+}
+
+.liveBallotNumber {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  font-size: 9px;
+}
+
+.livePartyLogo,
+.livePartyLogoFallback {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+}
+
+.livePartyName strong {
+  font-size: clamp(9px, 0.82vw, 12px);
+  line-height: 1.15;
+}
+
+.livePartyName small {
+  font-size: 7px;
+}
+
+.livePartyNumbers {
+  display: grid;
+  grid-template-columns: 1.3fr 0.9fr 0.7fr;
+  gap: 5px;
+  text-align: start;
+}
+
+.livePartyNumbers > div {
+  min-width: 0;
+  display: grid;
+  gap: 0;
+}
+
+.livePartyNumbers small {
+  color: #97a3b2;
+  font-size: 6px;
+  font-weight: 700;
+}
+
+.livePartyNumbers strong,
+.livePartyNumbers span,
+.livePartyNumbers em {
+  min-width: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--public-brand);
+  font-style: normal;
+  font-variant-numeric: tabular-nums;
+  text-align: start;
+}
+
+.livePartyNumbers strong {
+  font-size: clamp(10px, 0.9vw, 14px);
+  font-weight: 900;
+}
+
+.livePartyNumbers span {
+  font-size: clamp(9px, 0.78vw, 12px);
+  font-weight: 850;
+}
+
+.livePartyNumbers em {
+  font-size: clamp(9px, 0.74vw, 11px);
+  font-weight: 900;
+}
+
+.livePartyTrack {
+  grid-column: 2 / -1;
+  height: 3px;
+  background: #edf2f7;
+}
+
+.livePartyTrack > span {
+  background: linear-gradient(90deg, #315f91, var(--public-brand));
+}
+
+.liveSidebar {
+  display: grid;
+  grid-template-rows: auto auto auto minmax(0, 1fr);
+  gap: 8px;
+}
+
+.liveCompletionCard,
+.liveSideStats,
+.liveSeatSummary,
+.liveNotice {
+  border: 1px solid rgba(0, 45, 98, 0.08);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 8px 26px rgba(0, 45, 98, 0.045);
+}
+
+.liveCompletionCard {
+  display: grid;
+  grid-template-columns: 104px minmax(0, 1fr);
+  align-items: center;
+  gap: 13px;
+  padding: 13px;
+  border-radius: 20px;
+}
+
+.liveCompletionDial {
+  width: 96px;
+  height: 96px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  transform: rotate(-90deg);
+}
+
+.liveCompletionDial > div {
+  width: 76px;
+  height: 76px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 1px;
+  border-radius: 50%;
+  background: #fff;
+  transform: rotate(90deg);
+  box-shadow: inset 0 0 0 1px #edf1f5;
+}
+
+.liveCompletionDial strong {
+  color: var(--public-brand);
+  font-size: 20px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.liveCompletionDial small {
+  color: #8d99a8;
+  font-size: 7px;
+  font-weight: 750;
+}
+
+.liveCompletionCopy {
+  min-width: 0;
+  display: grid;
+  gap: 5px;
+}
+
+.liveCompletionCopy > span {
+  color: #7d8b9d;
+  font-size: 8px;
+  font-weight: 750;
+}
+
+.liveCompletionCopy > strong {
+  color: var(--public-brand);
+  font-size: 17px;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
+
+.liveCompletionCopy > strong small {
+  color: #8d99a8;
+  font-size: 8px;
+  font-weight: 750;
+}
+
+.liveCompletionBar {
+  height: 5px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #edf2f7;
+}
+
+.liveCompletionBar > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--public-brand);
+}
+
+.liveSideStats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  overflow: hidden;
+  border-radius: 18px;
+  background: #e8edf3;
+}
+
+.liveSideStats > div {
+  min-width: 0;
+  min-height: 70px;
+  display: grid;
+  align-content: center;
+  gap: 3px;
+  padding: 10px 12px;
+  background: #fff;
+}
+
+.liveSideStats span,
+.liveSeatSummary span {
+  color: #8693a4;
+  font-size: 7px;
+  font-weight: 750;
+}
+
+.liveSideStats strong,
+.liveSeatSummary strong {
+  color: var(--public-brand);
+  font-size: 18px;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
+
+.liveSeatSummary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 16px;
+}
+
+.liveSeatSummary > div {
+  display: grid;
+  gap: 2px;
+}
+
+.liveSeatSummary small {
+  max-width: 130px;
+  color: #8795a6;
+  font-size: 7px;
+  font-weight: 650;
+  line-height: 1.55;
+  text-align: end;
+}
+
+.liveNotice {
+  min-height: 0;
+  display: grid;
+  align-content: center;
+  gap: 8px;
+  padding: 14px;
+  border-radius: 18px;
+}
+
+.liveNoticeStatus {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.liveNoticeDot {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 8px;
+  border-radius: 50%;
+  background: var(--public-accent);
+  box-shadow: 0 0 0 5px rgba(236, 137, 29, 0.1);
+}
+
+.liveNoticeStatus strong {
+  color: var(--public-brand);
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.liveNotice p {
+  margin: 0;
+  color: #66768a;
+  font-size: 8px;
+  font-weight: 650;
+  line-height: 1.75;
+}
+
+.liveNotice > small {
+  color: #94a0af;
+  font-size: 7px;
+  font-weight: 700;
+}
+
+.liveFooter {
+  min-height: 20px;
+}
+
+.liveRankingDense .livePartyCard {
+  padding-block: 2px;
+}
+
+.liveRankingDense .livePartyLogo,
+.liveRankingDense .livePartyLogoFallback {
+  width: 30px;
+  height: 30px;
+}
+
+.liveRankingDense .livePartyIdentity {
+  grid-template-columns: 26px 30px minmax(0, 1fr);
+}
+
+.liveRankingDense .liveBallotNumber,
+.liveRankingDense .liveRank {
+  width: 25px;
+  height: 25px;
+}
+
+@media (max-height: 820px) and (min-width: 901px) {
+  .liveHeader {
+    min-height: 58px;
+    padding-block: 4px;
+  }
+
+  .liveBrandLogo,
+  .liveBrandLogo :global(.brand-logo) {
+    width: 42px;
+    height: 42px;
+    flex-basis: 42px;
+  }
+
+  .liveRankingPanel {
+    padding: 7px;
+    gap: 4px;
+  }
+
+  .liveRankingHeader {
+    min-height: 32px;
+  }
+
+  .liveRankingHeader h1 {
+    font-size: 17px;
+  }
+
+  .liveRankingList {
+    gap: 2px;
+  }
+
+  .livePartyCard {
+    padding-block: 1px;
+    border-radius: 8px;
+  }
+
+  .livePartyLogo,
+  .livePartyLogoFallback {
+    width: 27px;
+    height: 27px;
+  }
+
+  .livePartyIdentity {
+    grid-template-columns: 24px 27px minmax(0, 1fr);
+    gap: 5px;
+  }
+
+  .liveRank,
+  .liveBallotNumber {
+    width: 23px;
+    height: 23px;
+    border-radius: 6px;
+    font-size: 7px;
+  }
+
+  .livePartyName strong {
+    font-size: 8px;
+  }
+
+  .livePartyName small,
+  .livePartyNumbers small {
+    display: none;
+  }
+
+  .livePartyTrack {
+    height: 2px;
+  }
+
+  .liveCompletionCard {
+    grid-template-columns: 74px minmax(0, 1fr);
+    padding: 8px;
+  }
+
+  .liveCompletionDial {
+    width: 68px;
+    height: 68px;
+  }
+
+  .liveCompletionDial > div {
+    width: 54px;
+    height: 54px;
+  }
+
+  .liveCompletionDial strong {
+    font-size: 15px;
+  }
+
+  .liveSideStats > div {
+    min-height: 52px;
+    padding: 7px 9px;
+  }
+
+  .liveSideStats strong,
+  .liveSeatSummary strong {
+    font-size: 14px;
+  }
+
+  .liveSeatSummary {
+    padding: 8px 10px;
+  }
+
+  .liveNotice {
+    padding: 9px 10px;
+    gap: 5px;
+  }
+}
+
+@media (max-width: 900px) {
+  .livePage {
+    height: auto;
+    min-height: 100svh;
+    overflow: visible;
+  }
+
+  .liveShell {
+    height: auto;
+    min-height: 100svh;
+  }
+
+  .liveBoard {
+    grid-template-columns: 1fr;
+  }
+
+  .liveSidebar {
+    order: -1;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto;
+  }
+
+  .liveCompletionCard,
+  .liveNotice {
+    min-height: 140px;
+  }
+
+  .liveRankingList {
+    display: grid;
+    grid-auto-rows: auto;
+    overflow: visible;
+  }
+
+  .livePartyCard {
+    min-height: 54px;
+    grid-template-columns: 31px minmax(0, 1fr) minmax(190px, 0.7fr);
+  }
+}
+
+@media (max-width: 620px) {
+  .liveSidebar {
+    grid-template-columns: 1fr;
+  }
+
+  .liveCompletionCard,
+  .liveNotice {
+    min-height: 0;
+  }
+
+  .livePartyCard {
+    min-height: 62px;
+    grid-template-columns: 28px minmax(0, 1fr);
+    grid-template-rows: auto auto 3px;
+  }
+
+  .livePartyNumbers {
+    grid-column: 2;
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .livePartyTrack {
+    grid-column: 2;
+  }
+
+  .livePartyName strong {
+    font-size: 9px;
+  }
+
+  .liveFooter {
+    display: grid;
+    gap: 2px;
+  }
+}
