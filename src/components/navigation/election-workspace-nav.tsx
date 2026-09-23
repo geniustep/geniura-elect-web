@@ -95,7 +95,9 @@ export function ElectionWorkspaceNav({ role }: { role: ElectRole }) {
 
   const match = pathname.match(/^\/elections\/([^/]+)/);
   const electionId = match?.[1] ?? null;
-  const workspaceEnabled = Boolean(electionId) && role !== "observer";
+  const isPollingOffices = pathname.startsWith("/polling-offices");
+  const workspaceEnabled =
+    role !== "observer" && (Boolean(electionId) || isPollingOffices);
 
   useEffect(() => {
     // Mount detection is intentionally driven by an effect to avoid SSR-only rendering.
@@ -135,12 +137,12 @@ export function ElectionWorkspaceNav({ role }: { role: ElectRole }) {
     };
   }, [open]);
 
-  if (!workspaceEnabled || !electionId) {
+  if (!workspaceEnabled) {
     return null;
   }
 
-  const base = `/elections/${electionId}`;
-  const isUsers = pathname.startsWith(`${base}/setup/users`);
+  const base = electionId ? `/elections/${electionId}` : null;
+  const isUsers = base ? pathname.startsWith(`${base}/setup/users`) : false;
 
   const primaryItems: Array<{
     label: string;
@@ -149,40 +151,48 @@ export function ElectionWorkspaceNav({ role }: { role: ElectRole }) {
     icon: NavIconName;
     active: boolean;
   }> = [
-    {
-      label: "نظرة عامة",
-      description: "الدوائر والتغطية",
-      href: base,
-      icon: "overview",
-      active:
-        pathname === base ||
-        pathname.startsWith(`${base}/constituencies/`),
-    },
-    {
-      label: "غرفة القيادة",
-      description: "المتابعة التشغيلية",
-      href: `${base}/command-center`,
-      icon: "command",
-      active: pathname.startsWith(`${base}/command-center`),
-    },
+    ...(base
+      ? [
+          {
+            label: "نظرة عامة",
+            description: "الدوائر والتغطية",
+            href: base,
+            icon: "overview" as NavIconName,
+            active:
+              pathname === base ||
+              pathname.startsWith(`${base}/constituencies/`),
+          },
+          {
+            label: "غرفة القيادة",
+            description: "المتابعة التشغيلية",
+            href: `${base}/command-center`,
+            icon: "command" as NavIconName,
+            active: pathname.startsWith(`${base}/command-center`),
+          },
+        ]
+      : []),
     {
       label: "مكاتب التصويت",
       description: "اختيار مكتب وإدخال المحضر",
-      href: `/polling-offices?election=${electionId}`,
+      href: "/polling-offices",
       icon: "protocols",
-      active: pathname.startsWith("/polling-offices"),
+      active: isPollingOffices,
     },
-    {
-      label: "النتائج",
-      description: "التجميع وعرض النتائج",
-      href: `${base}/results`,
-      icon: "results",
-      active: pathname.startsWith(`${base}/results`),
-    },
+    ...(base
+      ? [
+          {
+            label: "النتائج",
+            description: "التجميع وعرض النتائج",
+            href: `${base}/results`,
+            icon: "results" as NavIconName,
+            active: pathname.startsWith(`${base}/results`),
+          },
+        ]
+      : []),
   ];
 
   const adminItems =
-    role === "manager"
+    role === "manager" && base
       ? [
           {
             label: "الإعداد",
@@ -227,12 +237,18 @@ export function ElectionWorkspaceNav({ role }: { role: ElectRole }) {
     <>
       <div className="election-workspace-head">
         <div className="election-workspace-mark" aria-hidden="true">
-          <span>#{electionId}</span>
+          <span>{electionId ? `#${electionId}` : "مكاتب"}</span>
         </div>
         <div className="election-workspace-head-copy">
-          <span className="election-workspace-eyebrow">الاستحقاق الحالي</span>
-          <strong>مركز الاستحقاق</strong>
-          <small>تنقل سريع بين مساحات العمل</small>
+          <span className="election-workspace-eyebrow">
+            {electionId ? "الاستحقاق الحالي" : "التشغيل"}
+          </span>
+          <strong>{electionId ? "مركز الاستحقاق" : "مكاتب التصويت"}</strong>
+          <small>
+            {electionId
+              ? "تنقل سريع بين مساحات العمل"
+              : "اختر المكتب ثم أدخل المحضر"}
+          </small>
         </div>
       </div>
 
