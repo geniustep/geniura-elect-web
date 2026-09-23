@@ -96,6 +96,21 @@ export type ProtocolResult = {
   votes: number;
 };
 
+export type ProtocolWarnings = {
+  has_warnings: boolean;
+  message: string;
+};
+
+export type ProtocolDocument = {
+  id: number;
+  attachment_id: number;
+  section_kind: "local" | "regional";
+  sequence: number;
+  name: string;
+  mimetype?: string | null;
+  file_size?: number | null;
+};
+
 export type ProtocolSection = {
   id?: number;
   kind: "local" | "regional";
@@ -111,6 +126,7 @@ export type ProtocolSection = {
   invalid_votes: number;
   blank_votes: number;
   other_nonvalid_votes: number;
+  observations?: string;
   list_vote_total?: number;
   accounted_ballots?: number;
   ballot_accounting_gap?: number;
@@ -121,6 +137,7 @@ export type ProtocolSection = {
     state: "incomplete" | "inconsistent" | "consistent";
     message: string;
   };
+  warnings?: ProtocolWarnings;
   results: ProtocolResult[];
 };
 
@@ -139,18 +156,15 @@ export type ProtocolRecord = {
     state: "incomplete" | "inconsistent" | "consistent";
     message: string;
   };
+  warnings: ProtocolWarnings;
   document: {
     count: number;
     integrity_state: string;
     digest?: string | null;
     validated_digest?: string | null;
     verified_digest?: string | null;
-    items: Array<{
-      id: number;
-      name: string;
-      mimetype?: string | null;
-      file_size?: number | null;
-    }>;
+    items: ProtocolDocument[];
+    legacy_attachment_ids?: number[];
   };
   workflow: {
     can_validate: boolean;
