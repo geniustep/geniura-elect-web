@@ -55,7 +55,30 @@ function initialSections(
   protocol: ProtocolRecord | null,
   template: ProtocolTemplate,
 ): EditableSection[] {
-  return structuredClone(protocol?.sections ?? template.sections);
+  if (!protocol) {
+    return structuredClone(template.sections);
+  }
+
+  const templateByKind = new Map(
+    template.sections.map((section) => [section.kind, section]),
+  );
+
+  return structuredClone(
+    protocol.sections.map((section) => {
+      const templateSection = templateByKind.get(section.kind);
+      if (
+        section.results.length === 0 &&
+        templateSection &&
+        templateSection.results.length > 0
+      ) {
+        return {
+          ...section,
+          results: templateSection.results,
+        };
+      }
+      return section;
+    }),
+  );
 }
 
 function initialSharedCounts(sections: EditableSection[]): SharedCounts {
@@ -71,14 +94,13 @@ function initialVoteInputs(
   protocol: ProtocolRecord | null,
   template: ProtocolTemplate,
 ): VoteInputs {
-  const source = protocol?.sections ?? template.sections;
-  const savedProtocol = Boolean(protocol);
+  const source = initialSections(protocol, template);
 
   return Object.fromEntries(
     source.flatMap((section) =>
       section.results.map((result) => [
         result.candidate_list.id,
-        savedProtocol ? String(result.votes) : "0",
+        String(result.votes ?? 0),
       ]),
     ),
   );
