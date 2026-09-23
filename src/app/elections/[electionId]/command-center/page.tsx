@@ -6,7 +6,7 @@ import type {
   ElectionDashboard,
   PollingOffice,
 } from "@/lib/elect/types";
-import { backendHttp } from "@/lib/server/backend";
+import { backendHttp, type BackendHttpResult } from "@/lib/server/backend";
 import {
   getCurrentUser,
   readElectSessionId,
@@ -52,7 +52,7 @@ export default async function CommandCenterPage({
 
   const sessionId = await readElectSessionId();
 
-  let dashboardResult;
+  let dashboardResult: BackendHttpResult<ElectionDashboard>;
   try {
     dashboardResult = await backendHttp<ElectionDashboard>(
       `/api/v1/elections/${electionId}/dashboard`,
@@ -115,16 +115,21 @@ export default async function CommandCenterPage({
   const dashboard = dashboardResult.payload.data;
   let offices: PollingOffice[] = [];
   let officesAvailable = true;
+  let officeResult: BackendHttpResult<OfficesPayload> | null = null;
 
   try {
-    const officeResult = await backendHttp<OfficesPayload>(
+    officeResult = await backendHttp<OfficesPayload>(
       `/api/v1/elections/${electionId}/polling-offices`,
       {
         method: "GET",
         sessionId,
       },
     );
+  } catch {
+    officesAvailable = false;
+  }
 
+  if (officeResult) {
     if (officeResult.response.status === 401) {
       redirect("/login");
     }
@@ -138,8 +143,6 @@ export default async function CommandCenterPage({
     } else {
       offices = officeResult.payload.data.items;
     }
-  } catch {
-    officesAvailable = false;
   }
 
   const attention = offices
