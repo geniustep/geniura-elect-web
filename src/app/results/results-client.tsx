@@ -484,5 +484,4 @@ export function PublicResultsClient({
       </section>
     </main>
   );
-  );
 }
