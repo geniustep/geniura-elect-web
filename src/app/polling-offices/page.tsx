@@ -2,8 +2,13 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { AppHeader } from "@/components/navigation/app-header";
-import type { ElectionSummary, PollingOffice } from "@/lib/elect/types";
-import { backendRequest } from "@/lib/server/backend";
+import type {
+  ConstituencyCoverageDashboard,
+  ConstituencySummary,
+  ElectionSummary,
+  PollingOffice,
+} from "@/lib/elect/types";
+import { backendHttp } from "@/lib/server/backend";
 import {
   getCurrentUser,
   readElectSessionId,
@@ -12,23 +17,22 @@ import {
 export const dynamic = "force-dynamic";
 
 type ElectionsPayload = { items: ElectionSummary[] };
+type ConstituenciesPayload = { items: ConstituencySummary[] };
 type OfficesPayload = { items: PollingOffice[] };
 
-const PAGE_SIZE = 50;
-
-const protocolStateNames: Record<string, string> = {
-  draft: "مسودة",
-  entered: "تم الإدخال",
-  document_attached: "الوثيقة مرفقة",
-  validated: "تم التحقق",
-  verified: "معتمد",
-  rejected: "مرفوض",
+type OfficeView = {
+  id: number;
+  number: number;
+  code: string;
+  coverageState: string;
+  areaName: string;
+  centerName: string;
+  centralNumber: number | null;
+  constituencyName: string;
+  representativeName: string | null;
 };
 
-function protocolLabel(office: PollingOffice) {
-  if (!office.protocol) return "لم يُدخل";
-  return protocolStateNames[office.protocol.state] ?? office.protocol.state;
-}
+const PAGE_SIZE = 50;
 
 function normalize(value: unknown) {
   return String(value ?? "")
@@ -36,25 +40,42 @@ function normalize(value: unknown) {
     .toLocaleLowerCase("ar");
 }
 
-function matchesOffice(office: PollingOffice, query: string) {
+function matchesOffice(office: OfficeView, query: string) {
   if (!query) return true;
 
   return [
     office.number,
     office.code,
-    office.center.name,
-    office.center.address,
-    office.center.commune,
-    office.area?.name,
-    office.central_office?.number,
-    office.central_office?.name,
-    office.constituency.name,
-    office.primary_representative?.name,
-    protocolLabel(office),
+    office.areaName,
+    office.centerName,
+    office.centralNumber,
+    office.constituencyName,
+    office.representativeName,
   ]
     .map(normalize)
     .join(" ")
     .includes(query);
+}
+
+function renderLoadError(user: Awaited<ReturnType<typeof getCurrentUser>>) {
+  if (!user) return null;
+
+  return (
+    <main className="dashboard-shell polling-offices-index-page">
+      <AppHeader user={user} />
+      <section className="dashboard-content polling-offices-index-content">
+        <nav className="breadcrumbs presentation-breadcrumbs">
+          <Link href="/dashboard">لوحة المتابعة</Link>
+          <span>/</span>
+          <strong>مكاتب التصويت</strong>
+        </nav>
+
+        <div className="empty-state">
+          تعذر تحميل مكاتب التصويت حاليًا. أعد المحاولة بعد قليل.
+        </div>
+      </section>
+    </main>
+  );
 }
 
 export default async function PollingOfficesPage({
@@ -64,7 +85,6 @@ export default async function PollingOfficesPage({
     election?: string;
     q?: string;
     area?: string;
-    protocol?: string;
     page?: string;
   }>;
 }) {
@@ -74,11 +94,26 @@ export default async function PollingOfficesPage({
   const params = await searchParams;
   const sessionId = await readElectSessionId();
 
-  const electionsData = await backendRequest<ElectionsPayload>(
-    "/api/v1/elections",
-    { method: "GET", sessionId },
-  );
-  const elections = electionsData.items;
+  let elections: ElectionSummary[] = [];
+
+  try {
+    const electionResult = await backendHttp<ElectionsPayload>(
+      "/api/v1/elections",
+      { method: "GET", sessionId },
+    );
+
+    if (
+      !electionResult.response.ok ||
+      !electionResult.payload?.success
+    ) {
+      return renderLoadError(user);
+    }
+
+    elections = electionResult.payload.data.items;
+  } catch (error) {
+    console.error("polling-offices:elections-load-failed", error);
+    return renderLoadError(user);
+  }
 
   if (!elections.length) {
     return (
@@ -102,53 +137,113 @@ export default async function PollingOfficesPage({
     elections.find((item) => item.id === preferredElectionId) ??
     elections[0];
 
-  const officesData = await backendRequest<OfficesPayload>(
-    `/api/v1/elections/${selectedElection.id}/polling-offices`,
-    { method: "GET", sessionId },
-  );
+  let offices: OfficeView[] = [];
 
-  const offices = [...officesData.items].sort((a, b) => {
-    const areaCompare = (a.area?.name ?? "").localeCompare(
-      b.area?.name ?? "",
-      "ar",
-    );
+  try {
+    if (user.role === "observer") {
+      const officeResult = await backendHttp<OfficesPayload>(
+        `/api/v1/elections/${selectedElection.id}/polling-offices`,
+        { method: "GET", sessionId },
+      );
+
+      if (!officeResult.response.ok || !officeResult.payload?.success) {
+        return renderLoadError(user);
+      }
+
+      offices = officeResult.payload.data.items.map((office) => ({
+        id: office.id,
+        number: office.number,
+        code: office.code,
+        coverageState: office.coverage_state,
+        areaName: office.area?.name ?? office.center.commune ?? "—",
+        centerName: office.center.name,
+        centralNumber: office.central_office?.number ?? null,
+        constituencyName: office.constituency.name,
+        representativeName: office.primary_representative?.name ?? null,
+      }));
+    } else {
+      const constituencyResult = await backendHttp<ConstituenciesPayload>(
+        `/api/v1/elections/${selectedElection.id}/constituencies`,
+        { method: "GET", sessionId },
+      );
+
+      if (
+        !constituencyResult.response.ok ||
+        !constituencyResult.payload?.success
+      ) {
+        return renderLoadError(user);
+      }
+
+      const localConstituencies =
+        constituencyResult.payload.data.items.filter(
+          (item) => item.kind === "local",
+        );
+
+      const dashboardResults = await Promise.allSettled(
+        localConstituencies.map((constituency) =>
+          backendHttp<ConstituencyCoverageDashboard>(
+            `/api/v1/elections/${selectedElection.id}/constituencies/${constituency.id}/dashboard`,
+            { method: "GET", sessionId },
+          ),
+        ),
+      );
+
+      const dashboards = dashboardResults.flatMap((result) => {
+        if (result.status !== "fulfilled") return [];
+        if (
+          !result.value.response.ok ||
+          !result.value.payload?.success
+        ) {
+          return [];
+        }
+        return [result.value.payload.data];
+      });
+
+      if (localConstituencies.length && !dashboards.length) {
+        return renderLoadError(user);
+      }
+
+      offices = dashboards.flatMap((dashboard) =>
+        dashboard.offices.map((office) => ({
+          id: office.id,
+          number: office.number,
+          code: office.code,
+          coverageState: office.coverage_state,
+          areaName: office.area?.name ?? "—",
+          centerName: office.center.name,
+          centralNumber: office.central_office?.number ?? null,
+          constituencyName: dashboard.constituency.name,
+          representativeName: office.representative?.name ?? null,
+        })),
+      );
+    }
+  } catch (error) {
+    console.error("polling-offices:office-load-failed", error);
+    return renderLoadError(user);
+  }
+
+  offices.sort((a, b) => {
+    const areaCompare = a.areaName.localeCompare(b.areaName, "ar");
     if (areaCompare !== 0) return areaCompare;
 
     const centralCompare =
-      (a.central_office?.number ?? Number.MAX_SAFE_INTEGER) -
-      (b.central_office?.number ?? Number.MAX_SAFE_INTEGER);
+      (a.centralNumber ?? Number.MAX_SAFE_INTEGER) -
+      (b.centralNumber ?? Number.MAX_SAFE_INTEGER);
     if (centralCompare !== 0) return centralCompare;
 
     return a.number - b.number;
   });
 
   const areaNames = Array.from(
-    new Set(
-      offices
-        .map((office) => office.area?.name ?? office.center.commune ?? "")
-        .filter(Boolean),
-    ),
+    new Set(offices.map((office) => office.areaName).filter(Boolean)),
   ).sort((a, b) => a.localeCompare(b, "ar"));
 
   const query = normalize(params.q);
   const selectedArea = params.area ?? "";
-  const selectedProtocol = params.protocol ?? "";
 
   const filtered = offices.filter((office) => {
     if (!matchesOffice(office, query)) return false;
-
-    const officeArea = office.area?.name ?? office.center.commune ?? "";
-    if (selectedArea && officeArea !== selectedArea) return false;
-
-    if (selectedProtocol === "missing" && office.protocol) return false;
-    if (selectedProtocol === "entered" && !office.protocol) return false;
-    if (
-      selectedProtocol === "verified" &&
-      office.protocol?.state !== "verified"
-    ) {
-      return false;
-    }
-
+    if (selectedArea && office.areaName !== selectedArea) return false;
     return true;
   });
 
@@ -161,17 +256,18 @@ export default async function PollingOfficesPage({
   const start = (currentPage - 1) * PAGE_SIZE;
   const visible = filtered.slice(start, start + PAGE_SIZE);
 
-  const entered = offices.filter((office) => Boolean(office.protocol)).length;
-  const verified = offices.filter(
-    (office) => office.protocol?.state === "verified",
+  const covered = offices.filter(
+    (office) => office.coverageState !== "uncovered",
   ).length;
-  const missing = Math.max(offices.length - entered, 0);
+  const uncovered = Math.max(offices.length - covered, 0);
+  const represented = offices.filter(
+    (office) => Boolean(office.representativeName),
+  ).length;
 
   const persistentParams = new URLSearchParams();
   persistentParams.set("election", String(selectedElection.id));
   if (params.q) persistentParams.set("q", params.q);
   if (selectedArea) persistentParams.set("area", selectedArea);
-  if (selectedProtocol) persistentParams.set("protocol", selectedProtocol);
 
   function pageHref(page: number) {
     const next = new URLSearchParams(persistentParams);
@@ -195,7 +291,8 @@ export default async function PollingOfficesPage({
             <span className="presentation-kicker">POLLING OFFICES</span>
             <h1>مكاتب التصويت</h1>
             <p>
-              اختر مكتب التصويت ثم ادخل مباشرة إلى صفحة إدخال المحضر.
+              اختر المكتب ثم اضغط «إدخال المحضر» للانتقال مباشرة إلى نموذج
+              المحضر.
             </p>
           </div>
 
@@ -206,31 +303,34 @@ export default async function PollingOfficesPage({
           </div>
         </section>
 
-        <section className="polling-offices-index-kpis" aria-label="حالة المحاضر">
+        <section className="polling-offices-index-kpis">
           <article>
             <span>إجمالي المكاتب</span>
             <strong>{offices.length}</strong>
           </article>
           <article>
-            <span>لم يُدخل محضرها</span>
-            <strong>{missing}</strong>
+            <span>مغطاة</span>
+            <strong>{covered}</strong>
           </article>
           <article>
-            <span>بدأ إدخال المحضر</span>
-            <strong>{entered}</strong>
+            <span>بدون تغطية</span>
+            <strong>{uncovered}</strong>
           </article>
           <article>
-            <span>محاضر معتمدة</span>
-            <strong>{verified}</strong>
+            <span>بموكل معيّن</span>
+            <strong>{represented}</strong>
           </article>
         </section>
 
         <form className="polling-offices-index-filters" method="GET">
           <label>
             <span>الاستحقاق</span>
-            <select name="election" defaultValue={selectedElection.id}>
+            <select
+              name="election"
+              defaultValue={String(selectedElection.id)}
+            >
               {elections.map((election) => (
-                <option value={election.id} key={election.id}>
+                <option value={String(election.id)} key={election.id}>
                   {election.name}
                 </option>
               ))}
@@ -259,19 +359,9 @@ export default async function PollingOfficesPage({
             </select>
           </label>
 
-          <label>
-            <span>حالة المحضر</span>
-            <select name="protocol" defaultValue={selectedProtocol}>
-              <option value="">كل الحالات</option>
-              <option value="missing">لم يُدخل</option>
-              <option value="entered">بدأ الإدخال</option>
-              <option value="verified">معتمد</option>
-            </select>
-          </label>
-
           <button type="submit">تطبيق</button>
 
-          {(params.q || selectedArea || selectedProtocol) ? (
+          {(params.q || selectedArea) ? (
             <Link
               className="polling-offices-clear"
               href={`/polling-offices?election=${selectedElection.id}`}
@@ -296,65 +386,54 @@ export default async function PollingOfficesPage({
 
           {visible.length ? (
             <div className="polling-offices-index-list">
-              {visible.map((office) => {
-                const protocolState = office.protocol?.state ?? "missing";
+              {visible.map((office) => (
+                <article className="polling-office-index-card" key={office.id}>
+                  <div className="polling-office-index-number">
+                    <span>مكتب</span>
+                    <strong>{office.number}</strong>
+                  </div>
 
-                return (
-                  <article className="polling-office-index-card" key={office.id}>
-                    <div className="polling-office-index-number">
-                      <span>مكتب</span>
-                      <strong>{office.number}</strong>
-                    </div>
-
-                    <div className="polling-office-index-main">
-                      <strong>{office.center.name}</strong>
-                      <span>
-                        {office.area?.name ??
-                          office.center.commune ??
-                          "المقاطعة غير محددة"}
-                        {office.central_office
-                          ? ` · المكتب المركزي ${office.central_office.number}`
-                          : ""}
-                      </span>
-                      <small>
-                        {office.constituency.name}
-                        {office.registered_voters_known
-                          ? ` · ${office.registered_voters ?? 0} مسجلًا`
-                          : ""}
-                      </small>
-                    </div>
-
-                    <div className="polling-office-index-representative">
-                      <span>الموكل</span>
-                      <strong>
-                        {office.primary_representative?.name ?? "غير معيّن"}
-                      </strong>
-                    </div>
-
-                    <span
-                      className={`polling-office-index-protocol state-${protocolState}`}
-                    >
-                      {protocolLabel(office)}
+                  <div className="polling-office-index-main">
+                    <strong>{office.centerName}</strong>
+                    <span>
+                      {office.areaName}
+                      {office.centralNumber
+                        ? ` · المكتب المركزي ${office.centralNumber}`
+                        : ""}
                     </span>
+                    <small>{office.constituencyName}</small>
+                  </div>
 
-                    <div className="polling-office-index-actions">
-                      <Link
-                        className="polling-office-index-details"
-                        href={`/polling-offices/${office.id}`}
-                      >
-                        تفاصيل المكتب
-                      </Link>
-                      <Link
-                        className="polling-office-index-enter"
-                        href={`/polling-offices/${office.id}/protocol`}
-                      >
-                        {office.protocol ? "فتح المحضر" : "إدخال المحضر"}
-                        <span aria-hidden="true">←</span>
-                      </Link>
-                    </div>
-                  </article>
-                );
-              })}
+                  <div className="polling-office-index-representative">
+                    <span>الموكل</span>
+                    <strong>{office.representativeName ?? "غير معيّن"}</strong>
+                  </div>
+
+                  <span
+                    className={`polling-office-index-protocol state-${office.coverageState}`}
+                  >
+                    {office.coverageState === "uncovered"
+                      ? "غير مغطى"
+                      : "مغطى"}
+                  </span>
+
+                  <div className="polling-office-index-actions">
+                    <Link
+                      className="polling-office-index-details"
+                      href={`/polling-offices/${office.id}`}
+                    >
+                      تفاصيل المكتب
+                    </Link>
+                    <Link
+                      className="polling-office-index-enter"
+                      href={`/polling-offices/${office.id}/protocol`}
+                    >
+                      إدخال المحضر
+                      <span aria-hidden="true">←</span>
+                    </Link>
+                  </div>
+                </article>
+              ))}
             </div>
           ) : (
             <div className="empty-state">

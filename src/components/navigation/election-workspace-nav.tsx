@@ -166,11 +166,11 @@ export function ElectionWorkspaceNav({ role }: { role: ElectRole }) {
       active: pathname.startsWith(`${base}/command-center`),
     },
     {
-      label: "المحاضر",
-      description: "إدخال ومتابعة محاضر المكاتب",
-      href: `${base}/protocols`,
+      label: "مكاتب التصويت",
+      description: "اختيار مكتب وإدخال المحضر",
+      href: `/polling-offices?election=${electionId}`,
       icon: "protocols",
-      active: pathname.startsWith(`${base}/protocols`),
+      active: pathname.startsWith("/polling-offices"),
     },
     {
       label: "النتائج",
