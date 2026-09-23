@@ -188,6 +188,15 @@ export default async function CommandCenterPage({
               رؤية واحدة للتغطية، المحاضر والحالات التي تتطلب تدخلاً خلال
               العملية الانتخابية.
             </p>
+            <div className="presentation-action-row">
+              <Link
+                className="presentation-primary-action"
+                href={`/elections/${electionId}/protocols`}
+              >
+                إدخال المحاضر
+                <span aria-hidden="true">←</span>
+              </Link>
+            </div>
           </div>
           <span className="presentation-state state-pill">
             {stateNames[dashboard.election.state] ?? dashboard.election.state}
