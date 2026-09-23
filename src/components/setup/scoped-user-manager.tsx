@@ -348,7 +348,7 @@ export function ScopedUserManager({
               <input
                 required={!editingId}
                 type="password"
-                minLength={8}
+                minLength={editingId ? undefined : 8}
                 value={form.password}
                 onChange={(event) => updateForm("password", event.target.value)}
                 autoComplete="new-password"
