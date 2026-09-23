@@ -6,7 +6,14 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 
 type ElectRole = "observer" | "coordinator" | "manager";
-type NavIconName = "overview" | "command" | "results" | "setup" | "users" | "back";
+type NavIconName =
+  | "overview"
+  | "command"
+  | "protocols"
+  | "results"
+  | "setup"
+  | "users"
+  | "back";
 
 function NavIcon({ name }: { name: NavIconName }) {
   if (name === "overview") {
@@ -24,6 +31,17 @@ function NavIcon({ name }: { name: NavIconName }) {
     return (
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path d="M3 12h4l2.2-5 4.1 10 2.2-5H21" />
+      </svg>
+    );
+  }
+
+  if (name === "protocols") {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M7 3h8l4 4v14H7z" />
+        <path d="M15 3v5h5" />
+        <path d="M10 12h6" />
+        <path d="M10 16h6" />
       </svg>
     );
   }
@@ -148,8 +166,15 @@ export function ElectionWorkspaceNav({ role }: { role: ElectRole }) {
       active: pathname.startsWith(`${base}/command-center`),
     },
     {
+      label: "مكاتب التصويت",
+      description: "اختيار مكتب وإدخال المحضر",
+      href: `/polling-offices?election=${electionId}`,
+      icon: "protocols",
+      active: pathname.startsWith("/polling-offices"),
+    },
+    {
       label: "النتائج",
-      description: "المحاضر والتجميع",
+      description: "التجميع وعرض النتائج",
       href: `${base}/results`,
       icon: "results",
       active: pathname.startsWith(`${base}/results`),
