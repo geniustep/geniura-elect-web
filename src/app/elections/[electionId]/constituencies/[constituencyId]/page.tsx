@@ -8,7 +8,7 @@ import type {
   ConstituencyCoverageDashboard,
   ConstituencyCoverageOffice,
 } from "@/lib/elect/types";
-import { backendRequest } from "@/lib/server/backend";
+import { backendHttp } from "@/lib/server/backend";
 import {
   getCurrentUser,
   readElectSessionId,
@@ -176,19 +176,29 @@ export default async function ConstituencyDashboardPage({
   }
 
   const sessionId = await readElectSessionId();
-  let dashboard: ConstituencyCoverageDashboard;
+  const dashboardResult = await backendHttp<ConstituencyCoverageDashboard>(
+    `/api/v1/elections/${encodeURIComponent(electionId)}/constituencies/${encodeURIComponent(constituencyId)}/dashboard`,
+    {
+      method: "GET",
+      sessionId,
+    },
+  );
 
-  try {
-    dashboard = await backendRequest<ConstituencyCoverageDashboard>(
-      `/api/v1/elections/${encodeURIComponent(electionId)}/constituencies/${encodeURIComponent(constituencyId)}/dashboard`,
-      {
-        method: "GET",
-        sessionId,
-      },
-    );
-  } catch {
+  if (dashboardResult.response.status === 401) {
+    redirect("/login");
+  }
+  if (dashboardResult.response.status === 404) {
     notFound();
   }
+  if (
+    !dashboardResult.response.ok ||
+    !dashboardResult.payload ||
+    !dashboardResult.payload.success
+  ) {
+    throw new Error("تعذر تحميل لوحة الدائرة الانتخابية من الخدمة.");
+  }
+
+  const dashboard = dashboardResult.payload.data;
 
   const attentionOffices = dashboard.offices
     .filter(
