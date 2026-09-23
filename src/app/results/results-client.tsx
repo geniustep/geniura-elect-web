@@ -109,11 +109,11 @@ function stateCopy(state: PublicResultsState) {
 }
 
 function sortedLists(lists: PublicResultList[]) {
-  return [...lists].sort((a, b) => {
-    if (b.votes !== a.votes) return b.votes - a.votes;
-    return (a.ballot_number ?? Number.MAX_SAFE_INTEGER) -
-      (b.ballot_number ?? Number.MAX_SAFE_INTEGER);
-  });
+  return [...lists].sort(
+    (a, b) =>
+      (a.ballot_number ?? Number.MAX_SAFE_INTEGER) -
+      (b.ballot_number ?? Number.MAX_SAFE_INTEGER),
+  );
 }
 
 function listLogoUrl(item: PublicResultList) {
@@ -495,8 +495,10 @@ export function PublicResultsClient({
               {snapshot.status.official
                 ? "المعطيات موسومة كمصدر رسمي."
                 : noResults
-                  ? "ستظهر الأرقام عند اعتماد أول محضر."
-                  : "أرقام تجميعية مبنية على المحاضر المحتسبة حتى الآن."}
+                  ? "ستظهر الأرقام عند حفظ أول محضر متسق."
+                  : snapshot.status.trust_level === "received"
+                    ? "نتائج أولية تجميعية مبنية على المحاضر المحفوظة والمتسقة حتى الآن."
+                    : "أرقام تجميعية مبنية على المحاضر المحتسبة حتى الآن."}
             </span>
           </div>
           {connectionInterrupted ? (

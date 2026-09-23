@@ -65,7 +65,7 @@ export type PublicResultsSnapshot = {
   status: {
     state: PublicResultsState;
     official: boolean;
-    trust_level: "verified";
+    trust_level: "received" | "validated" | "verified";
     data_as_of: string | null;
   };
   completion: {
