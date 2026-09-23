@@ -222,76 +222,66 @@ function ComingSoon({
   return (
     <main className={`${styles.page} ${styles.comingSoonPage}`}>
       <section className={styles.comingSoonShell}>
-        <div className={styles.comingSoonBrand}>
-          <div className={styles.comingSoonLogo}>
+        <header className={styles.comingSoonTopbar}>
+          <div className={styles.comingSoonPlace}>
+            <span className={styles.locationMark} aria-hidden="true" />
+            <div>
+              <strong>{snapshot.constituency.name}</strong>
+              <small>الدائرة الانتخابية المحلية</small>
+            </div>
+          </div>
+
+          <div className={styles.comingSoonElection}>
+            <strong>{snapshot.election.name}</strong>
+            <small>{formatElectionDate(snapshot.election.date)}</small>
+          </div>
+
+          <div className={styles.comingSoonHeaderLogo}>
             <BrandLogo priority />
           </div>
-          <div>
-            <span>{snapshot.election.name}</span>
-            <strong>{snapshot.constituency.name}</strong>
-          </div>
-        </div>
+        </header>
 
-        <div className={styles.comingSoonStage}>
-          <div className={styles.comingSoonOrbit} aria-hidden="true">
-            <i />
-            <i />
-            <i />
-            <div className={styles.comingSoonCenterMark}>
-              <BrandLogo />
-            </div>
-          </div>
-
-          <div className={styles.comingSoonCopy}>
-            <span className={styles.comingSoonBadge}>
-              <i aria-hidden="true" />
-              قريبًا
-            </span>
-            <h1>قريبًا… سنعرض النتائج هنا</h1>
-            <p>
-              ستظهر النتائج على هذه الصفحة فور إتاحتها، في عرض واضح ومحدّث
-              للأصوات والنسب والمقاعد.
-            </p>
-
-            <div className={styles.comingSoonIdentity}>
-              <div>
-                <span>الاستحقاق</span>
-                <strong>{snapshot.election.name}</strong>
-              </div>
-              <div>
-                <span>الدائرة</span>
-                <strong>{snapshot.constituency.name}</strong>
-              </div>
-              <div>
-                <span>التاريخ</span>
-                <strong>{formatElectionDate(snapshot.election.date)}</strong>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className={styles.comingSoonPreview} aria-hidden="true">
-          {["الأصوات", "النسب", "المقاعد"].map((label) => (
-            <div key={label}>
-              <span>{label}</span>
-              <strong>—</strong>
+        <div className={styles.comingSoonCanvas}>
+          <div className={styles.comingSoonScenery} aria-hidden="true">
+            <span className={styles.comingSoonMountain} />
+            <span className={styles.comingSoonSea} />
+            <div className={styles.comingSoonCity}>
+              <i />
+              <i />
+              <i />
+              <i />
+              <i />
+              <i />
               <i />
               <i />
             </div>
-          ))}
-        </div>
+          </div>
 
-        <div className={styles.comingSoonAuto} aria-live="polite">
-          <span className={styles.comingSoonPulse} aria-hidden="true" />
-          <div>
-            <strong>
-              {refreshing ? "جارٍ التحقق من توفر النتائج…" : "هذه الصفحة تتحدث تلقائيًا"}
-            </strong>
-            <small>
-              {connectionInterrupted
-                ? "تعذر التحقق مؤقتًا، وسنحاول مرة أخرى تلقائيًا."
-                : "لا تحتاج إلى إعادة تحميل الصفحة عند إتاحة النتائج."}
-            </small>
+          <div className={styles.comingSoonMonument}>
+            <div className={styles.comingSoonCenterLogo}>
+              <BrandLogo priority />
+            </div>
+            <h1>قريبًا</h1>
+            <span className={styles.comingSoonAccent} aria-hidden="true" />
+            <p>سيتم عرض النتائج هنا</p>
+          </div>
+
+          <div className={styles.comingSoonPreview} aria-hidden="true">
+            {[0, 1, 2].map((item) => (
+              <div key={item}>
+                <span />
+                <i />
+                <i />
+              </div>
+            ))}
+          </div>
+
+          <div className={styles.comingSoonLiveRegion} aria-live="polite">
+            {connectionInterrupted
+              ? "تعذر التحديث مؤقتًا"
+              : refreshing
+                ? "جارٍ التحقق من توفر النتائج"
+                : ""}
           </div>
         </div>
       </section>

@@ -22,327 +22,413 @@
 
 
 .comingSoonPage {
+  position: relative;
+  overflow: hidden;
   display: grid;
-  place-items: center;
-  padding: 28px 0;
+  place-items: stretch;
+  min-height: 100svh;
+  background: #f7fbff;
 }
 
 .comingSoonShell {
   position: relative;
   overflow: hidden;
-  width: min(1120px, calc(100% - 40px));
-  min-height: calc(100svh - 56px);
+  min-height: 100svh;
   display: grid;
-  align-content: center;
-  gap: 24px;
-  padding: clamp(24px, 5vw, 58px);
-  border: 1px solid rgba(0, 45, 98, 0.1);
-  border-radius: 34px;
+  grid-template-rows: auto 1fr;
   background:
-    radial-gradient(circle at 90% 8%, rgba(236, 137, 29, 0.13), transparent 24rem),
-    radial-gradient(circle at 4% 92%, rgba(0, 45, 98, 0.08), transparent 28rem),
-    linear-gradient(145deg, #ffffff 0%, #f8fbff 100%);
-  box-shadow: 0 30px 90px rgba(0, 45, 98, 0.12);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.99) 0 14%, rgba(243, 249, 255, 0.94) 14% 100%);
+}
+
+.comingSoonShell::before,
+.comingSoonShell::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  width: 210px;
+  height: 210px;
+  opacity: 0.32;
+  pointer-events: none;
+  background:
+    linear-gradient(30deg, transparent 43%, rgba(0, 45, 98, 0.14) 44% 46%, transparent 47%),
+    linear-gradient(150deg, transparent 43%, rgba(0, 45, 98, 0.14) 44% 46%, transparent 47%),
+    linear-gradient(90deg, transparent 43%, rgba(0, 45, 98, 0.1) 44% 46%, transparent 47%);
+  background-size: 46px 80px;
 }
 
 .comingSoonShell::before {
-  content: "";
-  position: absolute;
-  width: 520px;
-  height: 520px;
-  inset-inline-end: -300px;
-  top: -300px;
-  border: 1px solid rgba(0, 45, 98, 0.07);
-  border-radius: 50%;
-  box-shadow:
-    0 0 0 74px rgba(0, 45, 98, 0.025),
-    0 0 0 148px rgba(236, 137, 29, 0.018);
+  inset-inline-start: -58px;
+  top: 118px;
+  transform: rotate(12deg);
 }
 
-.comingSoonBrand {
+.comingSoonShell::after {
+  inset-inline-end: -62px;
+  top: 118px;
+  transform: rotate(-12deg);
+}
+
+.comingSoonTopbar {
   position: relative;
-  z-index: 2;
+  z-index: 4;
+  width: min(1120px, calc(100% - 48px));
+  min-height: 112px;
+  display: grid;
+  grid-template-columns: minmax(210px, 1fr) minmax(320px, 1.35fr) minmax(110px, 0.7fr);
+  align-items: center;
+  gap: 26px;
+  margin: 0 auto;
+  border-bottom: 1px solid rgba(236, 137, 29, 0.28);
+}
+
+.comingSoonPlace,
+.comingSoonElection {
+  min-width: 0;
   display: flex;
   align-items: center;
+}
+
+.comingSoonPlace {
   gap: 13px;
 }
 
-.comingSoonLogo {
-  width: 58px;
-  height: 58px;
-  flex: 0 0 58px;
-}
-
-.comingSoonLogo :global(.brand-logo) {
-  width: 58px;
-  height: 58px;
-  margin: 0;
-  border: 1px solid var(--public-border);
-  border-radius: 17px;
-  box-shadow: 0 10px 28px rgba(0, 45, 98, 0.08);
-}
-
-.comingSoonBrand > div:last-child {
+.comingSoonPlace > div,
+.comingSoonElection {
   display: grid;
-  gap: 2px;
+  gap: 4px;
 }
 
-.comingSoonBrand span {
-  color: var(--public-muted);
-  font-size: 10px;
-  font-weight: 700;
-}
-
-.comingSoonBrand strong {
-  color: var(--public-brand);
-  font-size: 18px;
-  font-weight: 800;
-}
-
-.comingSoonStage {
+.locationMark {
   position: relative;
-  z-index: 2;
-  display: grid;
-  grid-template-columns: minmax(250px, 0.72fr) minmax(0, 1.28fr);
-  align-items: center;
-  gap: clamp(30px, 6vw, 80px);
-  padding: clamp(18px, 3vw, 30px) 0;
+  width: 24px;
+  height: 24px;
+  flex: 0 0 24px;
+  border-radius: 50% 50% 50% 0;
+  background: var(--public-accent);
+  transform: rotate(-45deg);
+  box-shadow: 0 8px 18px rgba(236, 137, 29, 0.2);
 }
 
-.comingSoonOrbit {
-  position: relative;
-  width: min(330px, 100%);
-  aspect-ratio: 1;
-  display: grid;
-  place-items: center;
-  justify-self: center;
-  border: 1px solid rgba(0, 45, 98, 0.09);
-  border-radius: 50%;
-  background:
-    radial-gradient(circle, rgba(0, 45, 98, 0.08), transparent 58%);
-}
-
-.comingSoonOrbit::before,
-.comingSoonOrbit::after {
+.locationMark::after {
   content: "";
   position: absolute;
-  border: 1px solid rgba(0, 45, 98, 0.075);
+  inset: 7px;
   border-radius: 50%;
-}
-
-.comingSoonOrbit::before {
-  inset: 14%;
-}
-
-.comingSoonOrbit::after {
-  inset: 30%;
-}
-
-.comingSoonOrbit > i {
-  position: absolute;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: var(--public-accent);
-  box-shadow: 0 0 0 7px rgba(236, 137, 29, 0.12);
-}
-
-.comingSoonOrbit > i:nth-child(1) {
-  top: 10%;
-  inset-inline-start: 33%;
-}
-
-.comingSoonOrbit > i:nth-child(2) {
-  inset-inline-end: 7%;
-  bottom: 34%;
-  width: 9px;
-  height: 9px;
-  background: var(--public-brand);
-  box-shadow: 0 0 0 7px rgba(0, 45, 98, 0.08);
-}
-
-.comingSoonOrbit > i:nth-child(3) {
-  inset-inline-start: 15%;
-  bottom: 17%;
-  width: 7px;
-  height: 7px;
-  background: #8da3ba;
-  box-shadow: 0 0 0 6px rgba(141, 163, 186, 0.1);
-}
-
-.comingSoonCenterMark {
-  position: relative;
-  z-index: 2;
-  width: 124px;
-  height: 124px;
-  display: grid;
-  place-items: center;
-  border: 1px solid rgba(0, 45, 98, 0.1);
-  border-radius: 32px;
   background: #fff;
-  box-shadow: 0 24px 56px rgba(0, 45, 98, 0.14);
 }
 
-.comingSoonCenterMark :global(.brand-logo) {
-  width: 104px;
-  height: 104px;
-  margin: 0;
-  border-radius: 25px;
-}
-
-.comingSoonCopy {
-  display: grid;
-  justify-items: start;
-  gap: 14px;
-}
-
-.comingSoonBadge {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 7px 11px;
-  border: 1px solid rgba(236, 137, 29, 0.2);
-  border-radius: 999px;
-  background: var(--public-accent-soft);
-  color: #9a570f;
-  font-size: 10px;
-  font-weight: 900;
-}
-
-.comingSoonBadge > i {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--public-accent);
-  box-shadow: 0 0 0 5px rgba(236, 137, 29, 0.1);
-}
-
-.comingSoonCopy h1 {
-  max-width: 700px;
-  margin: 0;
+.comingSoonPlace strong,
+.comingSoonElection strong {
+  overflow: hidden;
   color: var(--public-brand);
-  font-size: clamp(42px, 6.2vw, 72px);
-  font-weight: 800;
-  line-height: 1.12;
-  letter-spacing: -0.04em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.comingSoonCopy > p {
-  max-width: 650px;
-  margin: 0;
-  color: var(--public-muted);
-  font-size: 14px;
-  line-height: 2;
+.comingSoonPlace strong {
+  font-size: 18px;
+  font-weight: 850;
 }
 
-.comingSoonIdentity {
-  width: 100%;
-  display: grid;
-  grid-template-columns: 1.2fr 1fr 1fr;
-  gap: 8px;
-  margin-top: 6px;
-}
-
-.comingSoonIdentity > div {
-  min-height: 78px;
-  display: grid;
-  align-content: center;
-  gap: 4px;
-  padding: 12px 14px;
-  border: 1px solid var(--public-border);
-  border-radius: 15px;
-  background: rgba(255, 255, 255, 0.8);
-}
-
-.comingSoonIdentity span {
-  color: var(--public-muted);
-  font-size: 8px;
+.comingSoonPlace small,
+.comingSoonElection small {
+  color: #8492a6;
+  font-size: 10px;
   font-weight: 700;
 }
 
-.comingSoonIdentity strong {
-  color: var(--public-text);
-  font-size: 11px;
-  line-height: 1.55;
+.comingSoonElection {
+  justify-items: center;
+  padding-inline: 24px;
+  border-inline: 1px solid rgba(0, 45, 98, 0.12);
+  text-align: center;
+}
+
+.comingSoonElection strong {
+  font-size: clamp(20px, 2.2vw, 30px);
+  font-weight: 850;
+}
+
+.comingSoonElection small {
+  font-size: 12px;
+}
+
+.comingSoonHeaderLogo {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.comingSoonHeaderLogo :global(.brand-logo) {
+  width: 72px;
+  height: 72px;
+  margin: 0;
+  border: 0;
+  border-radius: 20px;
+  background: transparent;
+}
+
+.comingSoonCanvas {
+  position: relative;
+  z-index: 1;
+  min-height: calc(100svh - 112px);
+  display: grid;
+  grid-template-rows: 1fr auto;
+  align-items: center;
+  justify-items: center;
+  padding: clamp(28px, 5vh, 58px) 24px 28px;
+  isolation: isolate;
+  background:
+    radial-gradient(circle at 50% 28%, rgba(255, 255, 255, 0.98) 0 18%, rgba(255, 255, 255, 0.72) 36%, transparent 58%),
+    linear-gradient(180deg, rgba(215, 237, 255, 0.62), rgba(242, 248, 253, 0.72) 54%, rgba(255, 255, 255, 0.96) 100%);
+}
+
+.comingSoonScenery {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.comingSoonScenery::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 72% 23%, rgba(255, 255, 255, 0.86), transparent 28%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.62) 66%, rgba(255, 255, 255, 0.94));
+}
+
+.comingSoonMountain {
+  position: absolute;
+  inset-inline-start: -4%;
+  bottom: 21%;
+  width: 51%;
+  height: 31%;
+  border-radius: 50% 76% 0 0;
+  background:
+    linear-gradient(155deg, rgba(91, 132, 171, 0.24), rgba(185, 210, 231, 0.12) 66%, transparent 67%);
+  filter: blur(0.2px);
+}
+
+.comingSoonSea {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  height: 43%;
+  background:
+    linear-gradient(180deg, rgba(113, 184, 225, 0.35), rgba(206, 234, 249, 0.54) 40%, rgba(246, 250, 253, 0.88) 92%),
+    repeating-linear-gradient(0deg, transparent 0 13px, rgba(255, 255, 255, 0.25) 14px 15px);
+  clip-path: polygon(0 18%, 100% 5%, 100% 100%, 0 100%);
+}
+
+.comingSoonCity {
+  position: absolute;
+  inset-inline-end: -1%;
+  bottom: 15%;
+  width: min(470px, 37vw);
+  height: 210px;
+  display: flex;
+  align-items: end;
+  justify-content: flex-end;
+  gap: 2px;
+  opacity: 0.74;
+  filter: drop-shadow(0 14px 30px rgba(0, 45, 98, 0.08));
+}
+
+.comingSoonCity::before {
+  content: "";
+  position: absolute;
+  inset-inline-end: 17%;
+  bottom: 60px;
+  width: 46px;
+  height: 118px;
+  border-radius: 5px 5px 0 0;
+  background:
+    linear-gradient(90deg, transparent 40%, rgba(0, 45, 98, 0.08) 41% 59%, transparent 60%),
+    #fff;
+  box-shadow: inset 0 -2px 0 rgba(0, 45, 98, 0.06);
+}
+
+.comingSoonCity::after {
+  content: "";
+  position: absolute;
+  inset-inline-end: calc(17% + 13px);
+  bottom: 178px;
+  width: 20px;
+  height: 25px;
+  border-radius: 50% 50% 3px 3px;
+  background: #fff;
+  box-shadow: 0 -8px 0 -6px rgba(0, 45, 98, 0.25);
+}
+
+.comingSoonCity i {
+  position: relative;
+  display: block;
+  width: 46px;
+  border-radius: 4px 4px 0 0;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 9px, rgba(0, 45, 98, 0.055) 10px 12px),
+    #fff;
+  box-shadow: inset 0 -2px 0 rgba(0, 45, 98, 0.05);
+}
+
+.comingSoonCity i:nth-child(1) { height: 82px; width: 72px; }
+.comingSoonCity i:nth-child(2) { height: 112px; width: 58px; }
+.comingSoonCity i:nth-child(3) { height: 94px; width: 70px; }
+.comingSoonCity i:nth-child(4) { height: 128px; width: 62px; }
+.comingSoonCity i:nth-child(5) { height: 104px; width: 76px; }
+.comingSoonCity i:nth-child(6) { height: 138px; width: 54px; }
+.comingSoonCity i:nth-child(7) { height: 86px; width: 76px; }
+.comingSoonCity i:nth-child(8) { height: 70px; width: 82px; }
+
+.comingSoonMonument {
+  position: relative;
+  z-index: 2;
+  width: min(510px, 88vw);
+  min-height: clamp(430px, 57vh, 575px);
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 14px;
+  padding: 90px 48px 48px;
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  border-radius: 46% 46% 34px 34px / 27% 27% 34px 34px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.83), rgba(255, 255, 255, 0.72)),
+    radial-gradient(circle at 50% 20%, rgba(236, 137, 29, 0.08), transparent 38%);
+  box-shadow:
+    0 28px 90px rgba(0, 45, 98, 0.11),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.42);
+  backdrop-filter: blur(13px);
+}
+
+.comingSoonMonument::before {
+  content: "";
+  position: absolute;
+  top: -20px;
+  width: 72px;
+  height: 72px;
+  border-top: 1px solid rgba(236, 137, 29, 0.22);
+  border-inline-start: 1px solid rgba(236, 137, 29, 0.22);
+  background: rgba(255, 255, 255, 0.42);
+  transform: rotate(45deg);
+  border-radius: 22px 0 0 0;
+}
+
+.comingSoonCenterLogo {
+  position: relative;
+  width: 132px;
+  height: 132px;
+  display: grid;
+  place-items: center;
+}
+
+.comingSoonCenterLogo::before,
+.comingSoonCenterLogo::after {
+  content: "";
+  position: absolute;
+  inset: 10px;
+  border: 2px solid rgba(236, 137, 29, 0.24);
+  border-radius: 50%;
+}
+
+.comingSoonCenterLogo::after {
+  inset: 0;
+  border-width: 1px;
+  border-color: rgba(236, 137, 29, 0.12);
+}
+
+.comingSoonCenterLogo :global(.brand-logo) {
+  width: 96px;
+  height: 96px;
+  margin: 0;
+  border: 0;
+  border-radius: 24px;
+  background: transparent;
+  box-shadow: none;
+}
+
+.comingSoonMonument h1 {
+  margin: 8px 0 0;
+  color: var(--public-brand);
+  font-size: clamp(64px, 8vw, 98px);
+  font-weight: 850;
+  line-height: 0.95;
+  letter-spacing: -0.055em;
+}
+
+.comingSoonAccent {
+  width: 42px;
+  height: 3px;
+  margin-top: 8px;
+  border-radius: 999px;
+  background: var(--public-accent);
+}
+
+.comingSoonMonument p {
+  margin: 5px 0 0;
+  color: #8291a5;
+  font-size: clamp(16px, 1.8vw, 22px);
+  font-weight: 700;
 }
 
 .comingSoonPreview {
   position: relative;
-  z-index: 2;
+  z-index: 3;
+  width: min(1180px, calc(100% - 24px));
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
+  gap: 18px;
+  margin-top: -14px;
 }
 
 .comingSoonPreview > div {
-  min-height: 116px;
+  min-height: 96px;
   display: grid;
-  align-content: center;
-  gap: 8px;
-  padding: 16px;
-  border: 1px solid var(--public-border);
-  border-radius: 17px;
-  background: rgba(255, 255, 255, 0.72);
+  grid-template-columns: 54px 1fr;
+  grid-template-rows: 1fr 1fr;
+  align-items: center;
+  gap: 7px 16px;
+  padding: 16px 20px;
+  border: 1px solid rgba(255, 255, 255, 0.86);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.58);
+  box-shadow: 0 18px 45px rgba(0, 45, 98, 0.05);
+  backdrop-filter: blur(10px);
 }
 
-.comingSoonPreview span {
-  color: var(--public-muted);
-  font-size: 9px;
-  font-weight: 700;
-}
-
-.comingSoonPreview strong {
-  color: var(--public-brand);
-  font-size: 25px;
+.comingSoonPreview > div > span {
+  grid-row: 1 / 3;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: rgba(0, 45, 98, 0.055);
 }
 
 .comingSoonPreview i {
   display: block;
-  height: 7px;
+  height: 10px;
   border-radius: 999px;
-  background: linear-gradient(90deg, #e8edf3, #f5f7fa);
+  background: rgba(0, 45, 98, 0.07);
 }
 
 .comingSoonPreview i:last-child {
-  width: 62%;
+  width: 67%;
 }
 
-.comingSoonAuto {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 13px 15px;
-  border: 1px solid rgba(0, 45, 98, 0.08);
-  border-radius: 15px;
-  background: rgba(238, 244, 251, 0.72);
-}
-
-.comingSoonPulse {
-  width: 11px;
-  height: 11px;
-  flex: 0 0 11px;
-  border-radius: 50%;
-  background: var(--public-brand);
-  box-shadow: 0 0 0 7px rgba(0, 45, 98, 0.08);
-}
-
-.comingSoonAuto > div {
-  display: grid;
-  gap: 2px;
-}
-
-.comingSoonAuto strong {
-  color: var(--public-brand);
-  font-size: 10px;
-}
-
-.comingSoonAuto small {
-  color: var(--public-muted);
+.comingSoonLiveRegion {
+  position: absolute;
+  z-index: 5;
+  inset-inline-start: 24px;
+  bottom: 18px;
+  min-height: 18px;
+  color: #708299;
   font-size: 9px;
-  line-height: 1.6;
+  font-weight: 700;
 }
+
 
 .publicHeader {
   position: sticky;
@@ -1682,120 +1768,207 @@
 }
 
 @media (max-width: 760px) {
-  .comingSoonPage {
-    padding: 0;
+  .comingSoonTopbar {
+    width: min(100% - 28px, 1120px);
+    min-height: 92px;
+    grid-template-columns: 1fr auto;
+    gap: 12px;
   }
 
-  .comingSoonShell {
-    width: 100%;
-    min-height: 100svh;
-    gap: 18px;
-    padding: 24px 18px 28px;
-    border: 0;
-    border-radius: 0;
-    box-shadow: none;
+  .comingSoonPlace {
+    display: none;
   }
 
-  .comingSoonStage {
-    grid-template-columns: 1fr;
-    gap: 22px;
-    padding: 8px 0;
-  }
-
-  .comingSoonOrbit {
-    width: 210px;
-  }
-
-  .comingSoonCenterMark {
-    width: 92px;
-    height: 92px;
-    border-radius: 25px;
-  }
-
-  .comingSoonCenterMark :global(.brand-logo) {
-    width: 78px;
-    height: 78px;
-    border-radius: 19px;
-  }
-
-  .comingSoonCopy {
-    justify-items: center;
-    text-align: center;
-  }
-
-  .comingSoonCopy h1 {
-    font-size: 39px;
-  }
-
-  .comingSoonCopy > p {
-    font-size: 12px;
-  }
-
-  .comingSoonIdentity {
-    grid-template-columns: 1fr;
+  .comingSoonElection {
+    justify-items: start;
+    padding-inline: 0 14px;
+    border-inline: 0;
     text-align: start;
   }
 
-  .comingSoonIdentity > div {
-    min-height: 64px;
+  .comingSoonElection strong {
+    font-size: 17px;
+  }
+
+  .comingSoonElection small {
+    font-size: 9px;
+  }
+
+  .comingSoonHeaderLogo {
+    justify-content: flex-end;
+  }
+
+  .comingSoonHeaderLogo :global(.brand-logo) {
+    width: 56px;
+    height: 56px;
+  }
+
+  .comingSoonCanvas {
+    min-height: calc(100svh - 92px);
+    padding: 22px 14px 18px;
+  }
+
+  .comingSoonMountain {
+    width: 82%;
+    bottom: 23%;
+  }
+
+  .comingSoonCity {
+    width: 62vw;
+    height: 148px;
+    bottom: 18%;
+    opacity: 0.48;
+  }
+
+  .comingSoonCity::before {
+    width: 32px;
+    height: 82px;
+    bottom: 44px;
+  }
+
+  .comingSoonCity::after {
+    inset-inline-end: calc(17% + 8px);
+    bottom: 126px;
+    width: 16px;
+    height: 18px;
+  }
+
+  .comingSoonCity i:nth-child(n) {
+    width: 40px;
+    height: 60px;
+  }
+
+  .comingSoonCity i:nth-child(2),
+  .comingSoonCity i:nth-child(4),
+  .comingSoonCity i:nth-child(6) {
+    height: 88px;
+  }
+
+  .comingSoonMonument {
+    width: min(420px, 94vw);
+    min-height: 430px;
+    padding: 72px 28px 36px;
+    border-radius: 46% 46% 28px 28px / 24% 24% 28px 28px;
+  }
+
+  .comingSoonCenterLogo {
+    width: 112px;
+    height: 112px;
+  }
+
+  .comingSoonCenterLogo :global(.brand-logo) {
+    width: 82px;
+    height: 82px;
+  }
+
+  .comingSoonMonument h1 {
+    font-size: clamp(58px, 18vw, 78px);
+  }
+
+  .comingSoonMonument p {
+    font-size: 16px;
   }
 
   .comingSoonPreview {
-    grid-template-columns: repeat(3, 1fr);
+    width: 100%;
+    gap: 8px;
+    margin-top: -6px;
   }
 
   .comingSoonPreview > div {
-    min-height: 92px;
-    padding: 12px;
+    min-height: 76px;
+    grid-template-columns: 38px 1fr;
+    gap: 6px 10px;
+    padding: 10px;
+    border-radius: 14px;
+  }
+
+  .comingSoonPreview > div > span {
+    width: 38px;
+    height: 38px;
+  }
+
+  .comingSoonPreview i {
+    height: 7px;
+  }
+
+  .comingSoonLiveRegion {
+    inset-inline-start: 14px;
+    bottom: 6px;
   }
 }
 
 @media (max-width: 430px) {
-  .comingSoonBrand strong {
-    font-size: 15px;
+  .comingSoonShell::before,
+  .comingSoonShell::after {
+    width: 130px;
+    height: 130px;
+    opacity: 0.2;
   }
 
-  .comingSoonCopy h1 {
-    font-size: 34px;
+  .comingSoonTopbar {
+    min-height: 82px;
+  }
+
+  .comingSoonElection strong {
+    max-width: 240px;
+    font-size: 14px;
+  }
+
+  .comingSoonHeaderLogo :global(.brand-logo) {
+    width: 48px;
+    height: 48px;
+  }
+
+  .comingSoonCanvas {
+    min-height: calc(100svh - 82px);
+    padding-top: 18px;
+  }
+
+  .comingSoonMonument {
+    min-height: 390px;
+    padding-top: 62px;
+  }
+
+  .comingSoonMonument h1 {
+    font-size: 62px;
+  }
+
+  .comingSoonMonument p {
+    font-size: 14px;
   }
 
   .comingSoonPreview {
-    gap: 6px;
+    gap: 5px;
   }
 
   .comingSoonPreview > div {
-    min-height: 84px;
-    padding: 10px;
+    min-height: 68px;
+    grid-template-columns: 30px 1fr;
+    padding: 8px;
   }
 
-  .comingSoonPreview span {
-    font-size: 8px;
-  }
-
-  .comingSoonPreview strong {
-    font-size: 20px;
+  .comingSoonPreview > div > span {
+    width: 30px;
+    height: 30px;
   }
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .comingSoonOrbit {
-    animation: coming-soon-float 7s ease-in-out infinite;
-  }
-
-  .comingSoonPulse {
-    animation: coming-soon-pulse 2.2s ease-out infinite;
+  .comingSoonCenterLogo::before {
+    animation: coming-soon-ring 5s ease-in-out infinite;
   }
 }
 
-@keyframes coming-soon-float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-7px); }
-}
-
-@keyframes coming-soon-pulse {
-  0% { box-shadow: 0 0 0 0 rgba(0, 45, 98, 0.18); }
-  70% { box-shadow: 0 0 0 11px rgba(0, 45, 98, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(0, 45, 98, 0); }
+@keyframes coming-soon-ring {
+  0%, 100% {
+    transform: scale(0.96);
+    opacity: 0.58;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
 }
 
 
