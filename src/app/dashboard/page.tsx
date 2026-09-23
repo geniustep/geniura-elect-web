@@ -213,9 +213,9 @@ export default async function DashboardPage() {
                     ]
                   : []),
                 {
-                  href: `/elections/${election.id}`,
+                  href: `/polling-offices?election=${election.id}`,
                   index: user.role === "observer" ? "02" : "04",
-                  label: "المحاضر",
+                  label: "مكاتب التصويت",
                 },
               ];
 
