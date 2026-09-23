@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
 
-import type { PublicResultsSnapshot } from "@/lib/elect/public-results";
+import type { PublicResultsPayload } from "@/lib/elect/public-results";
 import { backendHttp } from "@/lib/server/backend";
 
 export const dynamic = "force-dynamic";
 
 const SUCCESS_CACHE_CONTROL =
-  "public, s-maxage=5, stale-while-revalidate=30, stale-if-error=300";
+  "public, s-maxage=2, max-age=0, must-revalidate";
 
 function unavailable(status = 503) {
   return NextResponse.json(
@@ -29,7 +29,7 @@ function unavailable(status = 503) {
 
 export async function GET() {
   try {
-    const { response, payload } = await backendHttp<PublicResultsSnapshot>(
+    const { response, payload } = await backendHttp<PublicResultsPayload>(
       "/api/v1/public/results",
       {
         method: "GET",

@@ -23,6 +23,7 @@ export type ElectionSummary = {
   election_date: string;
   election_kind: string;
   state: string;
+  public_results_visible: boolean;
   poll_open_time: string;
   poll_close_time: string;
   result_structure: string;

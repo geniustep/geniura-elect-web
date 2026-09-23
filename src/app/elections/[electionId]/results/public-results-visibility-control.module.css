@@ -1,0 +1,133 @@
+.panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 16px 24px;
+  margin-top: 14px;
+  padding: 15px 17px;
+  border: 1px solid var(--ge-border);
+  border-radius: 17px;
+  background: var(--ge-surface);
+  box-shadow: var(--ge-shadow-sm);
+}
+
+.isVisible {
+  border-inline-start: 4px solid var(--ge-success);
+}
+
+.isHidden {
+  border-inline-start: 4px solid var(--ge-brand-accent);
+}
+
+.status {
+  min-width: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.status > span {
+  width: 10px;
+  height: 10px;
+  flex: 0 0 10px;
+  margin-top: 7px;
+  border-radius: 50%;
+  background: var(--ge-brand-accent);
+  box-shadow: 0 0 0 6px var(--ge-brand-accent-soft);
+}
+
+.isVisible .status > span {
+  background: var(--ge-success);
+  box-shadow: 0 0 0 6px var(--ge-success-bg);
+}
+
+.status > div {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.status small {
+  color: var(--ge-text-muted);
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.status strong {
+  color: var(--ge-brand-primary-deep);
+  font-size: 13px;
+}
+
+.status p {
+  margin: 2px 0 0;
+  color: var(--ge-text-muted);
+  font-size: 9px;
+  line-height: 1.65;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.actions a,
+.actions button {
+  min-height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+  border-radius: 11px;
+  font: inherit;
+  font-size: 9px;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.actions a {
+  border: 1px solid var(--ge-border);
+  background: var(--ge-surface);
+  color: var(--ge-brand-primary);
+}
+
+.actions button {
+  border: 0;
+  background: var(--ge-brand-primary);
+  color: #fff;
+  cursor: pointer;
+}
+
+.isVisible .actions button {
+  background: var(--ge-danger-bg);
+  color: var(--ge-danger);
+}
+
+.actions button:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
+.feedback {
+  grid-column: 1 / -1;
+  padding-top: 9px;
+  border-top: 1px solid var(--ge-border);
+  color: var(--ge-text-secondary);
+  font-size: 9px;
+  font-weight: 700;
+}
+
+@media (max-width: 760px) {
+  .panel {
+    grid-template-columns: 1fr;
+  }
+
+  .actions {
+    width: 100%;
+  }
+
+  .actions a,
+  .actions button {
+    flex: 1;
+  }
+}

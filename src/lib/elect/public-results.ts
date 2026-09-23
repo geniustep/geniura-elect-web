@@ -30,7 +30,27 @@ export type PublicAreaProgress = {
   percent: number;
 };
 
+export type PublicResultsComingSoon = {
+  publication: {
+    visible: false;
+  };
+  election: {
+    name: string;
+    date: string;
+  };
+  constituency: {
+    name: string;
+    kind: "local" | "regional";
+  };
+  metadata: {
+    generated_at: string;
+  };
+};
+
 export type PublicResultsSnapshot = {
+  publication: {
+    visible: true;
+  };
   election: {
     name: string;
     date: string;
@@ -77,3 +97,7 @@ export type PublicResultsSnapshot = {
     official_source: string | null;
   };
 };
+
+export type PublicResultsPayload =
+  | PublicResultsComingSoon
+  | PublicResultsSnapshot;

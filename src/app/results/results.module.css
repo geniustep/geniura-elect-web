@@ -20,6 +20,330 @@
   color: var(--public-text);
 }
 
+
+.comingSoonPage {
+  display: grid;
+  place-items: center;
+  padding: 28px 0;
+}
+
+.comingSoonShell {
+  position: relative;
+  overflow: hidden;
+  width: min(1120px, calc(100% - 40px));
+  min-height: calc(100svh - 56px);
+  display: grid;
+  align-content: center;
+  gap: 24px;
+  padding: clamp(24px, 5vw, 58px);
+  border: 1px solid rgba(0, 45, 98, 0.1);
+  border-radius: 34px;
+  background:
+    radial-gradient(circle at 90% 8%, rgba(236, 137, 29, 0.13), transparent 24rem),
+    radial-gradient(circle at 4% 92%, rgba(0, 45, 98, 0.08), transparent 28rem),
+    linear-gradient(145deg, #ffffff 0%, #f8fbff 100%);
+  box-shadow: 0 30px 90px rgba(0, 45, 98, 0.12);
+}
+
+.comingSoonShell::before {
+  content: "";
+  position: absolute;
+  width: 520px;
+  height: 520px;
+  inset-inline-end: -300px;
+  top: -300px;
+  border: 1px solid rgba(0, 45, 98, 0.07);
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 74px rgba(0, 45, 98, 0.025),
+    0 0 0 148px rgba(236, 137, 29, 0.018);
+}
+
+.comingSoonBrand {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+
+.comingSoonLogo {
+  width: 58px;
+  height: 58px;
+  flex: 0 0 58px;
+}
+
+.comingSoonLogo :global(.brand-logo) {
+  width: 58px;
+  height: 58px;
+  margin: 0;
+  border: 1px solid var(--public-border);
+  border-radius: 17px;
+  box-shadow: 0 10px 28px rgba(0, 45, 98, 0.08);
+}
+
+.comingSoonBrand > div:last-child {
+  display: grid;
+  gap: 2px;
+}
+
+.comingSoonBrand span {
+  color: var(--public-muted);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.comingSoonBrand strong {
+  color: var(--public-brand);
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.comingSoonStage {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: minmax(250px, 0.72fr) minmax(0, 1.28fr);
+  align-items: center;
+  gap: clamp(30px, 6vw, 80px);
+  padding: clamp(18px, 3vw, 30px) 0;
+}
+
+.comingSoonOrbit {
+  position: relative;
+  width: min(330px, 100%);
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  justify-self: center;
+  border: 1px solid rgba(0, 45, 98, 0.09);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, rgba(0, 45, 98, 0.08), transparent 58%);
+}
+
+.comingSoonOrbit::before,
+.comingSoonOrbit::after {
+  content: "";
+  position: absolute;
+  border: 1px solid rgba(0, 45, 98, 0.075);
+  border-radius: 50%;
+}
+
+.comingSoonOrbit::before {
+  inset: 14%;
+}
+
+.comingSoonOrbit::after {
+  inset: 30%;
+}
+
+.comingSoonOrbit > i {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--public-accent);
+  box-shadow: 0 0 0 7px rgba(236, 137, 29, 0.12);
+}
+
+.comingSoonOrbit > i:nth-child(1) {
+  top: 10%;
+  inset-inline-start: 33%;
+}
+
+.comingSoonOrbit > i:nth-child(2) {
+  inset-inline-end: 7%;
+  bottom: 34%;
+  width: 9px;
+  height: 9px;
+  background: var(--public-brand);
+  box-shadow: 0 0 0 7px rgba(0, 45, 98, 0.08);
+}
+
+.comingSoonOrbit > i:nth-child(3) {
+  inset-inline-start: 15%;
+  bottom: 17%;
+  width: 7px;
+  height: 7px;
+  background: #8da3ba;
+  box-shadow: 0 0 0 6px rgba(141, 163, 186, 0.1);
+}
+
+.comingSoonCenterMark {
+  position: relative;
+  z-index: 2;
+  width: 124px;
+  height: 124px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(0, 45, 98, 0.1);
+  border-radius: 32px;
+  background: #fff;
+  box-shadow: 0 24px 56px rgba(0, 45, 98, 0.14);
+}
+
+.comingSoonCenterMark :global(.brand-logo) {
+  width: 104px;
+  height: 104px;
+  margin: 0;
+  border-radius: 25px;
+}
+
+.comingSoonCopy {
+  display: grid;
+  justify-items: start;
+  gap: 14px;
+}
+
+.comingSoonBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 11px;
+  border: 1px solid rgba(236, 137, 29, 0.2);
+  border-radius: 999px;
+  background: var(--public-accent-soft);
+  color: #9a570f;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.comingSoonBadge > i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--public-accent);
+  box-shadow: 0 0 0 5px rgba(236, 137, 29, 0.1);
+}
+
+.comingSoonCopy h1 {
+  max-width: 700px;
+  margin: 0;
+  color: var(--public-brand);
+  font-size: clamp(42px, 6.2vw, 72px);
+  font-weight: 800;
+  line-height: 1.12;
+  letter-spacing: -0.04em;
+}
+
+.comingSoonCopy > p {
+  max-width: 650px;
+  margin: 0;
+  color: var(--public-muted);
+  font-size: 14px;
+  line-height: 2;
+}
+
+.comingSoonIdentity {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 1fr;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.comingSoonIdentity > div {
+  min-height: 78px;
+  display: grid;
+  align-content: center;
+  gap: 4px;
+  padding: 12px 14px;
+  border: 1px solid var(--public-border);
+  border-radius: 15px;
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.comingSoonIdentity span {
+  color: var(--public-muted);
+  font-size: 8px;
+  font-weight: 700;
+}
+
+.comingSoonIdentity strong {
+  color: var(--public-text);
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+.comingSoonPreview {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.comingSoonPreview > div {
+  min-height: 116px;
+  display: grid;
+  align-content: center;
+  gap: 8px;
+  padding: 16px;
+  border: 1px solid var(--public-border);
+  border-radius: 17px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.comingSoonPreview span {
+  color: var(--public-muted);
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.comingSoonPreview strong {
+  color: var(--public-brand);
+  font-size: 25px;
+}
+
+.comingSoonPreview i {
+  display: block;
+  height: 7px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #e8edf3, #f5f7fa);
+}
+
+.comingSoonPreview i:last-child {
+  width: 62%;
+}
+
+.comingSoonAuto {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 15px;
+  border: 1px solid rgba(0, 45, 98, 0.08);
+  border-radius: 15px;
+  background: rgba(238, 244, 251, 0.72);
+}
+
+.comingSoonPulse {
+  width: 11px;
+  height: 11px;
+  flex: 0 0 11px;
+  border-radius: 50%;
+  background: var(--public-brand);
+  box-shadow: 0 0 0 7px rgba(0, 45, 98, 0.08);
+}
+
+.comingSoonAuto > div {
+  display: grid;
+  gap: 2px;
+}
+
+.comingSoonAuto strong {
+  color: var(--public-brand);
+  font-size: 10px;
+}
+
+.comingSoonAuto small {
+  color: var(--public-muted);
+  font-size: 9px;
+  line-height: 1.6;
+}
+
 .publicHeader {
   position: sticky;
   z-index: 20;
@@ -1355,4 +1679,121 @@
   .loadingGrid > div {
     animation: none;
   }
+}
+
+@media (max-width: 760px) {
+  .comingSoonPage {
+    padding: 0;
+  }
+
+  .comingSoonShell {
+    width: 100%;
+    min-height: 100svh;
+    gap: 18px;
+    padding: 24px 18px 28px;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .comingSoonStage {
+    grid-template-columns: 1fr;
+    gap: 22px;
+    padding: 8px 0;
+  }
+
+  .comingSoonOrbit {
+    width: 210px;
+  }
+
+  .comingSoonCenterMark {
+    width: 92px;
+    height: 92px;
+    border-radius: 25px;
+  }
+
+  .comingSoonCenterMark :global(.brand-logo) {
+    width: 78px;
+    height: 78px;
+    border-radius: 19px;
+  }
+
+  .comingSoonCopy {
+    justify-items: center;
+    text-align: center;
+  }
+
+  .comingSoonCopy h1 {
+    font-size: 39px;
+  }
+
+  .comingSoonCopy > p {
+    font-size: 12px;
+  }
+
+  .comingSoonIdentity {
+    grid-template-columns: 1fr;
+    text-align: start;
+  }
+
+  .comingSoonIdentity > div {
+    min-height: 64px;
+  }
+
+  .comingSoonPreview {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .comingSoonPreview > div {
+    min-height: 92px;
+    padding: 12px;
+  }
+}
+
+@media (max-width: 430px) {
+  .comingSoonBrand strong {
+    font-size: 15px;
+  }
+
+  .comingSoonCopy h1 {
+    font-size: 34px;
+  }
+
+  .comingSoonPreview {
+    gap: 6px;
+  }
+
+  .comingSoonPreview > div {
+    min-height: 84px;
+    padding: 10px;
+  }
+
+  .comingSoonPreview span {
+    font-size: 8px;
+  }
+
+  .comingSoonPreview strong {
+    font-size: 20px;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .comingSoonOrbit {
+    animation: coming-soon-float 7s ease-in-out infinite;
+  }
+
+  .comingSoonPulse {
+    animation: coming-soon-pulse 2.2s ease-out infinite;
+  }
+}
+
+@keyframes coming-soon-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-7px); }
+}
+
+@keyframes coming-soon-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(0, 45, 98, 0.18); }
+  70% { box-shadow: 0 0 0 11px rgba(0, 45, 98, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(0, 45, 98, 0); }
 }

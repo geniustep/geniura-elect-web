@@ -1,10 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { BrandLogo } from "@/components/branding/brand-logo";
 import type {
   PublicResultList,
+  PublicResultsComingSoon,
+  PublicResultsPayload,
   PublicResultsSnapshot,
   PublicResultsState,
 } from "@/lib/elect/public-results";
@@ -14,7 +16,7 @@ import styles from "./results.module.css";
 type ApiResponse =
   | {
       success: true;
-      data: PublicResultsSnapshot;
+      data: PublicResultsPayload;
     }
   | {
       success: false;
@@ -182,6 +184,95 @@ function ResultBar({
   );
 }
 
+function ComingSoon({
+  snapshot,
+  refreshing,
+  connectionInterrupted,
+}: {
+  snapshot: PublicResultsComingSoon;
+  refreshing: boolean;
+  connectionInterrupted: boolean;
+}) {
+  return (
+    <main className={`${styles.page} ${styles.comingSoonPage}`}>
+      <section className={styles.comingSoonShell}>
+        <div className={styles.comingSoonBrand}>
+          <div className={styles.comingSoonLogo}>
+            <BrandLogo priority />
+          </div>
+          <div>
+            <span>{snapshot.election.name}</span>
+            <strong>{snapshot.constituency.name}</strong>
+          </div>
+        </div>
+
+        <div className={styles.comingSoonStage}>
+          <div className={styles.comingSoonOrbit} aria-hidden="true">
+            <i />
+            <i />
+            <i />
+            <div className={styles.comingSoonCenterMark}>
+              <BrandLogo />
+            </div>
+          </div>
+
+          <div className={styles.comingSoonCopy}>
+            <span className={styles.comingSoonBadge}>
+              <i aria-hidden="true" />
+              قريبًا
+            </span>
+            <h1>قريبًا… سنعرض النتائج هنا</h1>
+            <p>
+              ستظهر النتائج على هذه الصفحة فور إتاحتها، في عرض واضح ومحدّث
+              للأصوات والنسب والمقاعد.
+            </p>
+
+            <div className={styles.comingSoonIdentity}>
+              <div>
+                <span>الاستحقاق</span>
+                <strong>{snapshot.election.name}</strong>
+              </div>
+              <div>
+                <span>الدائرة</span>
+                <strong>{snapshot.constituency.name}</strong>
+              </div>
+              <div>
+                <span>التاريخ</span>
+                <strong>{formatElectionDate(snapshot.election.date)}</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className={styles.comingSoonPreview} aria-hidden="true">
+          {["الأصوات", "النسب", "المقاعد"].map((label) => (
+            <div key={label}>
+              <span>{label}</span>
+              <strong>—</strong>
+              <i />
+              <i />
+            </div>
+          ))}
+        </div>
+
+        <div className={styles.comingSoonAuto} aria-live="polite">
+          <span className={styles.comingSoonPulse} aria-hidden="true" />
+          <div>
+            <strong>
+              {refreshing ? "جارٍ التحقق من توفر النتائج…" : "هذه الصفحة تتحدث تلقائيًا"}
+            </strong>
+            <small>
+              {connectionInterrupted
+                ? "تعذر التحقق مؤقتًا، وسنحاول مرة أخرى تلقائيًا."
+                : "لا تحتاج إلى إعادة تحميل الصفحة عند إتاحة النتائج."}
+            </small>
+          </div>
+        </div>
+      </section>
+    </main>
+  );
+}
+
 function ResultsSummary({
   snapshot,
   onClose,
@@ -265,13 +356,13 @@ export function PublicResultsClient({
 }: {
   displayMode: "default" | "tv";
 }) {
-  const [snapshot, setSnapshot] = useState<PublicResultsSnapshot | null>(null);
+  const [snapshot, setSnapshot] = useState<PublicResultsPayload | null>(null);
   const [loadState, setLoadState] = useState<LoadState>("loading");
   const [refreshing, setRefreshing] = useState(false);
   const [connectionInterrupted, setConnectionInterrupted] = useState(false);
   const [summaryOpen, setSummaryOpen] = useState(false);
   const mountedRef = useRef(true);
-  const snapshotRef = useRef<PublicResultsSnapshot | null>(null);
+  const snapshotRef = useRef<PublicResultsPayload | null>(null);
 
   const fetchSnapshot = useCallback(async (initial = false) => {
     if (!initial) setRefreshing(true);
@@ -324,16 +415,6 @@ export function PublicResultsClient({
     };
   }, [fetchSnapshot]);
 
-  const lists = useMemo(
-    () => (snapshot ? sortedLists(snapshot.lists) : []),
-    [snapshot],
-  );
-
-  const featured = useMemo(
-    () => snapshot?.lists.find((item) => item.is_featured_party) ?? null,
-    [snapshot],
-  );
-
   if (loadState === "loading" && !snapshot) {
     return (
       <main className={styles.page} aria-busy="true">
@@ -371,6 +452,18 @@ export function PublicResultsClient({
 
   if (!snapshot) return null;
 
+  if (!snapshot.publication.visible) {
+    return (
+      <ComingSoon
+        snapshot={snapshot}
+        refreshing={refreshing}
+        connectionInterrupted={connectionInterrupted}
+      />
+    );
+  }
+
+  const lists = sortedLists(snapshot.lists);
+  const featured = snapshot.lists.find((item) => item.is_featured_party) ?? null;
   const status = stateCopy(snapshot.status.state);
   const noResults = snapshot.status.state === "NO_RESULTS";
   const seatLists = lists.filter(

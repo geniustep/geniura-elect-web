@@ -3,9 +3,11 @@ import { notFound, redirect } from "next/navigation";
 
 import { BrandLogo } from "@/components/branding/brand-logo";
 import { AppHeader } from "@/components/navigation/app-header";
+import { PublicResultsVisibilityControl } from "./public-results-visibility-control";
 import type {
   ConstituencyResult,
   ConstituencySummary,
+  ElectionSummary,
 } from "@/lib/elect/types";
 import { backendRequest } from "@/lib/server/backend";
 import {
@@ -16,6 +18,7 @@ import {
 export const dynamic = "force-dynamic";
 
 type ConstituenciesPayload = { items: ConstituencySummary[] };
+type ElectionDetailPayload = { election: ElectionSummary };
 
 function formatNumber(value: number) {
   return new Intl.NumberFormat("ar-MA").format(value);
@@ -36,10 +39,20 @@ export default async function ElectionResultsPage({
 
   const sessionId = await readElectSessionId();
 
+  let election: ElectionSummary;
   let constituencies: ConstituencySummary[];
   let results: ConstituencyResult[];
 
   try {
+    const electionData = await backendRequest<ElectionDetailPayload>(
+      `/api/v1/elections/${electionId}`,
+      {
+        method: "GET",
+        sessionId,
+      },
+    );
+    election = electionData.election;
+
     const data = await backendRequest<ConstituenciesPayload>(
       `/api/v1/elections/${electionId}/constituencies`,
       {
@@ -185,6 +198,13 @@ export default async function ElectionResultsPage({
             تمثل إعلانًا رسميًا للنتائج.
           </p>
         </div>
+
+        {user.role === "manager" ? (
+          <PublicResultsVisibilityControl
+            electionId={electionId}
+            initialVisible={election.public_results_visible}
+          />
+        ) : null}
 
         {!hasVerifiedMaterial ? (
           <section className="ge-results-empty">
