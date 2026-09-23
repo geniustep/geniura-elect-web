@@ -172,6 +172,7 @@ export function ProtocolEntryForm({
       ),
     );
 
+  /* eslint-disable react-hooks/set-state-in-effect -- browser-only draft hydration intentionally restores client state after mount. */
   useEffect(() => {
     if (typeof window === "undefined") return;
 
@@ -260,6 +261,8 @@ export function ProtocolEntryForm({
     shared,
     voteInputs,
   ]);
+
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const localChecks = useMemo(
     () =>
