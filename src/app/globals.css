@@ -7362,3 +7362,363 @@ a {
     white-space: normal;
   }
 }
+
+
+/* PV fast-entry workflow */
+.protocol-quick-toolbar {
+  display: grid;
+  gap: 16px;
+  padding: 18px 20px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background:
+    linear-gradient(135deg, rgba(238, 244, 251, 0.92), rgba(255, 255, 255, 0.98));
+}
+
+.quick-toolbar-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.quick-toolbar-heading h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.quick-toolbar-heading p:not(.eyebrow) {
+  margin: 5px 0 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.7;
+}
+
+.entry-mode-switch {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+}
+
+.entry-mode-switch button,
+.quick-tab,
+.quick-zero-button {
+  border: 0;
+  font: inherit;
+  cursor: pointer;
+}
+
+.entry-mode-switch button {
+  min-height: 36px;
+  padding: 7px 11px;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.entry-mode-switch button.is-active {
+  background: var(--accent);
+  color: #fff;
+}
+
+.quick-tabs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.quick-tab {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 48px;
+  padding: 10px 13px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--text);
+  text-align: start;
+}
+
+.quick-tab span {
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.quick-tab strong {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.quick-tab.is-active {
+  border-color: var(--accent);
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+
+.quick-tab.is-active strong {
+  color: var(--accent);
+}
+
+.quick-draft-state {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.draft-dot {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 8px;
+  border-radius: 50%;
+  background: var(--success);
+}
+
+.draft-dot.is-warning {
+  background: var(--ge-warning);
+}
+
+.section-entry-progress {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(160px, 0.7fr) auto;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-soft);
+}
+
+.section-entry-progress > div {
+  display: grid;
+  gap: 3px;
+}
+
+.section-entry-progress span {
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.section-entry-progress strong {
+  font-size: 13px;
+}
+
+.section-entry-progress progress {
+  width: 100%;
+  height: 9px;
+  accent-color: var(--accent);
+}
+
+.quick-zero-button {
+  min-height: 34px;
+  padding: 7px 10px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.quick-zero-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.quick-results-table .result-row input:focus,
+.sequential-vote-field input:focus {
+  outline: 3px solid var(--accent-soft);
+  border-color: var(--accent);
+}
+
+.quick-results-table .result-row input::placeholder {
+  color: #a7afbb;
+}
+
+.sequential-entry {
+  display: grid;
+  gap: 18px;
+  margin-top: 18px;
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface);
+}
+
+.sequential-step {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.sequential-step strong {
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  border-radius: 13px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 17px;
+}
+
+.sequential-party {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  min-width: 0;
+}
+
+.sequential-party-logo {
+  width: 74px;
+  height: 74px;
+  flex: 0 0 74px;
+  padding: 5px;
+  object-fit: contain;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: #fff;
+}
+
+.sequential-party > div {
+  min-width: 0;
+}
+
+.sequential-party h3 {
+  margin: 0;
+  font-size: 20px;
+  line-height: 1.45;
+}
+
+.sequential-party p {
+  margin: 5px 0 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.7;
+}
+
+.sequential-vote-field {
+  display: grid;
+  gap: 7px;
+}
+
+.sequential-vote-field > span {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.sequential-vote-field input {
+  width: 100%;
+  min-height: 68px;
+  padding: 10px 14px;
+  border: 2px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 30px;
+  font-weight: 900;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.sequential-vote-field small {
+  color: var(--muted);
+  font-size: 9px;
+  text-align: center;
+}
+
+.sequential-nav {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.sequential-nav button {
+  min-height: 46px;
+}
+
+.quick-empty-section {
+  display: grid;
+  gap: 5px;
+  margin-top: 18px;
+  padding: 18px;
+  border: 1px dashed var(--warning-border);
+  border-radius: 13px;
+  background: var(--warning-bg);
+}
+
+.quick-empty-section strong {
+  font-size: 12px;
+}
+
+.quick-empty-section span {
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.7;
+}
+
+@media (max-width: 760px) {
+  .quick-toolbar-heading {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .entry-mode-switch {
+    width: 100%;
+  }
+
+  .entry-mode-switch button {
+    flex: 1;
+  }
+
+  .section-entry-progress {
+    grid-template-columns: 1fr;
+  }
+
+  .quick-zero-button {
+    min-height: 40px;
+  }
+}
+
+@media (max-width: 580px) {
+  .protocol-quick-toolbar {
+    padding: 15px;
+    border-radius: 15px;
+  }
+
+  .quick-tabs {
+    grid-template-columns: 1fr;
+  }
+
+  .sequential-entry {
+    padding: 16px;
+  }
+
+  .sequential-party-logo {
+    width: 60px;
+    height: 60px;
+    flex-basis: 60px;
+  }
+
+  .sequential-party h3 {
+    font-size: 17px;
+  }
+
+  .sequential-vote-field input {
+    min-height: 72px;
+    font-size: 32px;
+  }
+}
