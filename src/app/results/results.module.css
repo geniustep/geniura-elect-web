@@ -1797,3 +1797,150 @@
   70% { box-shadow: 0 0 0 11px rgba(0, 45, 98, 0); }
   100% { box-shadow: 0 0 0 0 rgba(0, 45, 98, 0); }
 }
+
+
+/* Unified public candidate-list identity */
+.resultPartyLogo,
+.summaryPartyLogo,
+.seatPartyLogo {
+  display: block;
+  object-fit: contain;
+  border: 1px solid var(--public-border);
+  background: #fff;
+}
+
+.resultPartyLogo,
+.resultPartyLogoFallback {
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  border-radius: 11px;
+}
+
+.resultPartyLogo {
+  padding: 3px;
+}
+
+.resultPartyLogoFallback {
+  display: block;
+  border: 1px dashed var(--public-border);
+  background: #f8fafc;
+}
+
+.resultIdentityCopy {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.resultIdentityCopy small {
+  overflow: hidden;
+  color: var(--public-muted);
+  font-size: 9px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.summaryPartyIdentity {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 28px 34px minmax(0, 1fr);
+  align-items: center;
+  gap: 7px;
+}
+
+.summaryBallotNumber {
+  color: var(--public-brand);
+  font-size: 10px;
+  font-weight: 900;
+  text-align: center;
+}
+
+.summaryPartyLogo {
+  width: 34px;
+  height: 34px;
+  padding: 2px;
+  border-radius: 8px;
+}
+
+.summaryPartyIdentity > span:last-child {
+  min-width: 0;
+  display: grid;
+  gap: 1px;
+}
+
+.summaryPartyIdentity > span:last-child strong {
+  overflow: hidden;
+  color: var(--public-text);
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: start;
+}
+
+.summaryPartyIdentity > span:last-child small {
+  overflow: hidden;
+  color: var(--public-muted);
+  font-size: 8px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: start;
+}
+
+.seatPartyIdentity {
+  min-width: 0;
+  display: flex !important;
+  align-items: center;
+  gap: 9px;
+}
+
+.seatPartyLogo {
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+  padding: 2px;
+  border-radius: 9px;
+}
+
+.seatPartyIdentity > span:last-child {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.seatPartyIdentity > span:last-child strong {
+  overflow: hidden;
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.seatPartyIdentity > span:last-child small {
+  color: var(--public-muted);
+  font-size: 8px;
+}
+
+@media (max-width: 600px) {
+  .resultPartyLogo,
+  .resultPartyLogoFallback {
+    width: 40px;
+    height: 40px;
+    flex-basis: 40px;
+  }
+
+  .summaryPartyIdentity {
+    grid-template-columns: 24px 30px minmax(0, 1fr);
+    gap: 6px;
+  }
+
+  .summaryPartyLogo {
+    width: 30px;
+    height: 30px;
+  }
+
+  .seatPartyLogo {
+    width: 32px;
+    height: 32px;
+    flex-basis: 32px;
+  }
+}

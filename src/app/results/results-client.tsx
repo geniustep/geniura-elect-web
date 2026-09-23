@@ -133,6 +133,13 @@ function sortedLists(lists: PublicResultList[]) {
   });
 }
 
+function listLogoUrl(item: PublicResultList) {
+  if (!item.has_logo || item.ballot_number === null) return null;
+  return `/api/public/results/list-logo/${encodeURIComponent(
+    String(item.ballot_number),
+  )}`;
+}
+
 function ResultBar({
   item,
   noResults,
@@ -153,11 +160,24 @@ function ResultBar({
         <span className={styles.ballotNumber}>
           {item.ballot_number ?? "—"}
         </span>
-        <div>
+        {listLogoUrl(item) ? (
+          <img
+            className={styles.resultPartyLogo}
+            src={listLogoUrl(item) ?? undefined}
+            alt={`شعار ${partyLabel}`}
+            loading="lazy"
+          />
+        ) : (
+          <span className={styles.resultPartyLogoFallback} aria-hidden="true" />
+        )}
+        <div className={styles.resultIdentityCopy}>
           <strong>{partyLabel}</strong>
-          {item.party_name && item.name !== item.party_name ? (
-            <small>{item.name}</small>
-          ) : null}
+          <small>
+            {item.symbol_name ? `الرمز: ${item.symbol_name}` : "الرمز غير متوفر"}
+            {item.party_name && item.name !== item.party_name
+              ? ` · ${item.name}`
+              : ""}
+          </small>
         </div>
       </div>
 
@@ -333,9 +353,23 @@ function ResultsSummary({
               className={item.is_featured_party ? styles.summaryFeatured : ""}
               key={`${item.ballot_number ?? "x"}-${item.name}`}
             >
-              <span>
-                {item.ballot_number ?? "—"} · {item.party_name || item.name}
-              </span>
+              <div className={styles.summaryPartyIdentity}>
+                <span className={styles.summaryBallotNumber}>
+                  {item.ballot_number ?? "—"}
+                </span>
+                {listLogoUrl(item) ? (
+                  <img
+                    className={styles.summaryPartyLogo}
+                    src={listLogoUrl(item) ?? undefined}
+                    alt={`شعار ${item.party_name || item.name}`}
+                    loading="lazy"
+                  />
+                ) : null}
+                <span>
+                  <strong>{item.party_name || item.name}</strong>
+                  {item.symbol_name ? <small>{item.symbol_name}</small> : null}
+                </span>
+              </div>
               <strong>{formatInteger(item.votes)}</strong>
               <small>{formatPercent(item.percentage)}</small>
               <small>
@@ -663,11 +697,22 @@ export function PublicResultsClient({
               <div className={styles.seatRows}>
                 {seatLists.map((item) => (
                   <div className={styles.seatRow} key={`seat-${item.name}`}>
-                    <div>
+                    <div className={styles.seatPartyIdentity}>
                       <span className={styles.ballotNumber}>
                         {item.ballot_number ?? "—"}
                       </span>
-                      <strong>{item.party_name || item.name}</strong>
+                      {listLogoUrl(item) ? (
+                        <img
+                          className={styles.seatPartyLogo}
+                          src={listLogoUrl(item) ?? undefined}
+                          alt={`شعار ${item.party_name || item.name}`}
+                          loading="lazy"
+                        />
+                      ) : null}
+                      <span>
+                        <strong>{item.party_name || item.name}</strong>
+                        {item.symbol_name ? <small>{item.symbol_name}</small> : null}
+                      </span>
                     </div>
                     <div className={styles.seatDots} aria-hidden="true">
                       {Array.from({ length: item.seats ?? 0 }).map((_, index) => (

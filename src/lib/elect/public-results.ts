@@ -15,6 +15,8 @@ export type PublicResultList = {
   name: string;
   party_name: string | null;
   party_short_name: string | null;
+  symbol_name: string | null;
+  has_logo: boolean;
   is_featured_party: boolean;
   votes: number;
   percentage: number | null;
